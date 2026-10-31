@@ -8,7 +8,6 @@ name: Android APK bouwen
 on:
   push:
     branches: [main]
-    tags: ['v*']
   workflow_dispatch:
 
 jobs:
@@ -90,12 +89,23 @@ jobs:
           fi
           rm -f "$KS"
 
-      - name: Release op GitHub (bij een versietag, bijvoorbeeld v1.1.0)
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Versie bepalen
+        id: v
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VN=$(node -p "require('./package.json').version")
+          echo "tag=v$VN" >> "$GITHUB_OUTPUT"
+          if gh release view "v$VN" > /dev/null 2>&1; then echo "nieuw=false" >> "$GITHUB_OUTPUT"; else echo "nieuw=true" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Release op GitHub (alleen bij een nieuw versienummer)
+        if: steps.v.outputs.nieuw == 'true' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          name: Boa Paraat ${{ github.ref_name }}
-          body_path: release-notities/${{ github.ref_name }}.md
+          tag_name: ${{ steps.v.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: Boa Paraat ${{ steps.v.outputs.tag }}
+          body_path: release-notities/${{ steps.v.outputs.tag }}.md
           files: |
             Boa-Paraat.apk
             Boa-Paraat.aab

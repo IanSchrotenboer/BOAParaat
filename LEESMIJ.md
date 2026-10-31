@@ -121,7 +121,7 @@ Dit script doet bij elke update hetzelfde:
 1. Zet het nieuwe versienummer in `package.json` (bijvoorbeeld `1.2.0`).
 2. Schrijf `release-notities/v1.2.0.md`. De punten onder **## Nieuw** verschijnen na de update één keer in de app, in het venster "Nieuw in Boa Paraat".
 3. Draai `python3 release.py` en zet alles in GitHub.
-4. Maak een tag `v1.2.0` (in GitHub: **Releases → Draft a new release → Choose a tag**). GitHub bouwt dan de APK en zet hem met de notities op de pagina **Releases**, met een vaste downloadlink.
+4. GitHub ziet het nieuwe versienummer, bouwt de APK en zet hem met de notities op de pagina **Releases**, met een vaste downloadlink. Latere updates met hetzelfde versienummer komen alleen bij **Actions**.
 
 Gaat er iets mis, dan stopt het script, noemt het wat er mis is en pakt het niets in. `python3 release.py --snel` slaat de browsertests over.
 
