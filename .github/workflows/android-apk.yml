@@ -1,5 +1,10 @@
 name: Android APK bouwen
 
+# Bouwt bij elke update een release-APK (en een AAB voor de Play Store), ondertekend met de vaste sleutel
+# uit de GitHub-geheimen. Zo kan een nieuwe versie over de vorige heen worden geïnstalleerd.
+# Geheimen (Settings → Secrets and variables → Actions): ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS.
+# Zonder die geheimen wordt met een tijdelijke sleutel ondertekend: dan kan een update NIET over de oude versie heen.
+
 on:
   push:
     branches: [main]
@@ -8,6 +13,8 @@ on:
 jobs:
   apk:
     runs-on: ubuntu-latest
+    env:
+      HEEFT_SLEUTEL: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -30,19 +37,45 @@ jobs:
 
       - name: App-iconen maken
         continue-on-error: true
-        run: npx capacitor-assets generate --android --iconBackgroundColor "#24406b" --splashBackgroundColor "#24406b"
+        run: npx capacitor-assets generate --android --iconBackgroundColor "#2c4a73" --splashBackgroundColor "#2c4a73"
 
-      - name: APK bouwen
+      - name: Versienummer zetten (elke bouw een hoger nummer)
+        run: |
+          sed -i -E "s/versionCode [0-9]+/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"1.0.${{ github.run_number }}\"/" android/app/build.gradle
+          grep -E "versionCode|versionName" android/app/build.gradle
+
+      - name: Release-versie bouwen
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease bundleRelease
 
-      - name: APK hernoemen
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk Boa-Paraat.apk
+      - name: Ondertekenen
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KS_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          KS="$RUNNER_TEMP/release.keystore"
+          if [ "$HEEFT_SLEUTEL" = "true" ]; then
+            echo "$KS_B64" | base64 -d > "$KS"
+          else
+            echo "::warning::Geen vaste sleutel ingesteld. Deze APK is ondertekend met een tijdelijke sleutel en kan niet over een eerdere versie heen worden geïnstalleerd. Zie LEESMIJ.md, 'Vaste sleutel'."
+            KS_PASS=$(openssl rand -hex 16); KS_ALIAS=tijdelijk; export KS_PASS
+            keytool -genkeypair -keystore "$KS" -storetype PKCS12 -alias "$KS_ALIAS" -keyalg RSA -keysize 2048 -validity 365 -dname "CN=Boa Paraat test" -storepass "$KS_PASS" -keypass "$KS_PASS"
+          fi
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          "$BT/zipalign" -p -f 4 android/app/build/outputs/apk/release/app-release-unsigned.apk "$RUNNER_TEMP/aligned.apk"
+          "$BT/apksigner" sign --ks "$KS" --ks-pass env:KS_PASS --ks-key-alias "$KS_ALIAS" --key-pass env:KS_PASS --out Boa-Paraat.apk "$RUNNER_TEMP/aligned.apk"
+          "$BT/apksigner" verify --print-certs Boa-Paraat.apk | grep -E "Signer #1 certificate (DN|SHA-256)"
+          cp android/app/build/outputs/bundle/release/app-release.aab Boa-Paraat.aab
+          jarsigner -keystore "$KS" -storetype PKCS12 -storepass:env KS_PASS -keypass:env KS_PASS -sigalg SHA256withRSA -digestalg SHA-256 Boa-Paraat.aab "$KS_ALIAS" > /dev/null
+          rm -f "$KS"
 
       - name: APK beschikbaar maken
         uses: actions/upload-artifact@v4
         with:
           name: Boa-Paraat-apk
-          path: Boa-Paraat.apk
+          path: |
+            Boa-Paraat.apk
+            Boa-Paraat.aab

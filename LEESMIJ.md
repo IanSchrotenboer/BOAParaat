@@ -22,7 +22,26 @@ Een iPhone kan geen APK installeren. Voor iPhone gebruik je route B of C.
 4. Klik op de afgeronde taak en download onderaan **Boa-Paraat-apk**. Daarin zit `Boa-Paraat.apk`.
 5. Zet de APK op je Android-telefoon (bijvoorbeeld via e-mail of Google Drive) en open hem. Sta toe dat je browser of bestandsbeheer apps installeert ("onbekende bronnen").
 
-Dit is een testversie (debug-APK). Die is prima om te installeren en te delen met collega's. Voor publicatie in de Google Play Store heb je een ondertekende release-versie en een ontwikkelaarsaccount (eenmalig $ 25) nodig.
+De APK is een release-versie met een oplopend versienummer. Met de **vaste sleutel** (zie hieronder) installeer je een nieuwe versie gewoon over de vorige heen; je voortgang blijft bewaard. In dezelfde download zit ook `Boa-Paraat.aab`: dat bestand upload je naar de Google Play Store (ontwikkelaarsaccount nodig).
+
+### Vaste sleutel instellen (eenmalig)
+
+Android accepteert een update alleen als hij met dezelfde sleutel is ondertekend als de geïnstalleerde versie. Die sleutel staat niet in de repository (die is openbaar), maar als geheim in GitHub:
+
+1. Ga in je repository naar **Settings → Secrets and variables → Actions → New repository secret**.
+2. Maak deze drie geheimen aan:
+
+   | Naam | Waarde |
+   |---|---|
+   | `ANDROID_KEYSTORE_BASE64` | de hele inhoud van `keystore-base64.txt` |
+   | `ANDROID_KEYSTORE_PASSWORD` | het wachtwoord van de sleutel |
+   | `ANDROID_KEY_ALIAS` | `boaparaat` |
+
+3. Start in **Actions** de taak **Android APK bouwen** opnieuw (**Run workflow**).
+
+Bewaar het sleutelbestand en het wachtwoord op een veilige plek, bijvoorbeeld in een wachtwoordkluis. **Raak je ze kwijt, dan kun je de app nooit meer bijwerken**: gebruikers moeten dan de app verwijderen en een nieuwe installeren. Deel ze met niemand.
+
+Zonder deze geheimen bouwt GitHub nog steeds een APK, maar met een tijdelijke sleutel; die kan niet over een eerdere versie heen worden geïnstalleerd.
 
 ## B. Web-app op het beginscherm (iPhone en Android)
 
