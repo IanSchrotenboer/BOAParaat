@@ -116,6 +116,10 @@ Dit script doet bij elke update hetzelfde:
 6. verhoogt bij een gewijzigde app het versienummer in `www/sw.js`, zodat iedereen de update krijgt;
 7. pakt `uit/Boa-Paraat-app.zip` en `uit/Boa-Paraat-web.zip` in.
 
+### Vragen toevoegen of aanpassen
+
+Vragen staan in `bron/q1.js` tot en met `bron/q5.js`. Schrijf ze volgens `bron/SCHRIJFWIJZER.md` (examentaal, vier aannemelijke antwoorden, uitleg en bron). Het releasescript controleert de regels die automatisch te controleren zijn. Laat bij een herschreven vraag het zesde veld (de vaste code) staan, dan blijft de voortgang van gebruikers bewaard.
+
 ### Een nieuwe versie uitbrengen
 
 1. Zet het nieuwe versienummer in `package.json` (bijvoorbeeld `1.2.0`).

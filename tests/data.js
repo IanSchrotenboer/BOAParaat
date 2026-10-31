@@ -9,7 +9,7 @@ const src=['q1.js','q2.js','q3.js','q4.js','q5.js','stof.js'].map(B).join('\n')+
 const {Q,CATS,MODS,STOF,STOF_CAT,STOF_ART}=new Function(src)();
 const bad=[],warn=[];
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return "q"+(h>>>0).toString(36)}
-const ids=new Map();const perCat={};
+const ids=new Map(),teksten=new Map();const perCat={};
 Q.forEach((r,i)=>{
   const at=`vraag #${i} (${String(r[1]).slice(0,50)})`;
   if(!Array.isArray(r)||r.length<4){bad.push(at+': verkeerd formaat');return}
@@ -19,7 +19,16 @@ Q.forEach((r,i)=>{
   if(!e||e.trim().length<10)bad.push(at+': uitleg ontbreekt');
   if(!Array.isArray(o)||o.length!==4)bad.push(at+': niet precies 4 antwoorden');
   else{const n=o.map(x=>String(x).trim().toLowerCase());if(n.some(x=>!x))bad.push(at+': leeg antwoord');if(new Set(n).size!==4)bad.push(at+': dubbel antwoord')}
-  const h=hash(q);if(ids.has(h))bad.push(at+': zelfde vraag als #'+ids.get(h));ids.set(h,i);
+  if(!r[5])bad.push(at+': vaste vraagcode (6e veld) ontbreekt; voortgang zou verloren gaan bij herschrijven');
+  const h=r[5]||hash(q);if(ids.has(h))bad.push(at+': zelfde vraagcode als #'+ids.get(h));ids.set(h,i);
+  if(teksten.has(q))bad.push(at+': zelfde vraagtekst als #'+teksten.get(q));teksten.set(q,i);
+  // schrijfwijzer (bron/SCHRIJFWIJZER.md)
+  if(!/\?$/.test(q.trim()))bad.push(at+': vraag eindigt niet met een vraagteken');
+  if(/\b(art|max|bijv)\.\s|\bOvJ\b|\bpv\b/.test(q))bad.push(at+': afkorting in de vraag (schrijf voluit)');
+  if(Array.isArray(o))o.forEach((x,k)=>{x=String(x);
+    if(!/[.?!]['"’”]?$/.test(x))bad.push(at+`: antwoord ${k+1} eindigt niet met een punt`);
+    if(/^[a-zà-ÿ]/.test(x))bad.push(at+`: antwoord ${k+1} begint niet met een hoofdletter`);
+    if(/\b(art|max|bijv)\.\s|\bOvJ\b|\bpv\b/.test(x))bad.push(at+`: afkorting in antwoord ${k+1} (schrijf voluit)`)});
   perCat[c]=(perCat[c]||0)+1;
 });
 for(const c of Object.keys(CATS)){if(!perCat[c])bad.push('categorie zonder vragen: '+c);else if(perCat[c]<10)warn.push(`categorie ${c} heeft maar ${perCat[c]} vragen`)}

@@ -59,7 +59,8 @@ const MODS = [
 ];
 const MODBY = Object.fromEntries(MODS.map(m=>[m.id,m]));
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return "q"+(h>>>0).toString(36)}
-const ALL = [].concat(Q1,Q2,Q3,Q4,Q5).map(r=>({id:hash(r[1]),c:r[0],m:CATS[r[0]][0],q:r[1],o:r[2],e:r[3],r:r[4]||""}));
+// vaste code per vraag (6e veld): blijft gelijk als de vraagtekst wordt herschreven, zodat de voortgang bewaard blijft
+const ALL = [].concat(Q1,Q2,Q3,Q4,Q5).map(r=>({id:r[5]||hash(r[1]),c:r[0],m:CATS[r[0]][0],q:r[1],o:r[2],e:r[3],r:r[4]||""}));
 const BYID = Object.fromEntries(ALL.map(q=>[q.id,q]));
 
 // ---------- opslag ----------
