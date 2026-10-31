@@ -74,6 +74,9 @@ jobs:
           stap "zipalign" "$BT/zipalign" -p -f 4 "$APK" "$RUNNER_TEMP/aligned.apk"
           stap "apksigner" "$BT/apksigner" sign --ks "$KS" --ks-type PKCS12 --ks-pass env:KS_PASS --ks-key-alias "$KS_ALIAS" --key-pass env:KS_PASS --out Boa-Paraat.apk "$RUNNER_TEMP/aligned.apk"
           stap "Controle handtekening" "$BT/apksigner" verify --print-certs Boa-Paraat.apk
+          FP=$("$BT/apksigner" verify --print-certs Boa-Paraat.apk | grep -m1 "SHA-256 digest" | awk '{print toupper($NF)}' | sed 's/../&:/g;s/:$//')
+          VC=$(grep -m1 -oE "versionName \"[^\"]+\"" android/app/build.gradle)
+          echo "::notice title=Ondertekend::$VC · sleutel SHA-256 $FP"
           if [ -n "$AAB" ]; then
             cp "$AAB" Boa-Paraat.aab
             stap "AAB ondertekenen" jarsigner -keystore "$KS" -storetype PKCS12 -storepass:env KS_PASS -keypass:env KS_PASS -sigalg SHA256withRSA -digestalg SHA-256 Boa-Paraat.aab "$KS_ALIAS"
