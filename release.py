@@ -189,7 +189,7 @@ SKIP = {'uit', 'node_modules', 'android', 'ios', '.git', '__pycache__'}
 def zip_map(doel, bron, prefix=''):
     with zipfile.ZipFile(doel, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as z:
         for d_, dirs, files in os.walk(bron):
-            dirs[:] = sorted(x for x in dirs if x not in SKIP)
+            dirs[:] = sorted(x for x in dirs if not (x in SKIP and (d_ == bron or x in ('node_modules', '.git', '__pycache__'))))
             for f_ in sorted(files):
                 p = os.path.join(d_, f_); z.write(p, os.path.join(prefix, os.path.relpath(p, bron)))
 zip_map(os.path.join(UIT, 'Boa-Paraat-app.zip'), ROOT)
