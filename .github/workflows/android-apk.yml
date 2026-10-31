@@ -56,20 +56,28 @@ jobs:
           KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           KS_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
+          # elke stap meldt bij een fout zelf wat er misging (zichtbaar als melding in Actions)
+          stap(){ naam="$1"; shift; if ! uit=$("$@" 2>&1); then echo "$uit"; echo "::error title=$naam::$(echo "$uit" | tail -n 8 | sed ':a;N;$!ba;s/\n/%0A/g')"; exit 1; fi; echo "$uit" | tail -n 3; }
           KS="$RUNNER_TEMP/release.keystore"
           if [ "$HEEFT_SLEUTEL" = "true" ]; then
-            echo "$KS_B64" | base64 -d > "$KS"
+            echo "$KS_B64" | base64 -d > "$KS" || { echo "::error title=Sleutel::ANDROID_KEYSTORE_BASE64 is geen geldige base64-tekst"; exit 1; }
           else
             echo "::warning::Geen vaste sleutel ingesteld. Deze APK is ondertekend met een tijdelijke sleutel en kan niet over een eerdere versie heen worden geïnstalleerd. Zie LEESMIJ.md, 'Vaste sleutel'."
-            KS_PASS=$(openssl rand -hex 16); KS_ALIAS=tijdelijk; export KS_PASS
-            keytool -genkeypair -keystore "$KS" -storetype PKCS12 -alias "$KS_ALIAS" -keyalg RSA -keysize 2048 -validity 365 -dname "CN=Boa Paraat test" -storepass "$KS_PASS" -keypass "$KS_PASS"
+            KS_PASS=$(openssl rand -hex 16); KS_ALIAS=tijdelijk; export KS_PASS KS_ALIAS
+            stap "Tijdelijke sleutel" keytool -genkeypair -keystore "$KS" -storetype PKCS12 -alias "$KS_ALIAS" -keyalg RSA -keysize 2048 -validity 365 -dname "CN=Boa Paraat test" -storepass "$KS_PASS" -keypass "$KS_PASS"
           fi
-          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
-          "$BT/zipalign" -p -f 4 android/app/build/outputs/apk/release/app-release-unsigned.apk "$RUNNER_TEMP/aligned.apk"
-          "$BT/apksigner" sign --ks "$KS" --ks-pass env:KS_PASS --ks-key-alias "$KS_ALIAS" --key-pass env:KS_PASS --out Boa-Paraat.apk "$RUNNER_TEMP/aligned.apk"
-          "$BT/apksigner" verify --print-certs Boa-Paraat.apk | grep -E "Signer #1 certificate (DN|SHA-256)"
-          cp android/app/build/outputs/bundle/release/app-release.aab Boa-Paraat.aab
-          jarsigner -keystore "$KS" -storetype PKCS12 -storepass:env KS_PASS -keypass:env KS_PASS -sigalg SHA256withRSA -digestalg SHA-256 Boa-Paraat.aab "$KS_ALIAS" > /dev/null
+          APK=$(ls android/app/build/outputs/apk/release/*.apk 2>/dev/null | head -n 1)
+          AAB=$(ls android/app/build/outputs/bundle/release/*.aab 2>/dev/null | head -n 1)
+          [ -n "$APK" ] || { echo "::error title=Geen APK::$(find android/app/build/outputs -maxdepth 3 | tr '\n' ' ')"; exit 1; }
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1)
+          echo "build-tools: $BT, apk: $APK, aab: $AAB"
+          stap "zipalign" "$BT/zipalign" -p -f 4 "$APK" "$RUNNER_TEMP/aligned.apk"
+          stap "apksigner" "$BT/apksigner" sign --ks "$KS" --ks-type PKCS12 --ks-pass env:KS_PASS --ks-key-alias "$KS_ALIAS" --key-pass env:KS_PASS --out Boa-Paraat.apk "$RUNNER_TEMP/aligned.apk"
+          stap "Controle handtekening" "$BT/apksigner" verify --print-certs Boa-Paraat.apk
+          if [ -n "$AAB" ]; then
+            cp "$AAB" Boa-Paraat.aab
+            stap "AAB ondertekenen" jarsigner -keystore "$KS" -storetype PKCS12 -storepass:env KS_PASS -keypass:env KS_PASS -sigalg SHA256withRSA -digestalg SHA-256 Boa-Paraat.aab "$KS_ALIAS"
+          fi
           rm -f "$KS"
 
       - name: APK beschikbaar maken
