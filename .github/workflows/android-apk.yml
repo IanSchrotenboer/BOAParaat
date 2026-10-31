@@ -8,11 +8,14 @@ name: Android APK bouwen
 on:
   push:
     branches: [main]
+    tags: ['v*']
   workflow_dispatch:
 
 jobs:
   apk:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       HEEFT_SLEUTEL: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
     steps:
@@ -44,7 +47,8 @@ jobs:
 
       - name: Versienummer zetten (elke bouw een hoger nummer)
         run: |
-          sed -i -E "s/versionCode [0-9]+/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"1.0.${{ github.run_number }}\"/" android/app/build.gradle
+          VN=$(node -p "require('./package.json').version")
+          sed -i -E "s/versionCode [0-9]+/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"$VN\"/" android/app/build.gradle
           grep -E "versionCode|versionName" android/app/build.gradle
 
       - name: Release-versie bouwen
@@ -85,6 +89,16 @@ jobs:
             stap "AAB ondertekenen" jarsigner -keystore "$KS" -storetype PKCS12 -storepass:env KS_PASS -keypass:env KS_PASS -sigalg SHA256withRSA -digestalg SHA-256 Boa-Paraat.aab "$KS_ALIAS"
           fi
           rm -f "$KS"
+
+      - name: Release op GitHub (bij een versietag, bijvoorbeeld v1.1.0)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Boa Paraat ${{ github.ref_name }}
+          body_path: release-notities/${{ github.ref_name }}.md
+          files: |
+            Boa-Paraat.apk
+            Boa-Paraat.aab
 
       - name: APK beschikbaar maken
         uses: actions/upload-artifact@v4

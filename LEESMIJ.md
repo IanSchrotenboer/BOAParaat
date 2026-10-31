@@ -116,6 +116,13 @@ Dit script doet bij elke update hetzelfde:
 6. verhoogt bij een gewijzigde app het versienummer in `www/sw.js`, zodat iedereen de update krijgt;
 7. pakt `uit/Boa-Paraat-app.zip` en `uit/Boa-Paraat-web.zip` in.
 
+### Een nieuwe versie uitbrengen
+
+1. Zet het nieuwe versienummer in `package.json` (bijvoorbeeld `1.2.0`).
+2. Schrijf `release-notities/v1.2.0.md`. De punten onder **## Nieuw** verschijnen na de update één keer in de app, in het venster "Nieuw in Boa Paraat".
+3. Draai `python3 release.py` en zet alles in GitHub.
+4. Maak een tag `v1.2.0` (in GitHub: **Releases → Draft a new release → Choose a tag**). GitHub bouwt dan de APK en zet hem met de notities op de pagina **Releases**, met een vaste downloadlink.
+
 Gaat er iets mis, dan stopt het script, noemt het wat er mis is en pakt het niets in. `python3 release.py --snel` slaat de browsertests over.
 
 Nodig voor de browsertests: Node.js 20 of nieuwer en Playwright (`npm install --no-save playwright` en `npx playwright install chromium`). Op GitHub draait de taak **Testen** dit automatisch bij elke upload.

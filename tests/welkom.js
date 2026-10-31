@@ -70,6 +70,23 @@ async function kies(p,id,label){await p.click('#'+id+'-cs');await w(120);await p
   }
   t(!p._errs.length,'akte: geen JS-fouten'+(p._errs.length?': '+p._errs.join(' | '):''));
   await p.context().close();
+  // 'Nieuw in deze versie': één keer na een update, niet voor nieuwe gebruikers
+  const ctxN=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});p=await ctxN.newPage();p._errs=[];p.on('pageerror',e=>p._errs.push(e.message));
+  await p.addInitScript(()=>{Object.defineProperty(Navigator.prototype,'webdriver',{get:()=>false})});
+  await p.goto(BOA_URL+'#home');await p.evaluate(()=>{localStorage.setItem('phb-trainer-v1',JSON.stringify({s:{},h:[],x:[],p:{naam:'Oud',dom:'1',werk:'X',akte:'2027-01-01',ob:1}}))});await p.reload();await w(2400);
+  t(await p.locator('.nieuwdlg').isVisible(),'bestaande gebruiker ziet "Nieuw in Boa Paraat" na de update');
+  t(await p.locator('.nieuw li').count()===5,'venster toont de 5 nieuwe punten');
+  await p.screenshot({path:SHOTS+'/nieuw.png'});
+  await p.keyboard.press('Escape');await w(150);t(!(await p.locator('.nieuwdlg').count()),'Esc sluit het venster');
+  await p.reload();await w(2400);t(!(await p.locator('.nieuwdlg').count()),'venster komt maar één keer');
+  await p.evaluate(()=>location.hash='profiel');await w(150);await p.click('[data-act="nieuw"]');await w(150);
+  t(await p.locator('.nieuwdlg').isVisible(),'profiel: "Wat is er nieuw" opent het venster opnieuw');
+  await p.click('.nieuwdlg .btn.hi');await w(150);t(!(await p.locator('.nieuwdlg').count()),'knop "Aan de slag" sluit het venster');
+  await p.evaluate(()=>localStorage.clear());await p.reload();await w(1500);
+  await p.fill('#obNaam','Nieuw Mens');await p.fill('#obWerk','Gemeente');await kies(p,'obRol','Scholier');await p.click('[data-act="ob-dom"][data-v="1"]');await p.click('.wgo');await w(2000);
+  t(!(await p.locator('.nieuwdlg').count()),'nieuwe gebruiker krijgt het venster niet');
+  t(!p._errs.length,'nieuw: geen JS-fouten'+(p._errs.length?': '+p._errs.join(' | '):''));
+  await ctxN.close();
   // bestaande gebruiker van vóór deze keuze: wordt als werkend gezien
   p=await fresh(b,true);
   await p.evaluate(()=>{localStorage.setItem('phb-trainer-v1',JSON.stringify({s:{},h:[],x:[],p:{naam:'Oud',dom:'1',werk:'X',akte:'2027-01-01',ob:1}}))});await p.reload();await w(150);

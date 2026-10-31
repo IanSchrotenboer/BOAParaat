@@ -34,6 +34,7 @@
 (function(){
 "use strict";
 // ---------- configuratie ----------
+/*__VERSIE__*/
 const CATS = {
   sr:["phb1","Staatsrecht"], ro:["phb1","Rechterlijke organisatie en OM"], boa:["phb1","Opsporingsambtenaar, boa en privacy"], pol:["phb1","De politie"],
   str:["phb1","Materieel en formeel strafrecht"], vd:["phb1","Verdachte, verhoor en raadsman"], bev:["phb1","Bevoegdheden algemeen en jeugd"], kl:["phb1","Vervolging en klachtdelicten"],
@@ -440,6 +441,7 @@ function viewProfile(tab){
       ${showExport?`<div class="field"><label for="expCode">Jouw voortgangscode</label><textarea id="expCode" readonly>${esc(exportCode())}</textarea></div>`:""}
       ${showImport?`<div class="field"><label for="impCode">Plak hier je voortgangscode</label><textarea id="impCode" placeholder="Begint met PHB1:"></textarea><div><button class="btn go" data-act="import-go">Voortgang laden</button></div><p class="small">Let op: dit vervangt de voortgang op dit apparaat.</p></div>`:""}
     </div>
+    <p class="small vers">Boa Paraat versie ${esc(APP_VERSIE)} · <button type="button" class="linkbtn" data-act="nieuw">Wat is er nieuw</button></p>
     <div class="row" style="justify-content:flex-end">${confirmReset?`<div class="confirm row"><span>Profiel, voortgang en resultaten wissen?</span><button class="btn danger" data-act="reset-yes">Ja, wissen</button><button class="btn" data-act="reset-no">Annuleren</button></div>`:`<button class="btn ghost" data-act="reset">Alles wissen</button>`}</div>
   </div>`;
 }
@@ -644,7 +646,7 @@ window.addEventListener("hashchange",()=>{
 });
 if(route()==="sessie"&&!S)location.hash="home";
 if(route()==="wv"&&!W&&store.wd&&wvGet(store.wd.sc,store.wd.seed)){W={...store.wd};if(W.phase==="film1"||W.phase==="film2")W.restart=1;if(W.phase==="pauze")W.p0=Date.now();wvTimer()}
-render();window.__launchDone&&window.__launchDone();mldInit();
+render();window.__launchDone&&window.__launchDone();mldInit();nieuwCheck();
 if(route()==="profiel-phb3"){const el=document.getElementById("pmod-phb3");if(el)el.scrollIntoView({block:"start"})}
 (function(){const r=route();if(r.indexOf("stof-")===0){const el=document.getElementById("s-"+r.slice(5));if(el)el.scrollIntoView({block:"start"})}})();
 })();

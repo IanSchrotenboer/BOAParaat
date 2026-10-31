@@ -45,7 +45,7 @@ function obSubmit(){
   if(!obDom)obErr.dom="Kies je domein.";
   if(obExam&&!f.datum)obErr.datum="Vul de datum van je examen in, of zet het vinkje uit.";
   if(Object.keys(obErr).length){render();const first=document.querySelector('[aria-invalid="true"], #err-dom');if(first){first.scrollIntoView({block:"center"});if(first.focus)first.focus()}return}
-  store.p.naam=f.naam.slice(0,60);store.p.werk=f.werk.slice(0,60);store.p.rol=f.rol;store.p.akte=f.rol==="werkend"?f.akte:"";store.p.dom=obDom;store.p.ob=1;
+  store.p.naam=f.naam.slice(0,60);store.p.werk=f.werk.slice(0,60);store.p.gezien=APP_VERSIE;store.p.rol=f.rol;store.p.akte=f.rol==="werkend"?f.akte:"";store.p.dom=obDom;store.p.ob=1;
   if(obExam&&f.datum)store.x.push({id:Date.now().toString(36)+"ob",mod:f.mod||"phb1",soort:f.soort||"Theorie",datum:f.datum,tijd:f.tijd,loc:f.loc.slice(0,80),status:"gepland",score:"",note:""});
   save();obErr={};obDraft=null;const first=f.naam.split(/\s+/)[0];
   if(location.hash&&location.hash!=="#home")location.hash="home";else render();window.scrollTo(0,0);
@@ -220,16 +220,35 @@ function homeSide(wrong){
   </aside>`;
 }
 const keyRows=rows=>rows.map(([k,l])=>`<li><span>${l}</span><span>${k.split(" ").map(x=>`<span class="kbd">${x}</span>`).join(" ")}</span></li>`).join("");
-function openKeys(){
+// één venster tegelijk (sneltoetsen, nieuw in deze versie); Esc, terug of klik ernaast sluit het
+function openDlg(html){
   if(keysOpen)return;keysOpen=true;keysRet=document.activeElement;
-  const el=document.createElement("div");el.className="kdlg";el.id="kdlg";
-  el.innerHTML=`<div role="dialog" aria-modal="true" aria-labelledby="kdlgT">
+  const el=document.createElement("div");el.className="kdlg";el.id="kdlg";el.innerHTML=html;
+  el.addEventListener("click",e=>{if(e.target===el)closeKeys()});
+  document.body.appendChild(el);const f=el.querySelector(".btn.hi,[data-act=\"keys-close\"]");if(f)f.focus();
+}
+function openKeys(){
+  openDlg(`<div role="dialog" aria-modal="true" aria-labelledby="kdlgT">
     <div class="row" style="justify-content:space-between"><h2 id="kdlgT">Sneltoetsen</h2><button class="btn ghost sm" data-act="keys-close">Sluiten</button></div>
     <div class="kcols"><section><h3>Overal</h3><ul class="keys">${keyRows([["H","Overzicht"],["1 2 3 4","PHB 1 t/m 4"],["S","Studiestof"],["P","Profiel"],["E","Mijn examens"],["?","Deze hulp"]])}</ul></section>
     <section><h3>Tijdens het oefenen</h3><ul class="keys">${keyRows([["A B C D","Antwoord kiezen"],["1 2 3 4","Antwoord kiezen"],["Enter","Volgende vraag"],["← →","Vorige of volgende vraag (toets en examen)"],["Esc","Stoppen of melding sluiten"]])}</ul></section></div>
-    <p class="small">Tijdens een oefensessie of de praktijkoefening gelden alleen de toetsen voor het oefenen. In een tekstveld werken de sneltoetsen niet, zodat je gewoon kunt typen.</p></div>`;
-  el.addEventListener("click",e=>{if(e.target===el)closeKeys()});
-  document.body.appendChild(el);el.querySelector('[data-act="keys-close"]').focus();
+    <p class="small">Tijdens een oefensessie of de praktijkoefening gelden alleen de toetsen voor het oefenen. In een tekstveld werken de sneltoetsen niet, zodat je gewoon kunt typen.</p></div>`);
+}
+// "Nieuw in deze versie": één keer na een update (niet voor nieuwe gebruikers), en terug te lezen via het profiel
+function openNieuw(){
+  const kort=APP_VERSIE.replace(/\.0$/,"");
+  openDlg(`<div role="dialog" aria-modal="true" aria-labelledby="kdlgT" class="nieuwdlg">
+    <div class="stack" style="gap:4px"><span class="eyebrow">Versie ${esc(kort)}</span><h2 id="kdlgT">Nieuw in Boa Paraat</h2></div>
+    <ul class="nieuw">${NIEUW.map(n=>`<li>${CHECK}<div><b>${esc(n[0])}</b><span>${esc(n[1])}</span></div></li>`).join("")}</ul>
+    <button class="btn hi" type="button" data-act="keys-close">Aan de slag</button></div>`);
+}
+function nieuwCheck(){
+  const p=store.p;
+  if(!NIEUW.length||p.gezien===APP_VERSIE)return;
+  if(needsWelcome())return;
+  p.gezien=APP_VERSIE;save();
+  if(navigator.webdriver)return;
+  setTimeout(()=>{const r=route();if(!keysOpen&&!(S&&!S.done)&&!W&&r!=="wv")openNieuw()},1100);
 }
 function closeKeys(){
   const el=document.getElementById("kdlg");if(el)el.remove();keysOpen=false;
@@ -238,6 +257,7 @@ function closeKeys(){
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-act]");if(!b)return;const a=b.dataset.act;
   if(a==="keys"){openKeys();return}
+  if(a==="nieuw"){openNieuw();return}
   if(a==="keys-close"){closeKeys();return}
   if(a==="install"&&pcInstall){const ev=pcInstall;pcInstall=null;try{ev.prompt()}catch(x){}render()}
 });

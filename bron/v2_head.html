@@ -485,6 +485,14 @@ footer{font-size:13px;color:var(--muted);padding-block:8px 32px}
 .nudge .x{width:36px;height:36px;border:0;background:transparent;color:var(--muted);border-radius:8px;cursor:pointer;display:grid;place-items:center}
 .nudge .x svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 @media (max-width:560px){.nudge .nact{grid-column:2;justify-content:flex-start}}
+/* Nieuw in deze versie */
+.nieuw{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.nieuw li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;align-items:start}
+.nieuw svg{width:28px;height:28px;padding:6px;border-radius:8px;background:var(--tint);color:var(--navy);fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.nieuw b{display:block;font-size:15px}
+.nieuw span{font-size:14px;color:var(--muted)}
+.nieuwdlg>.btn{align-self:stretch}
+.vers{margin-top:24px}
 /* Webversie op de pc: bredere pagina, zijbalk op het overzicht, inhoudsopgave die meeloopt bij de studiestof.
    Oefenen, uitslag en profiel houden een leesbare kolom. */
 .homegrid,.stofgrid{display:flex;flex-direction:column;gap:22px}

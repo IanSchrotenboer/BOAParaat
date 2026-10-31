@@ -35,7 +35,16 @@ kop('1. Bouwen en compact maken')
 head = lees(BRON, 'v2_head.html'); body_src = lees(BRON, 'v2_body.html')
 data = '\n'.join(lees(BRON, f) for f in ['q1.js', 'q2.js', 'q3.js', 'q4.js', 'q5.js', 'stof.js'])
 extra = ''.join(lees(BRON, f) for f in ['wv.js', 'wv_ui.js', 'ui_extra.js'])
+VERSIE = json.load(open(os.path.join(ROOT, 'package.json')))['version']
+notities = os.path.join(ROOT, 'release-notities', 'v' + VERSIE + '.md')
+NIEUW = []
+if os.path.exists(notities):
+    blok = lees(notities).split('## Nieuw', 1)[-1].split('\n## ', 1)[0]
+    for L in blok.splitlines():
+        m_ = re.match(r'- \*\*(.+?):?\*\*:?\s*(.+)', L.strip())
+        if m_: NIEUW.append([m_.group(1).rstrip(':'), m_.group(2)[:1].upper() + m_.group(2)[1:]])
 body = body_src.replace('/*__DATA__*/', data).replace('/*__WV__*/', extra)
+body = body.replace('/*__VERSIE__*/', 'const APP_VERSIE=%s,NIEUW=%s;' % (json.dumps(VERSIE), json.dumps(NIEUW, ensure_ascii=False)))
 
 def compact_css(m):
     css = re.sub(r'/\*.*?\*/', '', m.group(1), flags=re.S)
@@ -72,6 +81,7 @@ web = web.replace('</body>', '<script>if("serviceWorker" in navigator&&!window.C
 open(os.path.join(WWW, 'index.html'), 'w', encoding='utf-8').write(web)
 bron_bytes = len((head + body).encode())
 kb = lambda n: '%.0f kB' % (n / 1024)
+ok('versie %s, %d punten bij Nieuw' % (VERSIE, len(NIEUW)))
 ok('gebouwd: %s (bron %s, gzip %s over internet)' % (kb(len(full.encode())), kb(bron_bytes), kb(len(gzip.compress(web.encode(), 9)))))
 
 # ---------------------------------------------------------------- 2. opschonen
