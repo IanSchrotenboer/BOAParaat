@@ -22,7 +22,7 @@
     <a class="prof" id="profBtn" href="#profiel" aria-label="Mijn profiel"><span class="ava" id="profAva">?</span><span class="lbl">Profiel</span></a>
   </div>
 </header>
-<main class="wrap" id="app"></main>
+<div class="pages"><main class="wrap" id="app"></main></div>
 <footer class="wrap">Oefenmateriaal op basis van de exameneisen voor boa's. Wetgeving bijgewerkt tot oktober 2026; controleer bij twijfel altijd je wettenbundel. Je profiel en voortgang worden alleen op dit apparaat, in deze browser bewaard. <button class="linkbtn kbdhint" type="button" data-act="keys">Sneltoetsen</button></footer>
 <nav class="tabbar" id="tabbar" aria-label="Modules"></nav>
 <div class="toast" id="toast" role="status" hidden></div>
@@ -219,7 +219,7 @@ function score(){
 // ---------- weergaven ----------
 // rustige overgang (220 ms) bij een ander scherm of een volgende vraag
 let pageAnim=false;
-$("#app").addEventListener("animationend",e=>{if(e.target.id==="app")e.target.classList.remove("enter")});
+$("#app").addEventListener("animationend",e=>{if(e.target.id==="app")e.target.classList.remove("enter","swl","swr")});
 function render(){
   const r=route();const app=$("#app");csClose(false);
   if(needsWelcome()){app.dataset.v="welkom";app.innerHTML=viewWelcome();paintNav();enhanceSelects(app);tuneInputs(app);obAfterRender();return}
@@ -231,8 +231,8 @@ function render(){
   else if(r==="stof"||r.indexOf("stof-")===0){v="stof";h=viewStof()}
   else if(MODBY[r]){v="module";h=viewModule(MODBY[r])}
   else h=viewHome();
-  app.dataset.v=v;app.innerHTML=h;
-  if(pageAnim){pageAnim=false;app.classList.remove("enter");void app.offsetWidth;app.classList.add("enter")}
+  tabTransition(app);app.dataset.v=v;app.innerHTML=h;
+  if(pageAnim){pageAnim=false;app.classList.remove("enter","swl","swr");void app.offsetWidth;app.classList.add("enter");if(swipeIn)app.classList.add(swipeIn)}swipeIn="";
   paintNav();wvAfterRender();enhanceSelects(app);tuneInputs(app);pcAfterRender(v);
 }
 // ---------- studiestof ----------

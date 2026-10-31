@@ -24,6 +24,7 @@
   --l-bg:#10151c; --l-mark:#9db8e0; --l-ink:#e3e8ef; --l-check:#10151c; --ok:#79c79e; --ok-bg:#14271d; --bad:#e8968b; --bad-bg:#2f1b19; --warn-bg:#272418; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
+html{overflow-x:hidden}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;-webkit-text-size-adjust:100%}
 body::before{content:"";position:fixed;top:0;right:0;left:0;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
 button,input,textarea{font:inherit;color:inherit}
@@ -459,10 +460,18 @@ footer{font-size:13px;color:var(--muted);padding-block:8px 32px}
 @keyframes lDraw{to{stroke-dashoffset:0}}
 @keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 #app.enter{animation:pgIn .22s ease-out}
+/* tabbladen: gedeelde as (oud schuift weg en vervaagt, nieuw schuift in vanaf dezelfde kant) en vegen */
+@keyframes swInR{0%{opacity:0;transform:translateX(30px)}20%{opacity:0}100%{opacity:1;transform:none}}@keyframes swInL{0%{opacity:0;transform:translateX(-30px)}20%{opacity:0}100%{opacity:1;transform:none}}
+@keyframes swOutL{30%{opacity:0}100%{opacity:0;transform:translateX(-30px)}}@keyframes swOutR{30%{opacity:0}100%{opacity:0;transform:translateX(30px)}}
+#app.enter.swr{animation:swInR .3s cubic-bezier(.4,0,.2,1)}#app.enter.swl{animation:swInL .3s cubic-bezier(.4,0,.2,1)}
+.pages{overflow-x:hidden;overflow-x:clip}
+.swghost{position:fixed;z-index:4;margin:0;box-sizing:border-box;pointer-events:none;overflow-wrap:anywhere}
+.swghost.swside{bottom:0;overflow:hidden;background:var(--paper);will-change:transform}
+.swghost.swoutl{animation:swOutL .3s cubic-bezier(.4,0,.2,1) forwards}.swghost.swoutr{animation:swOutR .3s cubic-bezier(.4,0,.2,1) forwards}
 #app{overflow-wrap:anywhere}
 .exmore{list-style:none;padding:8px 0}
 .switch span,.hmeter i,.meter i,.progress i{transition:transform .2s ease,width .4s ease}
-@media (prefers-reduced-motion:reduce){#launch .lmark,#launch .lc{animation:none;stroke-dashoffset:0}#launch{transition-duration:.1s}#app.enter{animation:none}.switch span,.hmeter i,.meter i,.progress i{transition:none}}
+@media (prefers-reduced-motion:reduce){#launch .lmark,#launch .lc{animation:none;stroke-dashoffset:0}#launch{transition-duration:.1s}#app.enter{animation:none}#app{transition:none!important}.swghost{display:none}.switch span,.hmeter i,.meter i,.progress i{transition:none}}
 /* Meldingen: schakelaars in het profiel en herinneringen op het overzicht */
 .setlist{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
 .setrow{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px}

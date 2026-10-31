@@ -204,6 +204,77 @@ function appBack(){
 })();
 try{if(localStorage.getItem("wv-debug"))window.__nav={appBack,navStack}}catch(e){}
 
+// ---------- tabbladen: vegen en vloeiende overgangen (Overzicht, PHB 1 t/m 4, Studiestof) ----------
+// Tikken op de tabbalk: het oude scherm schuift weg en vervaagt, het nieuwe schuift in vanaf dezelfde kant.
+// Vegen: het volgende of vorige tabblad schuift mee in beeld, zoals in een app; loslaten na een flinke of
+// snelle veeg maakt de wissel af, anders veert alles terug. Alleen met één vinger en alleen op deze zes
+// schermen; niet vanaf de schermrand (terug-gebaar van de telefoon), invulvelden, tabellen die opzij
+// scrollen of geselecteerde tekst. Met 'minder beweging' aan wisselt alles direct, zonder animatie.
+let swipeIn="",swipeGhost=null,tabPrev=-1;
+function tabList(){return ["home"].concat(MODS.map(m=>m.id),["stof"])}
+function tabIndex(r){const t=tabList();if(r==="stof"||r.indexOf("stof-")===0)return t.length-1;return t.indexOf(r)}
+function motionOff(){return !!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)}
+// stille kopie van een scherm, alleen zichtbaar tijdens een overgang (geen id's, niet aanklikbaar)
+function ghostOf(html,top,cls){
+  const app=$("#app"),r=app.getBoundingClientRect(),g=document.createElement("div");
+  g.className="wrap swghost "+cls;g.setAttribute("aria-hidden","true");g.inert=true;g.innerHTML=html;
+  g.querySelectorAll("[id]").forEach(e=>e.removeAttribute("id"));
+  g.style.top=top+"px";g.style.left=r.left+"px";g.style.width=r.width+"px";g.style.paddingTop=getComputedStyle(app).paddingTop;
+  document.body.appendChild(g);return g;
+}
+// render() roept dit aan vlak voordat het nieuwe scherm in #app komt
+function tabTransition(app){
+  const i=tabIndex(route()),from=tabPrev;tabPrev=i;
+  if(swipeIn==="ghost"){swipeIn="";pageAnim=false;app.style.transition="none";app.style.transform="";const g=swipeGhost;swipeGhost=null;if(g)requestAnimationFrame(()=>g.remove());return}
+  if(!pageAnim||i<0||from<0||i===from||motionOff()||!app.firstElementChild)return;
+  const dir=i>from?1:-1,old=ghostOf(app.innerHTML,app.getBoundingClientRect().top,dir>0?"swoutl":"swoutr");
+  setTimeout(()=>old.remove(),360);swipeIn=dir>0?"swr":"swl";
+}
+(function(){
+  const app=$("#app"),EDGE=24,LOCK=12;
+  const noSwipe='input,textarea,select,button.cs-btn,[contenteditable],video,iframe,.tblwrap,[data-noswipe]';
+  const scrollsX=el=>{for(;el&&el!==app;el=el.parentElement){if(el.scrollWidth>el.clientWidth+1){const o=getComputedStyle(el).overflowX;if(o==="auto"||o==="scroll")return true}}return false};
+  const html=id=>id==="home"?viewHome():id==="stof"?viewStof():viewModule(MODBY[id]);
+  let on=false,locked=false,sx=0,sy=0,dx=0,idx=-1,busy=false,spoor=[],side=0,top0=0;
+  const pos=(x,ms)=>{const tr=ms?`transform ${ms}ms cubic-bezier(.2,.7,.3,1)`:"none";
+    app.style.transition=tr;app.style.transform=x?`translateX(${x}px)`:"";
+    if(swipeGhost){swipeGhost.style.transition=tr;swipeGhost.style.transform=`translateX(${x+side*innerWidth}px)`}};
+  const drop=()=>{if(swipeGhost){swipeGhost.remove();swipeGhost=null}side=0};
+  const ghost=s=>{if(side===s&&swipeGhost)return;drop();const id=tabList()[idx+s];if(!id)return;side=s;swipeGhost=ghostOf(html(id),top0,"swside")};
+  const reset=()=>{on=false;locked=false;dx=0};
+  const terug=()=>{busy=true;pos(0,200);setTimeout(()=>{drop();app.style.transition="";app.style.transform="";busy=false},230)};
+  document.addEventListener("touchstart",e=>{
+    reset();if(busy||e.touches.length!==1||csOpen||keysOpen||!document.body.classList.contains("tabs")||document.body.classList.contains("kbd"))return;
+    idx=tabIndex(route());if(idx<0||needsWelcome())return;
+    const t=e.touches[0];if(t.clientX<EDGE||t.clientX>innerWidth-EDGE)return;
+    if(!app.contains(e.target)||(e.target.closest&&e.target.closest(noSwipe))||scrollsX(e.target))return;
+    const sel=window.getSelection&&getSelection();if(sel&&!sel.isCollapsed&&String(sel).trim())return;
+    on=true;sx=t.clientX;sy=t.clientY;spoor=[[Date.now(),0]];
+  },{passive:true});
+  document.addEventListener("touchmove",e=>{
+    if(!on)return;if(e.touches.length!==1){if(locked)terug();reset();return}
+    const t=e.touches[0];dx=t.clientX-sx;const dy=t.clientY-sy;
+    const nu=Date.now();spoor.push([nu,dx]);while(spoor.length>2&&nu-spoor[0][0]>120)spoor.shift();
+    if(!locked){if(Math.abs(dy)>LOCK&&Math.abs(dy)>=Math.abs(dx)*.8){reset();return}
+      if(Math.abs(dx)>LOCK&&Math.abs(dx)>Math.abs(dy)*1.4){locked=true;top0=app.getBoundingClientRect().top+scrollY}else return}
+    e.preventDefault();if(motionOff())return;
+    const s=dx<0?1:-1;if(tabList()[idx+s]){ghost(s);pos(dx,0)}else{drop();pos(dx*.2,0)}
+  },{passive:false});
+  document.addEventListener("touchend",()=>{
+    if(!on||!locked){reset();return}
+    const t=tabList(),s0=spoor[0],v=Math.abs(dx-s0[1])/Math.max(1,Date.now()-s0[0]),s=dx<0?1:-1,next=idx+s,d=Math.abs(dx);
+    const ver=d>Math.min(110,innerWidth*.28)||(v>.45&&d>40);reset();
+    if(!ver||next<0||next>=t.length){terug();return}
+    if(motionOff()){drop();location.hash=t[next];return}
+    // de rest van de weg in hetzelfde tempo als de vinger, tussen 170 en 320 ms
+    const ms=Math.round(Math.max(170,Math.min(320,(innerWidth-d)/Math.max(v,1.1))));
+    busy=true;ghost(s);pos(-s*innerWidth,ms);
+    setTimeout(()=>{busy=false;swipeIn="ghost";location.hash=t[next];
+      setTimeout(()=>{if(swipeIn==="ghost"){swipeIn="";drop();pos(0,0)}},500)},ms+20);
+  });
+  document.addEventListener("touchcancel",()=>{if(on&&locked)terug();reset()});
+})();
+
 // ---------- webversie op de pc ----------
 // Sneltoetsen met een hulpvenster (?), installeren als programma op de computer (Chrome en Edge),
 // en een inhoudsopgave die bij de studiestof meeloopt en laat zien waar je bent.

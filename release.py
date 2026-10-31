@@ -168,7 +168,7 @@ if not SNEL:
     kop('5. Browsertests')
     env = dict(os.environ, BOA_URL='file://' + os.path.join(UIT, 'Boa-Paraat.html'), BOA_SHOTS=os.path.join(UIT, 'schermen'))
     os.makedirs(env['BOA_SHOTS'], exist_ok=True)
-    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'stress.js']: draai(t, env)
+    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'stress.js']: draai(t, env)
 else:
     let_op('browsertests overgeslagen (--snel)')
 
