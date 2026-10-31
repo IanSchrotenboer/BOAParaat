@@ -122,6 +122,7 @@ Nodig voor de browsertests: Node.js 20 of nieuwer en Playwright (`npm install --
 
 ## Goed om te weten
 
+- Meldingen: onder **Profiel → Meldingen** zet je de oefenherinnering (dagelijks op een gekozen tijd, alleen als je nog niet hebt geoefend) en de examenherinnering (7, 3 en 1 dag ervoor, om 18:00) aan of uit. Meldingen buiten de app werken in de Android- en iOS-app; in de browser verschijnen ze als kaart op het overzicht.
 - Weergave: onder **Profiel → Gegevens → Weergave** kies je **Systeem** (volgt licht/donker van je telefoon of computer), **Licht** of **Donker**.
 - Voortgang en profiel worden per telefoon of browser bewaard. Met **Profiel → Voortgang overzetten** neem je ze mee naar een ander apparaat.
 - App-naam: Boa Paraat. App-ID: `nl.boa.phbtrainer`. Dit staat in `capacitor.config.json`.

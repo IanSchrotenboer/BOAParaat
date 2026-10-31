@@ -3,16 +3,30 @@
   "appName": "Boa Paraat",
   "webDir": "www",
   "android": {
-    "backgroundColor": "#f2f4f7"
+    "backgroundColor": "#2c4a73"
   },
   "ios": {
-    "backgroundColor": "#f2f4f7",
+    "backgroundColor": "#2c4a73",
     "contentInset": "never"
   },
   "plugins": {
     "Keyboard": {
       "resize": "body",
       "resizeOnFullScreen": true
+    },
+    "SplashScreen": {
+      "launchShowDuration": 3000,
+      "launchAutoHide": true,
+      "launchFadeOutDuration": 200,
+      "backgroundColor": "#2c4a73",
+      "showSpinner": false,
+      "androidScaleType": "CENTER_CROP",
+      "splashFullScreen": false,
+      "splashImmersive": false
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_boa",
+      "iconColor": "#2c4a73"
     }
   }
 }

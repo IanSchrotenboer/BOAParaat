@@ -1,3 +1,18 @@
+<div id="launch" aria-hidden="true"><div class="lmark"><svg viewBox="0 0 64 64"><path class="ls" d="M32 4 L54 11 V30 C54 44.5 44.5 54.5 32 60 C19.5 54.5 10 44.5 10 30 V11 Z"/><path class="lc" d="M21.5 30 L28.5 37 L43 22.5"/></svg><b>Boa Paraat</b><span>De Examentrainer</span></div></div>
+<script>
+// opstartscherm: thema meteen goed zetten, het Android-opstartscherm laten aansluiten en na het laden rustig wegvagen
+(function(){
+  var L=document.getElementById("launch"),de=document.documentElement,t0=Date.now(),klaar=false;
+  window.__hostTheme=de.getAttribute("data-theme");
+  try{var th=(JSON.parse(localStorage.getItem("phb-trainer-v1")||"{}").p||{}).thema;if(th==="licht")de.setAttribute("data-theme","light");else if(th==="donker")de.setAttribute("data-theme","dark")}catch(e){}
+  var stil=navigator.webdriver||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+  try{var S=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.SplashScreen;if(S)requestAnimationFrame(function(){S.hide({fadeOutDuration:200})})}catch(e){}
+  if(navigator.webdriver){L.parentNode.removeChild(L);L=null}
+  window.__launchDone=function(){if(klaar)return;klaar=true;if(!L)return;
+    setTimeout(function(){L.classList.add("uit");var a=document.getElementById("app");if(a&&!stil)a.classList.add("enter");setTimeout(function(){if(L.parentNode)L.parentNode.removeChild(L)},450)},stil?0:Math.max(0,850-(Date.now()-t0)))};
+  setTimeout(function(){window.__launchDone()},3000);
+})();
+</script>
 <header class="bar">
   <div class="wrap">
     <a class="brand" href="#home" aria-label="Boa Paraat, naar overzicht"><span class="mark" aria-hidden="true"><svg viewBox="0 0 64 64"><path class="m-sh" d="M32 4 L54 11 V30 C54 44.5 44.5 54.5 32 60 C19.5 54.5 10 44.5 10 30 V11 Z"/><path class="m-rim" d="M32 8.5 L50.5 14.3 V30 C50.5 42.3 42.6 50.9 32 55.8 C21.4 50.9 13.5 42.3 13.5 30 V14.3 Z"/><path class="m-ck" d="M21.5 28.5 L28.5 35.5 L43 21"/><g class="m-bl"><rect x="21" y="42" width="4.6" height="3.4" rx="1"/><rect x="27.1" y="42" width="4.6" height="3.4" rx="1"/><rect x="33.2" y="42" width="4.6" height="3.4" rx="1"/><rect x="39.3" y="42" width="4.6" height="3.4" rx="1"/></g></svg></span><span class="bname"><b>Boa Paraat</b><span class="tag">De Examentrainer</span></span></a>
@@ -48,19 +63,19 @@ const BYID = Object.fromEntries(ALL.map(q=>[q.id,q]));
 
 // ---------- opslag ----------
 const KEY="phb-trainer-v1";
-const blank = () => ({s:{},h:[],x:[],e:{},w:[],wd:null,yt:[],d:{},p:{naam:"",dom:"1",werk:"",datum:"",akte:"",rol:"",thema:"systeem"}});
+const blank = () => ({s:{},h:[],x:[],e:{},w:[],wd:null,yt:[],d:{},p:{naam:"",dom:"1",werk:"",datum:"",akte:"",rol:"",thema:"systeem",mld:{oefen:false,examen:false,tijd:"19:00"}}});
 let store=blank();
-function normalize(p){const b=blank();if(!p||typeof p!=="object")return b;b.s=p.s&&typeof p.s==="object"?p.s:{};b.h=Array.isArray(p.h)?p.h:[];b.x=Array.isArray(p.x)?p.x:[];b.e=p.e&&typeof p.e==="object"&&!Array.isArray(p.e)?p.e:{};b.w=Array.isArray(p.w)?p.w:[];b.yt=Array.isArray(p.yt)?p.yt:[];b.wd=p.wd&&typeof p.wd==="object"&&p.wd.sc?p.wd:null;b.d=p.d&&typeof p.d==="object"&&!Array.isArray(p.d)?p.d:{};b.p=Object.assign(b.p,p.p||{});if(!b.p.rol&&(b.p.akte||b.p.naam))b.p.rol="werkend";return b}
+function normalize(p){const b=blank();if(!p||typeof p!=="object")return b;b.s=p.s&&typeof p.s==="object"?p.s:{};b.h=Array.isArray(p.h)?p.h:[];b.x=Array.isArray(p.x)?p.x:[];b.e=p.e&&typeof p.e==="object"&&!Array.isArray(p.e)?p.e:{};b.w=Array.isArray(p.w)?p.w:[];b.yt=Array.isArray(p.yt)?p.yt:[];b.wd=p.wd&&typeof p.wd==="object"&&p.wd.sc?p.wd:null;b.d=p.d&&typeof p.d==="object"&&!Array.isArray(p.d)?p.d:{};b.p=Object.assign(b.p,p.p||{});b.p.mld=Object.assign({oefen:false,examen:false,tijd:"19:00"},(p.p&&p.p.mld)||{});if(!b.p.rol&&(b.p.akte||b.p.naam))b.p.rol="werkend";return b}
 try{const raw=localStorage.getItem(KEY);if(raw)store=normalize(JSON.parse(raw));
   const old=localStorage.getItem("phb-trainer-domein");if(old==="4"&&!(JSON.parse(raw||"{}").p))store.p.dom="4";}catch(e){}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}mldLater()}
 function record(id,ok){const s=store.s[id]||[0,0,0,0];s[0]++;if(ok)s[1]++;s[2]=ok?1:0;s[3]=Date.now();store.s[id]=s;markDay(1)}
 // oefendagen (voor 'Deze week' en 'dagen op rij'): per dag het aantal vragen, de laatste 120 dagen
 function dayKey(d){d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function markDay(n){const k=dayKey();store.d[k]=(store.d[k]||0)+n;const ks=Object.keys(store.d).sort();if(ks.length>120)ks.slice(0,ks.length-120).forEach(x=>delete store.d[x])}
 function streak(){const d=new Date();if(!store.d[dayKey(d)])d.setDate(d.getDate()-1);let n=0;while(store.d[dayKey(d)]){n++;d.setDate(d.getDate()-1)}return n}
 // weergave: systeem, licht of donker (de keuze staat in het profiel)
-const HOST_THEME=document.documentElement.getAttribute("data-theme");
+const HOST_THEME="__hostTheme" in window?window.__hostTheme:document.documentElement.getAttribute("data-theme");
 function isDark(){const a=document.documentElement.getAttribute("data-theme");return a?a==="dark":!!(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)}
 function applyTheme(){
   const t=store.p.thema,el=document.documentElement;
@@ -176,6 +191,9 @@ function score(){
 }
 
 // ---------- weergaven ----------
+// rustige overgang (220 ms) bij een ander scherm of een volgende vraag
+let pageAnim=false;
+$("#app").addEventListener("animationend",e=>{if(e.target.id==="app")e.target.classList.remove("enter")});
 function render(){
   const r=route();const app=$("#app");csClose(false);
   if(needsWelcome()){app.dataset.v="welkom";app.innerHTML=viewWelcome();paintNav();enhanceSelects(app);tuneInputs(app);obAfterRender();return}
@@ -188,6 +206,7 @@ function render(){
   else if(MODBY[r]){v="module";h=viewModule(MODBY[r])}
   else h=viewHome();
   app.dataset.v=v;app.innerHTML=h;
+  if(pageAnim){pageAnim=false;app.classList.remove("enter");void app.offsetWidth;app.classList.add("enter")}
   paintNav();wvAfterRender();enhanceSelects(app);tuneInputs(app);pcAfterRender(v);
 }
 // ---------- studiestof ----------
@@ -241,6 +260,7 @@ function viewHome(){
     <div class="stack" style="gap:6px"><h1>${naam?`Hoi ${esc(naam)}`:"Klaar voor je PHB?"}</h1>
     <p class="lede">${sub}</p></div>
     ${hero}
+    ${homeNudges(tgt)}
     ${weekStrip()}
     <section class="stack" style="gap:8px"><h2 class="secttl">Modules</h2>
     <ul class="hlist" aria-label="Modules">${MODS.map(m=>{const ms=mastery(inMod(m.id));return `
@@ -413,6 +433,7 @@ function viewProfile(tab){
         <div><button class="btn go" type="submit">Profiel opslaan</button></div>
       </form>
     </div>
+    ${mldSection()}
     ${store.h.length?`<div class="section stack"><h2>Toets- en examenhistorie</h2><div class="panel"><ul class="hist">${store.h.slice(0,12).map(x=>`<li><span>${esc(x.t)}<br><span class="small mono">${fmtDate(x.d)} · ${fmtTime(x.d)}</span></span><span class="row" style="gap:8px;flex-wrap:nowrap"><span class="mono">${x.g}/${x.n}</span><span class="pill ${x.p?"pass":"fail"}">${x.p?"Geslaagd":"Gezakt"}</span></span></li>`).join("")}</ul></div></div>`:""}
     <div class="section stack"><div><h2>Voortgang overzetten</h2><p class="small">Je voortgang staat alleen in deze browser. Wil je verder op een ander apparaat? Kopieer je code hier en plak die daar.</p></div>
       <div class="row"><button class="btn" data-act="export">${showExport?"Code verbergen":"Code kopiëren"}</button><button class="btn" data-act="import">${showImport?"Annuleren":"Code plakken"}</button></div>
@@ -567,8 +588,8 @@ document.addEventListener("click",e=>{
   if(act==="import-go"){try{importCode($("#impCode").value);applyTheme();showImport=false;render();toast("Voortgang geladen")}catch(err){toast("Deze code klopt niet. Kopieer hem opnieuw, helemaal.")}return}
   if(!S)return;
   if(act==="pick"){const it=S.items[S.i];if(S.mode==="oefen"){if(it.pick!==null)return;it.pick=+d.o;record(it.id,it.pick===0);save()}else{it.pick=+d.o}render();return}
-  if(act==="next"){if(S.i<S.items.length-1){S.i++;confirmSubmit=false;render();focusQ()}return}
-  if(act==="prev"){if(S.i>0){S.i--;render();focusQ()}return}
+  if(act==="next"){if(S.i<S.items.length-1){S.i++;confirmSubmit=false;pageAnim=true;render();focusQ()}return}
+  if(act==="prev"){if(S.i>0){S.i--;pageAnim=true;render();focusQ()}return}
   if(act==="go"){S.i=+d.k;render();focusQ();return}
   if(act==="flag"){S.items[S.i].flag=!S.items[S.i].flag;render();return}
   if(act==="finish"){submit(false);return}
@@ -614,7 +635,7 @@ window.addEventListener("hashchange",()=>{
   if(W&&route()!=="wv"){wvCollect();wvSaveDraft();wvAskStop=true;location.hash="wv";return}
   if(route()!=="wv")wvAskStop=false;wvAskSubmit=false;wvDel=null;ytDel=null;if(route()!=="phb3")ytForm=null;
   if(S&&!S.done&&route()!=="sessie"&&S.mode!=="oefen"){location.hash="sessie";confirmStop=true;return}
-  confirmReset=false;showExport=false;showImport=false;exEdit=null;exDel=null;exOpen=false;calFor=null;lastAdded=null;render();
+  confirmReset=false;showExport=false;showImport=false;exEdit=null;exDel=null;exOpen=false;calFor=null;lastAdded=null;pageAnim=true;render();
   const r=route();if(r.indexOf("stof-")===0){const el=document.getElementById("s-"+r.slice(5));if(el){el.scrollIntoView({block:"start"});return}}
   if(r==="profiel-phb3"){const el=document.getElementById("pmod-phb3");if(el){el.scrollIntoView({block:"start"});return}}
   window.scrollTo(0,0);
@@ -623,7 +644,7 @@ window.addEventListener("hashchange",()=>{
 });
 if(route()==="sessie"&&!S)location.hash="home";
 if(route()==="wv"&&!W&&store.wd&&wvGet(store.wd.sc,store.wd.seed)){W={...store.wd};if(W.phase==="film1"||W.phase==="film2")W.restart=1;if(W.phase==="pauze")W.p0=Date.now();wvTimer()}
-render();
+render();window.__launchDone&&window.__launchDone();mldInit();
 if(route()==="profiel-phb3"){const el=document.getElementById("pmod-phb3");if(el)el.scrollIntoView({block:"start"})}
 (function(){const r=route();if(r.indexOf("stof-")===0){const el=document.getElementById("s-"+r.slice(5));if(el)el.scrollIntoView({block:"start"})}})();
 })();

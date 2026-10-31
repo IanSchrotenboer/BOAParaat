@@ -37,7 +37,10 @@ jobs:
 
       - name: App-iconen maken
         continue-on-error: true
-        run: npx capacitor-assets generate --android --iconBackgroundColor "#2c4a73" --splashBackgroundColor "#2c4a73"
+        run: npx capacitor-assets generate --android --iconBackgroundColor "#2c4a73" --iconBackgroundColorDark "#10151c" --splashBackgroundColor "#2c4a73" --splashBackgroundColorDark "#10151c"
+
+      - name: Meldingsicoon toevoegen
+        run: cp -r assets/android/res/. android/app/src/main/res/
 
       - name: Versienummer zetten (elke bouw een hoger nummer)
         run: |
