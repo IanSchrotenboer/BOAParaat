@@ -1,0 +1,93 @@
+{
+  "id": "./",
+  "name": "Boa Paraat",
+  "short_name": "Boa Paraat",
+  "description": "Oefenen voor je boa-examens op telefoon, tablet en pc: PHB 1 t/m 4, inclusief domein IV.",
+  "lang": "nl",
+  "dir": "ltr",
+  "categories": [
+    "education"
+  ],
+  "start_url": "./index.html#home",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f2f4f7",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "PHB 1 Wet- en regelgeving",
+      "short_name": "PHB 1",
+      "url": "./index.html#phb1",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "PHB 2 Bejegening",
+      "short_name": "PHB 2",
+      "url": "./index.html#phb2",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "PHB 3 Waarneming en verslaglegging",
+      "short_name": "PHB 3",
+      "url": "./index.html#phb3",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Studiestof",
+      "short_name": "Studiestof",
+      "url": "./index.html#stof",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+name: Android APK bouwen
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Afhankelijkheden installeren
+        run: npm install
+
+      - name: Android-project maken
+        run: |
+          npx cap add android
+          npx cap sync android
+
+      - name: App-iconen maken
+        continue-on-error: true
+        run: npx capacitor-assets generate --android --iconBackgroundColor "#24406b" --splashBackgroundColor "#24406b"
+
+      - name: APK bouwen
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: APK hernoemen
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk Boa-Paraat.apk
+
+      - name: APK beschikbaar maken
+        uses: actions/upload-artifact@v4
+        with:
+          name: Boa-Paraat-apk
+          path: Boa-Paraat.apk
