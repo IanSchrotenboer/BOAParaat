@@ -74,14 +74,25 @@ async function kies(p,id,label){await p.click('#'+id+'-cs');await w(120);await p
   const ctxN=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});p=await ctxN.newPage();p._errs=[];p.on('pageerror',e=>p._errs.push(e.message));
   await p.addInitScript(()=>{Object.defineProperty(Navigator.prototype,'webdriver',{get:()=>false})});
   await p.goto(BOA_URL+'#home');await p.evaluate(()=>{localStorage.setItem('phb-trainer-v1',JSON.stringify({s:{},h:[],x:[],p:{naam:'Oud',dom:'1',werk:'X',akte:'2027-01-01',ob:1}}))});await p.reload();await w(2400);
+  // aantal punten onder '## Nieuw' in de notities van deze versie (0 = onderhoudsversie, dan geen venster)
+  const VN=JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname,'../package.json'),'utf8')).version;
+  const NOT=require('path').resolve(__dirname,'../release-notities/v'+VN+'.md');
+  const NT=require('fs').existsSync(NOT)?require('fs').readFileSync(NOT,'utf8'):'';
+  const NN=NT.includes('## Nieuw')?(NT.split('## Nieuw')[1].split('\n## ')[0].match(/^- \*\*/gm)||[]).length:0;
+  if(NN){
   t(await p.locator('.nieuwdlg').isVisible(),'bestaande gebruiker ziet "Nieuw in Boa Paraat" na de update');
-  t(await p.locator('.nieuw li').count()===5,'venster toont de 5 nieuwe punten');
+  t(await p.locator('.nieuw li').count()===NN,`venster toont de ${NN} nieuwe punten`);
   await p.screenshot({path:SHOTS+'/nieuw.png'});
   await p.keyboard.press('Escape');await w(150);t(!(await p.locator('.nieuwdlg').count()),'Esc sluit het venster');
   await p.reload();await w(2400);t(!(await p.locator('.nieuwdlg').count()),'venster komt maar één keer');
   await p.evaluate(()=>location.hash='profiel');await w(150);await p.click('[data-act="nieuw"]');await w(150);
   t(await p.locator('.nieuwdlg').isVisible(),'profiel: "Wat is er nieuw" opent het venster opnieuw');
   await p.click('.nieuwdlg .btn.hi');await w(150);t(!(await p.locator('.nieuwdlg').count()),'knop "Aan de slag" sluit het venster');
+  }else{
+  t(!(await p.locator('.nieuwdlg').count()),`onderhoudsversie ${VN}: geen venster "Nieuw"`);
+  await p.evaluate(()=>location.hash='profiel');await w(150);
+  t(!(await p.locator('[data-act="nieuw"]').count())&&(await p.locator('.vers').innerText()).includes(VN),`profiel toont versie ${VN} zonder lege "Wat is er nieuw"`);
+  }
   await p.evaluate(()=>localStorage.clear());await p.reload();await w(1500);
   await p.fill('#obNaam','Nieuw Mens');await p.fill('#obWerk','Gemeente');await kies(p,'obRol','Scholier');await p.click('[data-act="ob-dom"][data-v="1"]');await p.click('.wgo');await w(2000);
   t(!(await p.locator('.nieuwdlg').count()),'nieuwe gebruiker krijgt het venster niet');

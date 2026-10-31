@@ -66,10 +66,32 @@ const BYID = Object.fromEntries(ALL.map(q=>[q.id,q]));
 const KEY="phb-trainer-v1";
 const blank = () => ({s:{},h:[],x:[],e:{},w:[],wd:null,yt:[],d:{},p:{naam:"",dom:"1",werk:"",datum:"",akte:"",rol:"",thema:"systeem",mld:{oefen:false,examen:false,tijd:"19:00"}}});
 let store=blank();
-function normalize(p){const b=blank();if(!p||typeof p!=="object")return b;b.s=p.s&&typeof p.s==="object"?p.s:{};b.h=Array.isArray(p.h)?p.h:[];b.x=Array.isArray(p.x)?p.x:[];b.e=p.e&&typeof p.e==="object"&&!Array.isArray(p.e)?p.e:{};b.w=Array.isArray(p.w)?p.w:[];b.yt=Array.isArray(p.yt)?p.yt:[];b.wd=p.wd&&typeof p.wd==="object"&&p.wd.sc?p.wd:null;b.d=p.d&&typeof p.d==="object"&&!Array.isArray(p.d)?p.d:{};b.p=Object.assign(b.p,p.p||{});b.p.mld=Object.assign({oefen:false,examen:false,tijd:"19:00"},(p.p&&p.p.mld)||{});if(!b.p.rol&&(b.p.akte||b.p.naam))b.p.rol="werkend";return b}
+// opgeslagen gegevens controleren: verkeerde soorten waarden (bijv. door een oude of beschadigde versie) worden hersteld
+const isObj=v=>!!v&&typeof v==="object"&&!Array.isArray(v);
+const str=(v,n)=>(typeof v==="string"?v:v==null?"":typeof v==="number"?String(v):"").slice(0,n||200);
+const ISO=/^\d{4}-\d{2}-\d{2}$/;
+function normalize(p){const b=blank();if(!isObj(p))return b;
+  if(isObj(p.s))for(const [k,v] of Object.entries(p.s))if(Array.isArray(v)&&v.length>=4&&v.slice(0,4).every(n=>typeof n==="number"&&isFinite(n)))b.s[k]=v.slice(0,4);
+  b.h=(Array.isArray(p.h)?p.h:[]).filter(x=>isObj(x)&&typeof x.d==="number").slice(0,50);
+  b.x=(Array.isArray(p.x)?p.x:[]).filter(isObj).map((x,i)=>({id:str(x.id,40)||"x"+i,mod:str(x.mod,20),soort:str(x.soort,20),datum:ISO.test(x.datum)?x.datum:"",tijd:/^\d{2}:\d{2}$/.test(x.tijd)?x.tijd:"",loc:str(x.loc,80),status:["gepland","gehaald","niet","afgemeld"].includes(x.status)?x.status:"gepland",score:str(x.score,80),note:str(x.note,80)}));
+  if(isObj(p.e))for(const [k,v] of Object.entries(p.e))if(Array.isArray(v))b.e[k]=v.filter(x=>typeof x==="string");
+  b.w=(Array.isArray(p.w)?p.w:[]).filter(x=>isObj(x)&&typeof x.id==="string").slice(0,40);
+  b.yt=(Array.isArray(p.yt)?p.yt:[]).filter(x=>isObj(x)&&typeof x.id==="string");
+  b.wd=isObj(p.wd)&&p.wd.sc?p.wd:null;
+  if(isObj(p.d))for(const [k,v] of Object.entries(p.d))if(ISO.test(k)&&typeof v==="number")b.d[k]=v;
+  const q=isObj(p.p)?p.p:{},P=b.p;
+  P.naam=str(q.naam,60);P.werk=str(q.werk,60);P.akte=ISO.test(q.akte)?q.akte:"";P.datum=ISO.test(q.datum)?q.datum:"";
+  P.dom=q.dom==="4"?"4":"1";P.rol=q.rol==="scholier"||q.rol==="werkend"?q.rol:"";P.thema=["licht","donker"].includes(q.thema)?q.thema:"systeem";
+  if(q.ob)P.ob=1;if(typeof q.gezien==="string")P.gezien=q.gezien;
+  const m=isObj(q.mld)?q.mld:{};P.mld={oefen:m.oefen===true,examen:m.examen===true,tijd:/^\d{2}:\d{2}$/.test(m.tijd)?m.tijd:"19:00"};if(m.gevraagd)P.mld.gevraagd=1;if(typeof m.weg==="string")P.mld.weg=m.weg;
+  if(!P.rol&&(P.akte||P.naam))P.rol="werkend";return b}
 try{const raw=localStorage.getItem(KEY);if(raw)store=normalize(JSON.parse(raw));
   const old=localStorage.getItem("phb-trainer-domein");if(old==="4"&&!(JSON.parse(raw||"{}").p))store.p.dom="4";}catch(e){}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}mldLater()}
+let saveFout=false;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));saveFout=false}catch(e){if(!saveFout){saveFout=true;setTimeout(()=>toast("Je voortgang kan nu niet worden bewaard: de opslag van je browser of telefoon is vol. Maak ruimte vrij of zet je voortgang over via Profiel."),0)}}mldLater()}
+// twee tabbladen of vensters tegelijk: de nieuwste gegevens van het andere tabblad overnemen, zodat niets verloren gaat
+window.addEventListener("storage",e=>{if(e.key!==KEY||!e.newValue)return;try{store=normalize(JSON.parse(e.newValue))}catch(x){return}
+  applyTheme();const r=route();if(!(r==="sessie"&&S&&!S.done)&&!(r==="wv"&&W)&&!document.querySelector("#app form:focus-within"))render()});
 function record(id,ok){const s=store.s[id]||[0,0,0,0];s[0]++;if(ok)s[1]++;s[2]=ok?1:0;s[3]=Date.now();store.s[id]=s;markDay(1)}
 // oefendagen (voor 'Deze week' en 'dagen op rij'): per dag het aantal vragen, de laatste 120 dagen
 function dayKey(d){d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
@@ -106,8 +128,10 @@ const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 const pct = x => Math.round(x*100)+"%";
 const LET = ["A","B","C","D"];
-const fmtDate = d => new Date(d).toLocaleDateString("nl-NL",{day:"numeric",month:"short",year:"numeric"});
-const fmtTime = d => new Date(d).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"});
+// datumnotatie één keer klaarzetten (veel sneller bij lange lijsten); ongeldige datum = leeg
+const DF=new Intl.DateTimeFormat("nl-NL",{day:"numeric",month:"short",year:"numeric"}),TF=new Intl.DateTimeFormat("nl-NL",{hour:"2-digit",minute:"2-digit"});
+const fmtDate = d => {const x=new Date(d);return isNaN(x)?"":DF.format(x)};
+const fmtTime = d => {const x=new Date(d);return isNaN(x)?"":TF.format(x)};
 function initials(n){n=(n||"").trim();if(!n)return "?";const p=n.split(/\s+/);return ((p[0][0]||"")+(p.length>1?p[p.length-1][0]:"")).toUpperCase()}
 let toastT=null;function toast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{t.hidden=true},2400)}
 // Volgorde voor een nieuwe ronde: eerst vragen die niet in de vorige ronde zaten, en daarbinnen eerst
@@ -348,6 +372,9 @@ function calPanel(x,title){
     ${icsOk?`<p class="small">Het .ics-bestand bevat een herinnering een dag van tevoren.</p>`:`<p class="small">Gebruik je Apple Agenda? Kies Google of Outlook als die met je iPhone is gekoppeld, of open het losse app-bestand om een agendabestand te downloaden.</p>`}</div>`;
 }
 let exOpen=false,calFor=null,lastAdded=null;
+// lange lijsten: eerst 20 tonen, de rest op verzoek
+let exAlles=false;
+function exLijst(l){return l.slice(0,exAlles?l.length:20).map(exRow).join("")+(!exAlles&&l.length>20?`<li class="exmore"><button type="button" class="btn sm" data-act="ex-alles">Toon alle ${l.length}</button></li>`:"")}
 function viewExams(){
   const p=store.p;const nx=nextExam();const e=exEdit?store.x.find(x=>x.id===exEdit)||{}:{};
   const planned=store.x.filter(x=>x.status==="gepland").sort((a,b)=>(a.datum||"")<(b.datum||"")?-1:1);
@@ -385,8 +412,8 @@ function viewExams(){
     ${la&&!exOpen&&!exEdit?`<div class="panel stack added"><div class="row" style="justify-content:space-between"><b>${la.status==="gepland"?"Examen opgeslagen":"Uitslag opgeslagen"}</b><button class="btn ghost sm" data-act="cal-close">Sluiten</button></div>${la.status==="gepland"&&la.datum?calPanel(la):""}</div>`:""}
     <div class="exthbar"><span>Officiële uitslagen en oproepen staan in Mijn ExTH.</span><a href="${EXTH_URL}" target="_blank" rel="noopener">mijn.exth.nl openen →</a></div>
     ${nx?`<div class="exam"><div class="big">${daysTo(nx.datum)}</div><div class="stack" style="gap:6px"><span class="eyebrow">Volgend examen · ${daysTo(nx.datum)===1?"dag":"dagen"} te gaan</span><h2>${esc(exLabel(nx))}</h2><p class="small">${fmtDate(nx.datum+"T00:00")}${nx.tijd?" om "+esc(nx.tijd):""}${nx.loc?" · "+esc(nx.loc):""}</p><div class="row">${nx.mod&&MODBY[nx.mod]?`<a class="btn hi sm" href="#${nx.mod}">Oefenen voor ${MODBY[nx.mod].code}</a>`:""}<button class="btn sm" data-act="ex-cal" data-id="${nx.id}">In agenda zetten</button></div></div></div>`:""}
-    <div class="section stack"><h2>Gepland</h2>${planned.length?`<ul class="exlist">${planned.map(exRow).join("")}</ul>`:`<p class="small">Nog geen geplande examens. Voeg je examen toe zodra je de bevestiging van ExTH hebt.</p>`}</div>
-    <div class="section stack"><h2>Uitslagen</h2>${done.length?`<ul class="exlist">${done.map(exRow).join("")}</ul>`:`<p class="small">Nog geen uitslagen ingevuld. Neem je uitslag over uit Mijn ExTH.</p>`}</div>
+    <div class="section stack"><h2>Gepland</h2>${planned.length?`<ul class="exlist">${exLijst(planned)}</ul>`:`<p class="small">Nog geen geplande examens. Voeg je examen toe zodra je de bevestiging van ExTH hebt.</p>`}</div>
+    <div class="section stack"><h2>Uitslagen</h2>${done.length?`<ul class="exlist">${exLijst(done)}</ul>`:`<p class="small">Nog geen uitslagen ingevuld. Neem je uitslag over uit Mijn ExTH.</p>`}</div>
     <div class="section stack"><div><h2>PHB-cyclus</h2><p class="small">Binnen de looptijd van je akte rond je vier modules af. ${nOk} van 4 gehaald.${p.rol==="scholier"?" Als scholier begint je PHB-cyclus na je beëdiging; tot die tijd oefen je alvast met alle modules.":akte?" "+akte+".":" Vul bij Voortgang de geldigheid van je akte in."}</p></div>
       <div class="meter" role="img" aria-label="${nOk} van 4 modules gehaald"><i style="width:${nOk*25}%"></i></div>
       <ul class="exlist">${cyc.map(c=>c.html).join("")}</ul></div>`;
@@ -441,7 +468,7 @@ function viewProfile(tab){
       ${showExport?`<div class="field"><label for="expCode">Jouw voortgangscode</label><textarea id="expCode" readonly>${esc(exportCode())}</textarea></div>`:""}
       ${showImport?`<div class="field"><label for="impCode">Plak hier je voortgangscode</label><textarea id="impCode" placeholder="Begint met PHB1:"></textarea><div><button class="btn go" data-act="import-go">Voortgang laden</button></div><p class="small">Let op: dit vervangt de voortgang op dit apparaat.</p></div>`:""}
     </div>
-    <p class="small vers">Boa Paraat versie ${esc(APP_VERSIE)} · <button type="button" class="linkbtn" data-act="nieuw">Wat is er nieuw</button></p>
+    <p class="small vers">Boa Paraat versie ${esc(APP_VERSIE)}${NIEUW.length?` · <button type="button" class="linkbtn" data-act="nieuw">Wat is er nieuw</button>`:""}</p>
     <div class="row" style="justify-content:flex-end">${confirmReset?`<div class="confirm row"><span>Profiel, voortgang en resultaten wissen?</span><button class="btn danger" data-act="reset-yes">Ja, wissen</button><button class="btn" data-act="reset-no">Annuleren</button></div>`:`<button class="btn ghost" data-act="reset">Alles wissen</button>`}</div>
   </div>`;
 }
@@ -574,6 +601,7 @@ document.addEventListener("click",e=>{
   if(act==="thema"){store.p.thema=d.v;save();applyTheme();render();toast(d.v==="donker"?"Donkere weergave":d.v==="licht"?"Lichte weergave":"Weergave volgt je systeem");return}
   if(act==="dom"){store.p.dom=d.v;save();render();toast(d.v==="4"?"Domein IV openbaar vervoer gekozen":"Domein I–III gekozen");return}
   if(act==="ex-new"){exOpen=true;exEdit=null;lastAdded=null;render();const f=$("#exDatum");if(f)f.focus();return}
+  if(act==="ex-alles"){exAlles=true;render();return}
   if(act==="ex-cal"){calFor=calFor===d.id?null:d.id;render();return}
   if(act==="ex-ics"){const x=store.x.find(x=>x.id===d.id);if(x)downloadIcs(x);return}
   if(act==="cal-close"){lastAdded=null;render();return}
@@ -637,7 +665,7 @@ window.addEventListener("hashchange",()=>{
   if(W&&route()!=="wv"){wvCollect();wvSaveDraft();wvAskStop=true;location.hash="wv";return}
   if(route()!=="wv")wvAskStop=false;wvAskSubmit=false;wvDel=null;ytDel=null;if(route()!=="phb3")ytForm=null;
   if(S&&!S.done&&route()!=="sessie"&&S.mode!=="oefen"){location.hash="sessie";confirmStop=true;return}
-  confirmReset=false;showExport=false;showImport=false;exEdit=null;exDel=null;exOpen=false;calFor=null;lastAdded=null;pageAnim=true;render();
+  confirmReset=false;showExport=false;showImport=false;exEdit=null;exDel=null;exOpen=false;calFor=null;lastAdded=null;exAlles=false;pageAnim=true;render();
   const r=route();if(r.indexOf("stof-")===0){const el=document.getElementById("s-"+r.slice(5));if(el){el.scrollIntoView({block:"start"});return}}
   if(r==="profiel-phb3"){const el=document.getElementById("pmod-phb3");if(el){el.scrollIntoView({block:"start"});return}}
   window.scrollTo(0,0);

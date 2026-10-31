@@ -39,7 +39,8 @@ VERSIE = json.load(open(os.path.join(ROOT, 'package.json')))['version']
 notities = os.path.join(ROOT, 'release-notities', 'v' + VERSIE + '.md')
 NIEUW = []
 if os.path.exists(notities):
-    blok = lees(notities).split('## Nieuw', 1)[-1].split('\n## ', 1)[0]
+    tekst = lees(notities)
+    blok = tekst.split('## Nieuw', 1)[1].split('\n## ', 1)[0] if '## Nieuw' in tekst else ''
     for L in blok.splitlines():
         m_ = re.match(r'- \*\*(.+?):?\*\*:?\s*(.+)', L.strip())
         if m_: NIEUW.append([m_.group(1).rstrip(':'), m_.group(2)[:1].upper() + m_.group(2)[1:]])
@@ -167,7 +168,7 @@ if not SNEL:
     kop('5. Browsertests')
     env = dict(os.environ, BOA_URL='file://' + os.path.join(UIT, 'Boa-Paraat.html'), BOA_SHOTS=os.path.join(UIT, 'schermen'))
     os.makedirs(env['BOA_SHOTS'], exist_ok=True)
-    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js']: draai(t, env)
+    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'stress.js']: draai(t, env)
 else:
     let_op('browsertests overgeslagen (--snel)')
 
