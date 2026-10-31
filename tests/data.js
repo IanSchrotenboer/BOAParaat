@@ -29,6 +29,7 @@ Q.forEach((r,i)=>{
     if(!/[.?!]['"’”]?$/.test(x))bad.push(at+`: antwoord ${k+1} eindigt niet met een punt`);
     if(/^[a-zà-ÿ]/.test(x))bad.push(at+`: antwoord ${k+1} begint niet met een hoofdletter`);
     if(/\b(art|max|bijv)\.\s|\bOvJ\b|\bpv\b/.test(x))bad.push(at+`: afkorting in antwoord ${k+1} (schrijf voluit)`)});
+  if(/\b(OvJ|hulpOvJ|RC|pv|OM|CdK|PG|WID)\b|\bpv's/.test(String(e)+' '+String(r[4]||'')))bad.push(at+': afkorting in de uitleg of bron (schrijf voluit)');
   perCat[c]=(perCat[c]||0)+1;
 });
 for(const c of Object.keys(CATS)){if(!perCat[c])bad.push('categorie zonder vragen: '+c);else if(perCat[c]<10)warn.push(`categorie ${c} heeft maar ${perCat[c]} vragen`)}
