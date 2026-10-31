@@ -3,7 +3,7 @@
 let obErr={},obExam=false,obDom=null;
 const needsWelcome=()=>!store.p.ob&&!(store.p.naam||"").trim();
 function viewWelcome(){
-  const p=store.p;const d=obDom||"";
+  const p=store.p;const d=obDom||"";const rol=obDraft?obDraft.rol:(p.rol||"");
   const err=k=>obErr[k]?`<p class="ferr" id="err-${k}">${esc(obErr[k])}</p>`:"";
   const inv=k=>obErr[k]?` aria-invalid="true" aria-describedby="err-${k}"`:"";
   const opt=(arr,val)=>arr.map(([v,l])=>`<option value="${v}"${v===val?" selected":""}>${esc(l)}</option>`).join("");
@@ -13,8 +13,9 @@ function viewWelcome(){
       <div><h1>Welkom bij Boa Paraat</h1><p class="lede">De Examentrainer voor je PHB. Vul eerst je gegevens in, dan richten we de app voor je in.</p></div></div>
     <form class="panel stack wform" id="obForm" novalidate autocomplete="on">
       <div class="field"><label for="obNaam">Naam <span class="req" aria-hidden="true">*</span></label><input id="obNaam" name="name" autocomplete="name" autocapitalize="words" enterkeyhint="next" spellcheck="false" placeholder="Voor- en achternaam" value="${esc(p.naam||"")}" required${inv("naam")}>${err("naam")}</div>
-      <div class="field"><label for="obWerk">Werkgever <span class="req" aria-hidden="true">*</span></label><input id="obWerk" name="organization" autocomplete="organization" autocapitalize="words" enterkeyhint="next" placeholder="Bijvoorbeeld gemeente Utrecht of NS" value="${esc(p.werk||"")}" required${inv("werk")}>${err("werk")}</div>
-      <div class="field"><label for="obAkte">Akte van opsporingsbevoegdheid geldig tot <span class="req" aria-hidden="true">*</span></label><input id="obAkte" type="date" value="${esc(p.akte||"")}" required${inv("akte")}><p class="small fhelp">Staat op je akte. De app rekent hiermee terug, zodat je je PHB-modules op tijd afrondt.</p>${err("akte")}</div>
+      <div class="field"><label for="obWerk">${rol==="scholier"?"Werkgever of opleiding":"Werkgever"} <span class="req" aria-hidden="true">*</span></label><input id="obWerk" name="organization" autocomplete="organization" autocapitalize="words" enterkeyhint="next" placeholder="${rol==="scholier"?"Bijvoorbeeld gemeente Utrecht of je opleiding":"Bijvoorbeeld gemeente Utrecht of NS"}" value="${esc(p.werk||"")}" required${inv("werk")}>${err("werk")}</div>
+      <div class="field"><label for="obRol">Ik ben <span class="req" aria-hidden="true">*</span></label><select id="obRol" required${inv("rol")}><option value=""${rol?"":" selected"}>Kies scholier of werkend</option><option value="werkend"${rol==="werkend"?" selected":""}>Werkend</option><option value="scholier"${rol==="scholier"?" selected":""}>Scholier</option></select><p class="small fhelp">${rol==="scholier"?"Als scholier heb je nog geen akte, dus die vul je niet in.":"Werkend: je hebt een akte van opsporingsbevoegdheid."}</p>${err("rol")}</div>
+      ${rol==="werkend"?`<div class="field"><label for="obAkte">Akte van opsporingsbevoegdheid geldig tot <span class="req" aria-hidden="true">*</span></label><input id="obAkte" type="date" value="${esc(p.akte||"")}" required${inv("akte")}><p class="small fhelp">Staat op je akte. De app rekent hiermee terug, zodat je je PHB-modules op tijd afrondt.</p>${err("akte")}</div>`:""}
       <div class="field"><span class="flabel" id="obDomL">Domein <span class="req" aria-hidden="true">*</span></span>
         <div class="seg" role="radiogroup" aria-labelledby="obDomL"${obErr.dom?' aria-describedby="err-dom"':""}><button type="button" role="radio" data-act="ob-dom" data-v="1" aria-checked="${d==="1"}" aria-pressed="${d==="1"}">Domein I–III<small>Algemeen en openbare ruimte</small></button><button type="button" role="radio" data-act="ob-dom" data-v="4" aria-checked="${d==="4"}" aria-pressed="${d==="4"}">Domein IV<small>Openbaar vervoer</small></button></div>${err("dom")}</div>
       <div class="obexam">
@@ -33,21 +34,22 @@ function viewWelcome(){
     <div class="wimport">${showImport?`<div class="panel stack"><div class="field"><label for="impCode">Plak je voortgangscode</label><textarea id="impCode" placeholder="Begint met PHB1:" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea></div><div class="row"><button class="btn go" data-act="import-go">Voortgang laden</button><button class="btn ghost" data-act="import">Annuleren</button></div></div>`:`<button class="linkbtn" data-act="import">Ik heb al voortgang op een ander apparaat</button>`}</div>
   </div>`;
 }
-function obCollect(){const v=id=>{const e=document.getElementById(id);return e?e.value.trim():""};return {naam:v("obNaam"),werk:v("obWerk"),akte:v("obAkte"),mod:v("obMod"),soort:v("obSoort"),datum:v("obDatum"),tijd:v("obTijd"),loc:v("obLoc")}}
+function obCollect(){const v=id=>{const e=document.getElementById(id);return e?e.value.trim():""};return {naam:v("obNaam"),werk:v("obWerk"),rol:v("obRol"),akte:v("obAkte"),mod:v("obMod"),soort:v("obSoort"),datum:v("obDatum"),tijd:v("obTijd"),loc:v("obLoc")}}
 let obDraft=null;
 function obSubmit(){
   const f=obCollect();obDraft=f;obErr={};
   if(f.naam.length<2)obErr.naam="Vul je naam in.";
   if(!f.werk)obErr.werk="Vul je werkgever in.";
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(f.akte))obErr.akte="Vul de datum in tot wanneer je akte geldig is.";
+  if(!f.rol)obErr.rol="Kies of je scholier bent of werkend.";
+  if(f.rol==="werkend"&&!/^\d{4}-\d{2}-\d{2}$/.test(f.akte))obErr.akte="Vul de datum in tot wanneer je akte geldig is.";
   if(!obDom)obErr.dom="Kies je domein.";
   if(obExam&&!f.datum)obErr.datum="Vul de datum van je examen in, of zet het vinkje uit.";
   if(Object.keys(obErr).length){render();const first=document.querySelector('[aria-invalid="true"], #err-dom');if(first){first.scrollIntoView({block:"center"});if(first.focus)first.focus()}return}
-  store.p.naam=f.naam.slice(0,60);store.p.werk=f.werk.slice(0,60);store.p.akte=f.akte;store.p.dom=obDom;store.p.ob=1;
+  store.p.naam=f.naam.slice(0,60);store.p.werk=f.werk.slice(0,60);store.p.rol=f.rol;store.p.akte=f.rol==="werkend"?f.akte:"";store.p.dom=obDom;store.p.ob=1;
   if(obExam&&f.datum)store.x.push({id:Date.now().toString(36)+"ob",mod:f.mod||"phb1",soort:f.soort||"Theorie",datum:f.datum,tijd:f.tijd,loc:f.loc.slice(0,80),status:"gepland",score:"",note:""});
   save();obErr={};obDraft=null;const first=f.naam.split(/\s+/)[0];
   if(location.hash&&location.hash!=="#home")location.hash="home";else render();window.scrollTo(0,0);
-  const d=daysTo(f.akte);toast(d<0?`Welkom, ${first}. Let op: je akte is verlopen.`:`Welkom, ${first}!`);
+  const d=store.p.akte?daysTo(store.p.akte):0;toast(d<0?`Welkom, ${first}. Let op: je akte is verlopen.`:`Welkom, ${first}!`);
 }
 function obAfterRender(){
   if(!obDraft)return;const set=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null&&!e.value)e.value=v};

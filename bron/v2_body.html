@@ -48,9 +48,9 @@ const BYID = Object.fromEntries(ALL.map(q=>[q.id,q]));
 
 // ---------- opslag ----------
 const KEY="phb-trainer-v1";
-const blank = () => ({s:{},h:[],x:[],e:{},w:[],wd:null,yt:[],d:{},p:{naam:"",dom:"1",werk:"",datum:"",akte:"",thema:"systeem"}});
+const blank = () => ({s:{},h:[],x:[],e:{},w:[],wd:null,yt:[],d:{},p:{naam:"",dom:"1",werk:"",datum:"",akte:"",rol:"",thema:"systeem"}});
 let store=blank();
-function normalize(p){const b=blank();if(!p||typeof p!=="object")return b;b.s=p.s&&typeof p.s==="object"?p.s:{};b.h=Array.isArray(p.h)?p.h:[];b.x=Array.isArray(p.x)?p.x:[];b.e=p.e&&typeof p.e==="object"&&!Array.isArray(p.e)?p.e:{};b.w=Array.isArray(p.w)?p.w:[];b.yt=Array.isArray(p.yt)?p.yt:[];b.wd=p.wd&&typeof p.wd==="object"&&p.wd.sc?p.wd:null;b.d=p.d&&typeof p.d==="object"&&!Array.isArray(p.d)?p.d:{};b.p=Object.assign(b.p,p.p||{});return b}
+function normalize(p){const b=blank();if(!p||typeof p!=="object")return b;b.s=p.s&&typeof p.s==="object"?p.s:{};b.h=Array.isArray(p.h)?p.h:[];b.x=Array.isArray(p.x)?p.x:[];b.e=p.e&&typeof p.e==="object"&&!Array.isArray(p.e)?p.e:{};b.w=Array.isArray(p.w)?p.w:[];b.yt=Array.isArray(p.yt)?p.yt:[];b.wd=p.wd&&typeof p.wd==="object"&&p.wd.sc?p.wd:null;b.d=p.d&&typeof p.d==="object"&&!Array.isArray(p.d)?p.d:{};b.p=Object.assign(b.p,p.p||{});if(!b.p.rol&&(b.p.akte||b.p.naam))b.p.rol="werkend";return b}
 try{const raw=localStorage.getItem(KEY);if(raw)store=normalize(JSON.parse(raw));
   const old=localStorage.getItem("phb-trainer-domein");if(old==="4"&&!(JSON.parse(raw||"{}").p))store.p.dom="4";}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
@@ -366,7 +366,7 @@ function viewExams(){
     ${nx?`<div class="exam"><div class="big">${daysTo(nx.datum)}</div><div class="stack" style="gap:6px"><span class="eyebrow">Volgend examen · ${daysTo(nx.datum)===1?"dag":"dagen"} te gaan</span><h2>${esc(exLabel(nx))}</h2><p class="small">${fmtDate(nx.datum+"T00:00")}${nx.tijd?" om "+esc(nx.tijd):""}${nx.loc?" · "+esc(nx.loc):""}</p><div class="row">${nx.mod&&MODBY[nx.mod]?`<a class="btn hi sm" href="#${nx.mod}">Oefenen voor ${MODBY[nx.mod].code}</a>`:""}<button class="btn sm" data-act="ex-cal" data-id="${nx.id}">In agenda zetten</button></div></div></div>`:""}
     <div class="section stack"><h2>Gepland</h2>${planned.length?`<ul class="exlist">${planned.map(exRow).join("")}</ul>`:`<p class="small">Nog geen geplande examens. Voeg je examen toe zodra je de bevestiging van ExTH hebt.</p>`}</div>
     <div class="section stack"><h2>Uitslagen</h2>${done.length?`<ul class="exlist">${done.map(exRow).join("")}</ul>`:`<p class="small">Nog geen uitslagen ingevuld. Neem je uitslag over uit Mijn ExTH.</p>`}</div>
-    <div class="section stack"><div><h2>PHB-cyclus</h2><p class="small">Binnen de looptijd van je akte rond je vier modules af. ${nOk} van 4 gehaald.${akte?" "+akte+".":" Vul bij Voortgang de geldigheid van je akte in."}</p></div>
+    <div class="section stack"><div><h2>PHB-cyclus</h2><p class="small">Binnen de looptijd van je akte rond je vier modules af. ${nOk} van 4 gehaald.${p.rol==="scholier"?" Als scholier begint je PHB-cyclus na je beëdiging; tot die tijd oefen je alvast met alle modules.":akte?" "+akte+".":" Vul bij Voortgang de geldigheid van je akte in."}</p></div>
       <div class="meter" role="img" aria-label="${nOk} van 4 modules gehaald"><i style="width:${nOk*25}%"></i></div>
       <ul class="exlist">${cyc.map(c=>c.html).join("")}</ul></div>`;
 }
@@ -389,7 +389,7 @@ function viewProfile(tab){
       <div class="ring" style="--p:${Math.round(ms*100)}" role="img" aria-label="${pct(ms)} beheerst"><b>${pct(ms)}</b></div>
       <div class="meta"><span>${sn}/${l.length} geoefend</span><span>${ac==null?"nog geen antwoorden":pct(ac)+" goed"}</span>${m.exam?`<span>${best==null?"nog geen examen":"beste examen "+best+"/"+m.exam.n}</span>`:""}<span>${tt.length?tp+"/"+tt.length+" toetsen gehaald":"nog geen toets"}</span>${isW?`<span>${wrecs.length?wrecs.length+(wrecs.length===1?" verslag":" verslagen")+" · beste "+Math.max(...wrecs.map(r=>r.score))+"/100":"nog geen verslag"}</span>`:""}${la?`<span>laatst ${fmtDate(la)}</span>`:""}<span class="more">Details per onderwerp</span></div>
     </summary><div class="body">${cats}${isW?wvProfileList():""}<div class="row"><a class="btn" href="#${m.id}">Naar ${m.code}</a>${l.some(q=>lastWrong(q.id))?`<button class="btn hi" data-act="fouten" data-mod="${m.id}">Fouten oefenen (${l.filter(q=>lastWrong(q.id)).length})</button>`:""}</div></div></details>`}).join("");
-  const head=`<div class="idcard"><span class="ava lg">${esc(initials(p.naam))}</span><div class="stack" style="gap:4px;min-width:0"><span class="eyebrow">Mijn profiel</span><h2>${p.naam?esc(p.naam):"Naam nog niet ingevuld"}</h2><p class="small">${dom()==="4"?"Boa domein IV · openbaar vervoer":"Boa domein I–III"}${p.werk?" · "+esc(p.werk):""}</p>${countdown?`<p class="small mono">${countdown}</p>`:""}</div></div>
+  const head=`<div class="idcard"><span class="ava lg">${esc(initials(p.naam))}</span><div class="stack" style="gap:4px;min-width:0"><span class="eyebrow">Mijn profiel</span><h2>${p.naam?esc(p.naam):"Naam nog niet ingevuld"}</h2><p class="small">${p.rol==="scholier"?"Boa in opleiding, ":"Boa "}${dom()==="4"?"domein IV · openbaar vervoer":"domein I–III"}${p.werk?" · "+esc(p.werk):""}</p>${countdown?`<p class="small mono">${countdown}</p>`:""}</div>${akteStatus(p)}</div>
     <nav class="ptabs" aria-label="Profiel"><a href="#profiel"${tab!=="examens"?' aria-current="page"':""}>Voortgang</a><a href="#profiel-examens"${tab==="examens"?' aria-current="page"':""}>Examens <span class="small">ExTH</span></a></nav>`;
   if(tab==="examens")return `<div class="stack">${head}${viewExams()}</div>`;
   return `<div class="stack">${head}
@@ -405,7 +405,8 @@ function viewProfile(tab){
         <div class="fields">
           <div class="field"><label for="pNaam">Naam</label><input id="pNaam" name="naam" value="${esc(p.naam)}" placeholder="Voor- en achternaam"></div>
           <div class="field"><label for="pWerk">Werkgever of team</label><input id="pWerk" name="werk" value="${esc(p.werk)}" placeholder="Bijvoorbeeld gemeente of vervoerder"></div>
-          <div class="field"><label for="pAkte">Akte van opsporingsbevoegdheid geldig tot</label><input id="pAkte" name="akte" type="date" value="${esc(p.akte)}"></div>
+          <div class="field"><label for="pRol">Ik ben</label><select id="pRol"><option value="werkend"${p.rol!=="scholier"?" selected":""}>Werkend</option><option value="scholier"${p.rol==="scholier"?" selected":""}>Scholier</option></select></div>
+          <div class="field" id="pAkteF"${p.rol==="scholier"?" hidden":""}><label for="pAkte">Akte van opsporingsbevoegdheid geldig tot</label><input id="pAkte" name="akte" type="date" value="${esc(p.akte)}"></div>
         </div>
         <div class="field"><span style="font-size:13px;font-weight:600;color:var(--muted)">Domein</span>${domSwitch()}</div>
         <div class="field"><span style="font-size:13px;font-weight:600;color:var(--muted)" id="themaL">Weergave</span>${themeSwitch()}</div>
@@ -420,6 +421,17 @@ function viewProfile(tab){
     </div>
     <div class="row" style="justify-content:flex-end">${confirmReset?`<div class="confirm row"><span>Profiel, voortgang en resultaten wissen?</span><button class="btn danger" data-act="reset-yes">Ja, wissen</button><button class="btn" data-act="reset-no">Annuleren</button></div>`:`<button class="btn ghost" data-act="reset">Alles wissen</button>`}</div>
   </div>`;
+}
+// akte in het profielblok (alleen bij werkend): verlopen = rood, binnen 3 maanden = let op, anders rustig
+function akteStatus(p){
+  if(p.rol==="scholier")return "";
+  const ic=d=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
+  const btn=l=>`<button class="btn sm" type="button" data-act="akte-edit">${l}</button>`;
+  if(!p.akte)return `<div class="aktestat warn" role="status">${ic("M12 8v5M12 16.5v.5M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z")}<div><b>Geldigheid van je akte onbekend</b><p>Vul in tot wanneer je akte geldig is, dan houdt de app dat voor je bij.</p></div>${btn("Datum invullen")}</div>`;
+  const d=daysTo(p.akte);const dt=fmtDate(p.akte+"T00:00");const mnd=Math.round(d/30.4);
+  if(d<0)return `<div class="aktestat bad" role="status">${ic("M12 8v5M12 16.5v.5M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z")}<div><b>Je akte is verlopen</b><p>Verlopen op ${dt}, ${-d===1?"1 dag":-d+" dagen"} geleden. Zonder geldige akte heb je geen opsporingsbevoegdheid. Overleg met je werkgever over verlenging.</p></div>${btn("Nieuwe datum invullen")}</div>`;
+  if(d<=90)return `<div class="aktestat warn" role="status">${ic("M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z")}<div><b>Je akte verloopt ${d===0?"vandaag":d===1?"morgen":"over "+d+" dagen"}</b><p>Geldig tot ${dt}. Zorg dat je PHB-modules en de verlenging op tijd rond zijn.</p></div>${btn("Datum aanpassen")}</div>`;
+  return `<div class="aktestat ok">${ic("M5 12.5 10 17l9-9.5")}<div><b>Akte geldig</b><p>Tot ${dt}, nog ${mnd>=2?mnd+" maanden":d+" dagen"}.</p></div></div>`;
 }
 function exportCode(){try{return "PHB1:"+btoa(unescape(encodeURIComponent(JSON.stringify(store))))}catch(e){return ""}}
 function importCode(txt){
@@ -535,6 +547,7 @@ document.addEventListener("click",e=>{
   if(act.indexOf("wv-")===0&&wvClick(act,{...d}))return;
   if(act.indexOf("yt-")===0&&ytClick(act,{...d}))return;
   if(["oefen","mix","fouten","toets","examen"].includes(act)){launch(act,{...d});return}
+  if(act==="akte-edit"){const go=()=>{const f=$("#pAkte");if(f){f.scrollIntoView({block:"center"});f.focus()}};if($("#pAkte"))go();else{location.hash="profiel";setTimeout(go,120)}return}
   if(act==="thema"){store.p.thema=d.v;save();applyTheme();render();toast(d.v==="donker"?"Donkere weergave":d.v==="licht"?"Lichte weergave":"Weergave volgt je systeem");return}
   if(act==="dom"){store.p.dom=d.v;save();render();toast(d.v==="4"?"Domein IV openbaar vervoer gekozen":"Domein I–III gekozen");return}
   if(act==="ex-new"){exOpen=true;exEdit=null;lastAdded=null;render();const f=$("#exDatum");if(f)f.focus();return}
@@ -568,7 +581,10 @@ document.addEventListener("click",e=>{
   if(act==="stop-yes"){const m=S.mod;clearInterval(tick);S=null;confirmStop=false;location.hash=m||"home";return}
   if(act==="stop-no"){confirmStop=false;render();return}
 });
-document.addEventListener("change",e=>{if(e.target.id==="obHas"){obDraft=obCollect();obExam=e.target.checked;delete obErr.datum;render();const f=$("#obDatum");if(f&&obExam)f.focus()}});
+document.addEventListener("change",e=>{
+  if(e.target.id==="obRol"){obDraft=obCollect();delete obErr.rol;delete obErr.akte;render();const f=$(obDraft.rol==="werkend"?"#obAkte":"#obRol-cs");if(f)f.focus();return}
+  if(e.target.id==="pRol"){const f=$("#pAkteF");if(f)f.hidden=e.target.value!=="werkend";return}
+  if(e.target.id==="obHas"){obDraft=obCollect();obExam=e.target.checked;delete obErr.datum;render();const f=$("#obDatum");if(f&&obExam)f.focus()}});
 document.addEventListener("submit",e=>{
   if(e.target.id==="obForm"){e.preventDefault();obSubmit();return}
   if(e.target.id==="ytForm"){e.preventDefault();ytSubmit();return}
@@ -580,7 +596,7 @@ document.addEventListener("submit",e=>{
     else{rec.id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);store.x.push(rec);lastAdded=rec.id;toast(rec.status==="gepland"?"Examen opgeslagen":"Uitslag opgeslagen")}
     exOpen=false;save();render();const w=document.getElementById("exFormWrap");if(w)w.scrollIntoView({block:"start"});return}
   if(e.target.id!=="profForm")return;e.preventDefault();
-  store.p.naam=$("#pNaam").value.trim().slice(0,60);store.p.werk=$("#pWerk").value.trim().slice(0,60);store.p.akte=$("#pAkte").value;
+  store.p.naam=$("#pNaam").value.trim().slice(0,60);store.p.werk=$("#pWerk").value.trim().slice(0,60);store.p.rol=$("#pRol").value;store.p.akte=store.p.rol==="werkend"?$("#pAkte").value:"";
   save();render();toast("Profiel opgeslagen");
 });
 $("#stopBtn").addEventListener("click",()=>{if(route()==="wv"&&W){wvCollect();wvAskStop=true;render();window.scrollTo(0,0);return}if(!S)return;if(S.mode==="oefen"&&S.items.some(x=>x.pick!==null)){submit(false);return}confirmStop=true;render();window.scrollTo(0,0)});
