@@ -230,6 +230,22 @@ p{margin:0}
 .prose h4{font-family:var(--f-display);font-size:15px;margin:12px 0 6px;font-stretch:90%}
 /* telefoon en tablet: onderwerpen buiten beeld pas opbouwen bij het scrollen (studiestof opent sneller) */
 @media (max-width:1099px){.stofsec{content-visibility:auto;contain-intrinsic-size:auto 640px}}
+.chip.bg{background:transparent;border-style:dashed;color:var(--muted);font-weight:500}
+.mtx{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:0}
+.mtx>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;cursor:pointer;list-style:none}
+.mtx>summary>span{min-width:0;flex:1}
+.mtx>summary::-webkit-details-marker{display:none}
+.mtx>summary::after{content:"";flex:none;width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin:-4px 4px 0 0;transition:transform .15s}
+.mtx[open]>summary::after{transform:rotate(-135deg);margin-top:4px}
+.mtx>p{margin:0 16px 10px}
+.mdelen{list-style:none;margin:0;padding:0 16px 16px;display:flex;flex-direction:column;gap:14px}
+.mkop{display:flex;justify-content:space-between;align-items:baseline;gap:10px;white-space:nowrap;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.mkop b{white-space:normal}
+.mlist{list-style:none;margin:0;padding:0}
+.mlist li{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.mlist li:last-child{border-bottom:0}
+.mcode{font-size:12px;color:var(--muted)}
+.mt{display:flex;flex-direction:column;gap:2px;font-size:15px}
 .prose ol.flow{list-style:none;margin:4px 0 8px;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:fl}
 .prose ol.flow li{position:relative;padding:10px 12px 10px 44px;background:var(--sunk);border:1px solid var(--line);border-radius:10px;counter-increment:fl}
 .prose ol.flow li::before{content:counter(fl);position:absolute;left:10px;top:9px;width:24px;height:24px;border-radius:50%;background:var(--navy);color:var(--navy-ink);font:700 13px/24px var(--f-mono);text-align:center}

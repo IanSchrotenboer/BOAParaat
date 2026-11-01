@@ -5,6 +5,10 @@
 // aanvangssituatie, gebeurtenissen en specificaties. 'Goed' vanaf 85. Elke onjuiste relevante waarneming: -10.
 const WV_MIN=80, WV_PAUSE=120, WV_PASS=70, WV_GOOD=85;
 const WV_PARTS=[["aanv","Aanvangssituatie",15],["gebeur","Gebeurtenissen",25],["spec","Specificaties",20]];
+// Puntenverdeling volgens de rubric van ExTH. Domein IV OV (rubric v2.1, mei 2026): algemeen 35 punten
+// (chronologie 10, maximaal zes taalfouten 5, zintuiglijke waarnemingen 10, maximaal twee foutieve waarnemingen 10)
+// en waarnemingen 65 punten (aanvangssituatie 10, gebeurtenissen 47, specificaties 8).
+const WV_RUBRIC={"4":{alg:35,parts:{aanv:10,gebeur:47,spec:8}}};
 
 // ===== tekenhulpen (SVG, 960 x 540) =====
 const SKIN=["#f1c9a5","#d9a57c","#a8714d","#7a4b2e"];
@@ -473,10 +477,29 @@ function wvScore(sc,txt,hdr){
     neutraal:{label:"Feitelijk en neutraal, zonder meningen",got:neutraal,max:10,info:opinions.length?`Gevonden: ${opinions.map(w=>`'${w}'`).join(", ")}. Beschrijf wat je zag en hoorde, niet wat je ervan vindt.`:"Geen meningen of interpretaties gevonden."}};
   const algVals=Object.values(alg).filter(x=>x.got!=null);const alg40=Math.round(algVals.reduce((a,x)=>a+x.got,0)*40/(algVals.length*10));
   const wrong=((key&&key.wrong)||[]).filter(w=>{try{return w.f(n)}catch(e){return false}});
+  const RB=WV_RUBRIC[sc.dom];
+  if(RB){ // rubric Domein IV: eigen puntenverdeling; beknoptheid en neutraliteit blijven als tip zichtbaar
+    let w65=0;for(const [k] of WV_PARTS){const p=parts[k];const mx=RB.parts[k];if(!p.none){p.got=Math.round(p.got/p.max*mx*2)/2}else p.got=0;p.max=mx;w65+=p.got}
+    if(content&&specMax<60){const vol=WV_PARTS.filter(([k])=>!parts[k].none).reduce((a,[k])=>a+RB.parts[k],0);if(vol)w65=w65*65/vol}
+    const taalFout=typos.length+(lowerStart>2?lowerStart:0);
+    const alg4={chrono:{...alg.chrono},
+      taal:{label:"Maximaal zes spel- en taalfouten",got:taalFout<=6?5:0,max:5,info:`${taalFout} mogelijke ${taalFout===1?"fout":"fouten"} gevonden${typos.length?": "+typos.map(t=>`'${t}'${WV_TYPO[t]?" → "+WV_TYPO[t]:""}`).join(", "):""}.`},
+      rvw:{label:"Waarnemingen als zintuiglijke waarnemingen (ik zag, ik hoorde)",got:rvw>=3?10:0,max:10,info:`${rvw}× 'ik zag', 'ik hoorde' of vergelijkbaar.${rvw<3?" Beschrijf je waarnemingen consequent als eigen zintuiglijke waarneming.":""}`},
+      fout:{label:"Maximaal twee foutieve waarnemingen",got:content?(wrong.length<=2?10:0):null,max:10,info:content?(wrong.length?`${wrong.length} foutieve ${wrong.length===1?"waarneming":"waarnemingen"} gevonden.`:"Geen foutieve waarnemingen gevonden."):"Niet te beoordelen zonder kernpunten bij deze video."},
+      kort:{...alg.kort,label:"Tip: beknoptheid en relevantie (telt niet mee)",got:null},
+      neutraal:{...alg.neutraal,label:"Tip: feitelijk en neutraal (telt niet mee)",got:null}};
+    if(alg4.chrono.got!=null)alg4.chrono.max=10;
+    const sc35=["chrono","taal","rvw","fout"].map(k=>alg4[k]).filter(x=>x.got!=null);
+    const a35=Math.round(sc35.reduce((a,x)=>a+x.got,0)*35/sc35.reduce((a,x)=>a+x.max,0));
+    const tot=content?Math.round(a35+w65):null;const ok=content&&WV_PARTS.every(([k])=>parts[k].none||parts[k].got>=parts[k].max/2);
+    return {content,total:tot,pass:content?tot>=WV_PASS&&ok:null,good:content&&tot>=WV_GOOD&&ok,partsOk:ok,parts,alg:alg4,alg40:a35,algMax:35,spec60:Math.round(w65*2)/2,specMax:65,aftrek:0,wrong,words,tpl:wvTpl(hdr)};
+  }
   const total=content?Math.max(0,Math.round(alg40+spec60-wrong.length*10)):null;
   const partsOk=content&&WV_PARTS.every(([k,,max])=>parts[k].none||parts[k].got>=max/2);
+  return {content,total,pass:content?total>=WV_PASS&&partsOk:null,good:content&&total>=WV_GOOD&&partsOk,partsOk,parts,alg,alg40,algMax:40,spec60:Math.round(spec60*2)/2,specMax:60,aftrek:wrong.length*10,wrong,words,tpl:wvTpl(hdr)};
+}
+function wvTpl(hdr){
   const h=hdr||{};
-  const tpl=[["Kandidaatnummer",!!(h.nr||"").trim()],["Functie",!!(h.functie||"").trim()],["Organisatie",!!(h.org||"").trim()],["Afdeling",!!(h.afd||"").trim()],["Nummer akte van beëdiging",!!(h.akte||"").trim()],["Naam: eerste voornaam voluit, voorletters en achternaam",/^\S{2,}\s+(\S+\s+)*\S{2,}/.test((h.naam||"").trim())&&!/^[a-z]\.?\s/i.test((h.naam||"").trim())],["Ambtseed of ambtsbelofte gekozen",!!h.eed]];
-  return {content,total,pass:content?total>=WV_PASS&&partsOk:null,good:content&&total>=WV_GOOD&&partsOk,partsOk,parts,alg,alg40,spec60:Math.round(spec60*2)/2,wrong,words,tpl};
+  return [["Kandidaatnummer",!!(h.nr||"").trim()],["Functie",!!(h.functie||"").trim()],["Organisatie",!!(h.org||"").trim()],["Afdeling",!!(h.afd||"").trim()],["Nummer akte van beëdiging",!!(h.akte||"").trim()],["Naam: eerste voornaam voluit, voorletters en achternaam",/^\S{2,}\s+(\S+\s+)*\S{2,}/.test((h.naam||"").trim())&&!/^[a-z]\.?\s/i.test((h.naam||"").trim())],["Ambtseed of ambtsbelofte gekozen",!!h.eed]];
 }
 

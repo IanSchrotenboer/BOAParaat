@@ -195,6 +195,36 @@ const STOF = [
 <li><b>Herstelsancties</b>: last onder bestuursdwang en last onder dwangsom. <b>Bestraffende sanctie</b>: bestuurlijke boete. Intrekken van een vergunning kan allebei zijn.</li>
 <li>Bezwaar schorst een sanctie niet; een voorlopige voorziening bij de rechter kan dat wel. Bij een bestraffende sanctie hoeft de betrokkene geen verklaring af te leggen (art. 5:10a Awb) en dat moet je vooraf meedelen.</li>
 </ul>`},
+{id:"ruimte", deel:"Openbare ruimte (domein I)", titel:"APV, verkeer en bijzondere wetten", kb:"", dia:"", html:`
+<p>De toetsmatrijs Wet- en regelgeving Domein I (ExTH, versie 1.3) toetst naast strafrecht en bestuursrecht ook de APV en een aantal bijzondere wetten. Gemeenten kunnen van de Model-APV afwijken; de nummers hieronder zijn die van de Model-APV.</p>
+<h4>Gemeente en samenwerking</h4>
+<ul>
+<li>De <b>gemeenteraad</b> stelt verordeningen vast, zoals de APV. De <b>burgemeester</b> handhaaft de openbare orde (art. 172 Gemeentewet), kan bij ernstige wanorde of rampen een <b>noodverordening</b> vaststellen (art. 176) en zit het bestuur van de veiligheidsregio voor als hij daartoe is benoemd.</li>
+<li><b>Inzetcriterium</b> (Beleidsregels boa): de boa handelt leefbaarheidsfeiten af die direct te constateren, eenvoudig bewijsbaar en feitgecodeerd af te doen zijn. Bij geweld, veelplegers, aanzienlijke schade of een te verwachten gevaarlijke setting is de politie aan zet.</li>
+<li>Ketenpartners: Openbaar Ministerie, brandweer, milieubeheerders, wegbeheerders, Nederlandse Arbeidsinspectie, NVWA (voedsel en producten) en het RIEC (aanpak ondermijning).</li>
+</ul>
+<h4>APV</h4>
+<ul>
+<li>Begrippen (art. 1:1): <b>openbare plaats</b> (staat krachtens bestemming of vast gebruik open voor publiek), <b>weg</b> (zoals in de Wegenverkeerswet, inclusief voetpaden, fietspaden en bermen), bebouwde kom, handelsreclame en openbaar water.</li>
+<li>Openbare orde: samenscholing en wanordelijkheden (2:1), straatartiesten op aangewezen plaatsen (2:9), plakken en kladden zonder toestemming van de eigenaar (2:42), hinderlijk gedrag (2:47), alcohol drinken in een aangewezen gebied (2:48), drugshandel en drugsgebruik op straat (2:74 en 2:74a), geluidhinder (4:6) en wildplassen (4:8).</li>
+<li>Honden: aanlijnen binnen de bebouwde kom behalve op losloopplaatsen, poep direct opruimen en een opruimmiddel bij je hebben (2:57 en 2:58); de burgemeester kan een aanlijn- of muilkorfgebod opleggen voor een gevaarlijke hond.</li>
+<li>Vergunning nodig voor collecteren (5:13), een standplaats (5:18) en een snuffelmarkt (5:23). Venten kan op aangewezen plaatsen of tijden verboden zijn (5:14 en 5:15).</li>
+<li>Parkeren: een defect voertuig of een kampeermiddel niet langer dan drie dagen op de weg (5:5 en 5:6); een voertuig langer dan 6 meter of hoger dan 2,40 meter niet buiten aangewezen plaatsen (5:8). Vuur stoken en afval verbranden buiten een inrichting is verboden (5:34).</li>
+</ul>
+<h4>Verkeer</h4>
+<ul>
+<li><b>Parkeren</b> is stilstaan langer dan nodig voor het onmiddellijk in- of uitstappen of laden en lossen (art. 1 RVV 1990). Parkeren binnen 5 meter van een kruispunt is verboden (art. 24). Bij een parkeerverbod (E1) mag je nog in- en uitstappen of laden en lossen, bij een verbod stil te staan (E2) niet.</li>
+<li>Aanwijzingen van bevoegde personen moet je opvolgen (art. 82 RVV 1990); ze gaan voor op verkeerslichten, borden en regels.</li>
+<li>Wegslepen: het overbrengen en bewaren van voertuigen gebeurt op last van een bevoegde ambtenaar; de kosten zijn voor de eigenaar of houder (art. 170 t/m 174 WVW 1994).</li>
+</ul>
+<h4>Bijzondere wetten</h4>
+<ul>
+<li><b>Alcoholwet</b>: een minderjarige mag op een publiek toegankelijke plaats geen alcohol aanwezig hebben, ook niet in een dichte fles (art. 45). Een meerderjarige mag daar geen alcohol doorgeven aan een minderjarige (wederverstrekking, art. 45a).</li>
+<li><b>Winkeltijdenwet</b>: winkels zijn gesloten op zon- en feestdagen en vóór 06.00 en na 22.00 uur (art. 2), tenzij de gemeenteraad bij verordening vrijstelling of ontheffing regelt (art. 3).</li>
+<li><b>Wet op de economische delicten</b>: extra bevoegdheden bij economische delicten, zoals inbeslagneming, inzage van zakelijke gegevens, toegang tot plaatsen en onderzoek van zaken en vervoermiddelen (art. 18 t/m 23), en een medewerkingsplicht (art. 24a).</li>
+<li><b>Omgevingswet</b>: een lozingsactiviteit is het lozen van stoffen in oppervlaktewater; storten of in de bodem brengen van bedrijfsafval of gevaarlijke stoffen is verboden (Bal); afval van een activiteit moet rond de locatie worden opgeruimd (bruidsschat).</li>
+<li><b>Visserijwet 1963</b>: wie vist, moet een geldige schriftelijke toestemming van de rechthebbende bij zich hebben, zoals de VISpas (art. 23). <b>Wet milieubeheer</b>: bedrijfsafval mag niet als huishoudelijk afval worden aangeboden; het bedrijf is strafbaar (art. 10.37).</li>
+</ul>`},
 {id:"wpbegrip", deel:"Openbaar vervoer (domein IV)", titel:"Wet personenvervoer 2000: begrippen en concessie", kb:"75–84", dia:"8–22", html:`
 <ul>
 <li><b>Openbaar vervoer</b> (art. 1 Wp2000): voor iedereen openstaand personenvervoer volgens een <b>dienstregeling</b> met auto, bus, trein, metro, tram of geleid voertuig. Besloten busvervoer is busvervoer dat geen openbaar vervoer is (bijvoorbeeld een schoolbus).</li>
@@ -325,6 +355,7 @@ const STOF = [
 ];
 // Vindplaatsen per wetsartikel: [regex op de bronverwijzing van de vraag, sectie, kennisboekje-blz, dia's]
 const STOF_ART = [
+[/Model-APV|RVV|WVW|Alcoholwet|Winkeltijdenwet|WED\b|Omgevingswet|Bal\b|bruidsschat|Visserijwet|Wm\b|Gemeentewet|Beleidsregels boa, paragraaf 6|Toetsmatrijs Domein I, toetsterm 1\.3/,"ruimte","",""],[/art\. 5:(2|8|10|10a|21|27|29|31d|40) Awb|art\. 1:1 Awb|Toetsmatrijs Domein I, toetsterm 3/,"bestuur","",""],
 [/art\. 1[789]a? Ambtsinstructie|18a Ambtsinstructie|art\. 24 Ambtsinstructie|RTGB|Stb\. 2020|art\. 82 Sr|Lesstof geweldsbeheersing/,"geweldmelding","",""],[/Ambtsinstructie/,"ambts","",""],
 [/art\. 70 Wp2000|art\. 70 lid/,"ovbewijs","85","23"],[/art\. 71 Wp2000/,"ovorde","90","29"],[/art\. 72 Wp2000/,"ovorde","91","30–31"],[/art\. 73 Wp2000/,"ovorde","93–94","33"],
 [/art\. 87 Wp2000/,"ovtoezicht","98–99","38"],[/art\. 89 Wp2000/,"ovopsp","105","41"],[/art\. 90 Wp2000/,"ovtoezicht","101","40"],[/art\. 91 Wp2000/,"ovopsp","107","43"],
@@ -348,4 +379,4 @@ const STOF_ART = [
 ];
 // Standaard-sectie per categorie als de bronverwijzing niets specifieks oplevert
 const STOF_CAT = {sr:"staat",ro:"rechtspraak",boa:"boa",pol:"politie",str:"recht",vd:"verhoor",bev:"bevoegd",kl:"aangifte",vrij:"aanhouden",fou:"fouilleren",bes:"fouilleren",pl:"woning",sch:"strafbaar",amb:"tegenambt",
-  wp:"ovopsp",bp:"ovbewijs",ovt:"ovtoezicht",spw:"spoor",com:"praktijk",agr:"praktijk",prof:"praktijk",waa:"pv",pv:"pv",aig:"ambts",aim:"geweldmelding",aiw:"ambts",aif:"ambts",air:"geweldmelding",avg:"privacy"};
+  wp:"ovopsp",bp:"ovbewijs",ovt:"ovtoezicht",spw:"spoor",com:"praktijk",agr:"praktijk",prof:"praktijk",waa:"pv",pv:"pv",gem:"ruimte",bst:"bestuur",apv:"ruimte",wvw:"ruimte",bijz:"ruimte",jgd:"bevoegd",aig:"ambts",aim:"geweldmelding",aiw:"ambts",aif:"ambts",air:"geweldmelding",avg:"privacy"};

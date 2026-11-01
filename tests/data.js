@@ -4,9 +4,9 @@ const fs=require('fs'),path=require('path');
 const B=f=>fs.readFileSync(path.resolve(__dirname,'../bron',f),'utf8');
 const body=B('v2_body.html');
 const cfg=body.slice(body.indexOf('const CATS ='),body.indexOf('const MODBY'));
-const src=['q1.js','q2.js','q3.js','q4.js','q5.js','q6.js','stof.js'].map(B).join('\n')+'\n'+cfg+
-  ';return {Q:[].concat(Q1,Q2,Q3,Q4,Q5,Q6),CATS,MODS,D4,STOF,STOF_CAT,STOF_ART}';
-const {Q,CATS,MODS,STOF,STOF_CAT,STOF_ART}=new Function(src)();
+const src=['q1.js','q2.js','q3.js','q4.js','q5.js','q6.js','q7.js','stof.js','matrijs.js'].map(B).join('\n')+'\n'+cfg+
+  ';return {Q:[].concat(Q1,Q2,Q3,Q4,Q5,Q6,Q7),CATS,MODS,D4,STOF,STOF_CAT,STOF_ART,MATRIJS}';
+const {Q,CATS,MODS,STOF,STOF_CAT,STOF_ART,MATRIJS}=new Function(src)();
 const bad=[],warn=[];
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return "q"+(h>>>0).toString(36)}
 const ids=new Map(),teksten=new Map();const perCat={};
@@ -33,10 +33,18 @@ Q.forEach((r,i)=>{
   perCat[c]=(perCat[c]||0)+1;
 });
 for(const c of Object.keys(CATS)){if(!perCat[c])bad.push('categorie zonder vragen: '+c);else if(perCat[c]<10)warn.push(`categorie ${c} heeft maar ${perCat[c]} vragen`)}
-for(const m of MODS)for(const b of m.blocks||[])for(const c of b[2])if(!CATS[c])bad.push(`blok ${m.id}/${b[0]}: onbekende categorie ${c}`);
+for(const m of MODS)for(const b of (m.blocks||[]).concat(m.blocks4||[]))for(const c of b[2])if(!CATS[c])bad.push(`blok ${m.id}/${b[0]}: onbekende categorie ${c}`);
 const sids=new Set();for(const s of STOF){if(sids.has(s.id))bad.push('studiestof dubbel id '+s.id);sids.add(s.id);if(!s.html||s.html.length<80)bad.push('studiestof te kort: '+s.id)}
 for(const [c,s] of Object.entries(STOF_CAT)){if(!CATS[c])warn.push('STOF_CAT: onbekende categorie '+c);if(!sids.has(s))bad.push(`STOF_CAT ${c} → onbekend onderwerp ${s}`)}
 for(const a of STOF_ART)if(!sids.has(a[1]))bad.push('STOF_ART → onbekend onderwerp '+a[1]);
+// toetsmatrijzen: 50 vragen per domein, elke toetsterm heeft genoeg vragen, alle codes bestaan
+const alleIds=new Set(Q.map(r=>r[5]));
+for(const [d,M] of Object.entries(MATRIJS)){let tot=0;const gezien=new Set();
+  for(const [,,gs] of M.delen)for(const [code,lab,n,lijst] of gs){tot+=n;
+    lijst.forEach(id=>{if(!alleIds.has(id))bad.push(`matrijs ${d} ${code}: onbekende vraagcode ${id}`)});
+    const echt=lijst.filter(id=>alleIds.has(id)).length;if(echt<n)bad.push(`matrijs ${d} ${code} (${lab}): ${echt} vragen, examen vraagt er ${n}`);else if(echt<2*n)warn.push(`matrijs ${d} ${code}: maar ${echt} vragen voor ${n} examenvragen`);
+    if(gezien.has(code))bad.push(`matrijs ${d}: code ${code} dubbel`);gezien.add(code)}
+  if(tot!==50)bad.push(`matrijs ${d}: ${tot} examenvragen in plaats van 50`)}
 // lengte-hint: hoe vaak is het juiste antwoord het langste?
 const pos=[0,0,0,0];Q.forEach(r=>{const s=r[2].map((x,k)=>[x.length,k]).sort((a,b)=>b[0]-a[0]||a[1]-b[1]);pos[s.findIndex(x=>x[1]===0)]++});
 const longest=pos[0]/Q.length;
