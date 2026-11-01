@@ -70,6 +70,26 @@ const LIGHT='rgb(244, 246, 249)',DARK='rgb(16, 21, 28)';
     await p.screenshot({path:SHOTS+'/stijl_home_'+th+'.png'});
   }
   await p.context().close();
+  // keuzeknoppen (domein, weergave): gekozen optie volledig ingekleurd en rondom afgerond, in licht en donker
+  for(const cs of ['light','dark']){
+    p=await open(b,{colorScheme:cs});await p.evaluate(()=>location.hash='phb1');await w(300);
+    const k=await p.evaluate(()=>{const on=document.querySelector('.seg [aria-pressed="true"]'),off=document.querySelector('.seg [aria-pressed="false"]');
+      const navy=getComputedStyle(document.documentElement).getPropertyValue('--navy').trim(),c=document.createElement('i');c.style.color=navy;document.body.appendChild(c);const nv=getComputedStyle(c).color;c.remove();
+      const st=getComputedStyle(on),so=getComputedStyle(off);return {bg:st.backgroundColor,nv,r:[st.borderTopLeftRadius,st.borderTopRightRadius,st.borderBottomLeftRadius,st.borderBottomRightRadius].map(parseFloat),offbg:so.backgroundColor,inset:st.boxShadow.includes('inset')}});
+    t(k.bg===k.nv&&!k.inset,`gekozen domein volledig ingekleurd (${cs}: ${k.bg})`);
+    t(k.r.every(x=>x>=6),`gekozen domein rondom afgerond (${cs}: ${k.r.join('/')} px)`);
+    t(k.offbg!==k.bg,`niet-gekozen domein valt duidelijk te onderscheiden (${cs})`);
+    await p.context().close();
+  }
+  // smalle telefoon of vergrote pagina: compactere maten, niets breder dan het scherm
+  p=await open(b,{viewport:{width:340,height:740}});
+  for(const h of ['home','phb1','stof','profiel']){await p.evaluate(h=>location.hash=h,h);await w(300);
+    const m=await p.evaluate(()=>({sw:document.documentElement.scrollWidth,h1:parseFloat(getComputedStyle(document.querySelector('#app h1')||document.body).fontSize)}));
+    t(m.sw<=340&&m.h1<=25,`340 px breed (${h}): past op het scherm, kop ${m.h1} px`)}
+  await p.evaluate(()=>location.hash='stof');await w(300);
+  const toc=await p.evaluate(()=>[...document.querySelectorAll('.toc li')].every(li=>{const a=li.querySelector('a');return getComputedStyle(a).display==='block'}));
+  t(toc,'inhoudsopgave studiestof: nummer staat op de eerste regel bij lange titels');
+  await p.context().close();
   await b.close();
   console.log(out.join('\n'));const n=out.filter(x=>x.startsWith('FAIL')).length;console.log(`\n${n} problemen, ${out.length-n} geslaagd`);process.exit(n?1:0);
 })();

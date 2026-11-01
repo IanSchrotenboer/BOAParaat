@@ -125,12 +125,12 @@ p{margin:0}
 .exam .small{color:var(--muted)}
 @media (max-width:460px){.exam{grid-template-columns:1fr}}
 .note{border-left:3px solid var(--hivis);background:var(--warn-bg);padding:12px 14px;border-radius:0 8px 8px 0;font-size:14px;margin:0}
-.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--surface)}
-.seg button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px 14px;border:0;background:transparent;cursor:pointer;text-align:left;font-weight:700;font-family:var(--f-display);font-size:17px;min-width:0}
-.seg button+button{border-left:1px solid var(--line)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border:1px solid var(--line);border-radius:var(--r);background:var(--sunk)}
+.seg button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:11px 13px;border:0;border-radius:calc(var(--r) - 4px);background:transparent;color:var(--ink);cursor:pointer;text-align:left;font-weight:700;font-family:var(--f-display);font-size:17px;min-width:0}
 .seg button small{font-family:var(--f-body);font-weight:400;font-size:13px;color:var(--muted)}
-.seg button[aria-pressed="true"]{background:var(--tint);color:var(--ink);box-shadow:inset 0 0 0 2px var(--navy)}
-.seg button[aria-pressed="true"] small{color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--navy);color:var(--navy-ink);box-shadow:0 1px 3px rgba(10,20,40,.18)}
+.seg button[aria-pressed="true"] small{color:var(--navy-ink);opacity:.86}
+@media (hover:hover){.seg button:not([aria-pressed="true"]):hover{background:var(--surface)}}
 
 /* vraag */
 .qhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center}
@@ -359,7 +359,7 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,#qtext:focus{outline:none}
 h1,h2,h3,.t,.catrow>span:first-child,.hname b,.wvopt b{overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto}
 button,a,.csel,summary,label{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 @media (pointer:coarse){
-  .toc li a{display:inline-block;padding:7px 0}
+  .toc li a{display:block;padding:7px 0}
   .exthbar a,.wimport .linkbtn,.hlinks a,.hlinks .linkbtn,.wvcard>.stack>a.small{display:inline-flex;align-items:center;min-height:44px}
   .linkbtn{min-height:40px}
 }
@@ -409,7 +409,7 @@ button,a,.csel,summary,label{touch-action:manipulation;-webkit-tap-highlight-col
 .sel{user-select:all}
 .field select{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:10px 12px;min-height:44px;font:inherit;color:inherit}
 footer{font-size:13px;color:var(--muted);padding-block:8px 32px}
-@media (prefers-reduced-motion:no-preference){.opt,.btn,.topnav a{transition:border-color .15s,background-color .15s,filter .15s,color .15s}}
+@media (prefers-reduced-motion:no-preference){.opt,.btn,.topnav a,.seg button{transition:border-color .15s,background-color .15s,filter .15s,color .15s}}
 /* Stijl A "Stil blauw": weekstrip, voortgang per vraag, rustige uitslag */
 .vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .week{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
@@ -537,6 +537,30 @@ footer{font-size:13px;color:var(--muted);padding-block:8px 32px}
   .cats .cat:nth-child(odd){border-right:1px solid var(--line)}
   .blocks{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
   .lede{max-width:72ch}
+}
+/* telefoon: compactere maten op smalle schermen (kleine telefoons, of een browser die de pagina vergroot
+   omdat de lettergrootte van de telefoon hoger staat) */
+@media (max-width:380px){
+  body{font-size:15px}
+  h1{font-size:25px}h2{font-size:19px}h3{font-size:16px}
+  main{padding-block:16px 48px}
+  .stack{gap:14px}.section{margin-top:26px}.home,.homegrid,.stofgrid{gap:18px}
+  .bar .wrap{min-height:52px;padding-block:8px;gap:10px}.mark{width:32px;height:32px}.brand b{font-size:17px}.brand .tag{font-size:11px}
+  :root{--tabh:58px}.tabbar a{font-size:10.5px}
+  .small,.note{font-size:13px}.eyebrow{font-size:11px}
+  .panel,.idcard{padding:14px}.idcard{gap:14px}.idcard h2{font-size:22px}
+  .hero{padding:14px 16px;gap:10px}.hero h2{font-size:18px}
+  .exam{padding:16px;gap:10px}.exam .big{font-size:44px}
+  .cat,.week{padding:12px 14px}.hlist a{padding:12px 14px;gap:12px;min-height:52px}.days .dot{width:28px;height:28px}
+  .seg button{padding:9px 11px;font-size:15px}.seg button small{font-size:12px}.seg.three button{font-size:14px}
+  .stat{padding:12px 14px}.stat .v{font-size:22px}
+  .qtext{font-size:18px}.opt{padding:10px 12px;gap:10px}
+  .btn{padding:9px 14px}
+}
+@media (max-width:340px){
+  h1{font-size:23px}h2{font-size:18px}
+  .wrap{padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+  .exam .big{font-size:38px}.brand .tag{display:none}
 }
 @media print{
   .bar,.tabbar,footer,.toc,.homeside,.btn,.toast,.kdlg{display:none!important}
