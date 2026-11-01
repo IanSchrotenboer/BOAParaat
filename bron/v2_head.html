@@ -69,7 +69,7 @@ a{color:var(--link)}
   .topnav{display:none}
   .prof .lbl{display:none}
   .prof{padding:3px;margin-left:auto}
-  .tabbar{display:grid;grid-template-columns:repeat(6,1fr);position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+  .tabbar{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
   .tabbar a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:var(--tabh);text-decoration:none;color:var(--muted);font-size:11px;font-weight:600;position:relative}
   .tabbar a .ic{display:grid;place-items:center;width:30px;height:24px;border-radius:6px;font-family:var(--f-display);font-weight:800;font-size:13px;font-stretch:85%}
   .tabbar a[aria-current="page"]{color:var(--ink)}
@@ -228,6 +228,13 @@ p{margin:0}
 .prose ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
 .prose p{margin:0 0 8px}
 .prose h4{font-family:var(--f-display);font-size:15px;margin:12px 0 6px;font-stretch:90%}
+/* telefoon en tablet: onderwerpen buiten beeld pas opbouwen bij het scrollen (studiestof opent sneller) */
+@media (max-width:1099px){.stofsec{content-visibility:auto;contain-intrinsic-size:auto 640px}}
+.prose ol.flow{list-style:none;margin:4px 0 8px;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:fl}
+.prose ol.flow li{position:relative;padding:10px 12px 10px 44px;background:var(--sunk);border:1px solid var(--line);border-radius:10px;counter-increment:fl}
+.prose ol.flow li::before{content:counter(fl);position:absolute;left:10px;top:9px;width:24px;height:24px;border-radius:50%;background:var(--navy);color:var(--navy-ink);font:700 13px/24px var(--f-mono);text-align:center}
+.prose ol.flow li+li::after{content:"";position:absolute;left:21px;top:-11px;width:2px;height:10px;background:var(--line)}
+.hcode svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .prose .lo{border-left:3px solid var(--hivis);background:var(--warn-bg);padding:8px 12px;border-radius:0 6px 6px 0;font-size:14px;margin-top:10px}
 .lockbox{background:var(--warn-bg);border:1px solid var(--line);border-left:3px solid var(--hivis);border-radius:var(--r);padding:14px 16px}
 /* PHB 3 praktijkoefening */

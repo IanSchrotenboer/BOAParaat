@@ -33,7 +33,7 @@ def lees(*p): return open(os.path.join(*p), encoding='utf-8').read()
 # ---------------------------------------------------------------- 1. bouwen
 kop('1. Bouwen en compact maken')
 head = lees(BRON, 'v2_head.html'); body_src = lees(BRON, 'v2_body.html')
-data = '\n'.join(lees(BRON, f) for f in ['q1.js', 'q2.js', 'q3.js', 'q4.js', 'q5.js', 'stof.js'])
+data = '\n'.join(lees(BRON, f) for f in ['q1.js', 'q2.js', 'q3.js', 'q4.js', 'q5.js', 'q6.js', 'stof.js'])
 extra = ''.join(lees(BRON, f) for f in ['wv.js', 'wv_ui.js', 'ui_extra.js'])
 VERSIE = json.load(open(os.path.join(ROOT, 'package.json')))['version']
 notities = os.path.join(ROOT, 'release-notities', 'v' + VERSIE + '.md')
@@ -168,7 +168,7 @@ if not SNEL:
     kop('5. Browsertests')
     env = dict(os.environ, BOA_URL='file://' + os.path.join(UIT, 'Boa-Paraat.html'), BOA_SHOTS=os.path.join(UIT, 'schermen'))
     os.makedirs(env['BOA_SHOTS'], exist_ok=True)
-    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'stress.js']: draai(t, env)
+    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'rtgb.js', 'stress.js']: draai(t, env)
 else:
     let_op('browsertests overgeslagen (--snel)')
 

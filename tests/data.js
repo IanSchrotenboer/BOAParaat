@@ -4,8 +4,8 @@ const fs=require('fs'),path=require('path');
 const B=f=>fs.readFileSync(path.resolve(__dirname,'../bron',f),'utf8');
 const body=B('v2_body.html');
 const cfg=body.slice(body.indexOf('const CATS ='),body.indexOf('const MODBY'));
-const src=['q1.js','q2.js','q3.js','q4.js','q5.js','stof.js'].map(B).join('\n')+'\n'+cfg+
-  ';return {Q:[].concat(Q1,Q2,Q3,Q4,Q5),CATS,MODS,D4,STOF,STOF_CAT,STOF_ART}';
+const src=['q1.js','q2.js','q3.js','q4.js','q5.js','q6.js','stof.js'].map(B).join('\n')+'\n'+cfg+
+  ';return {Q:[].concat(Q1,Q2,Q3,Q4,Q5,Q6),CATS,MODS,D4,STOF,STOF_CAT,STOF_ART}';
 const {Q,CATS,MODS,STOF,STOF_CAT,STOF_ART}=new Function(src)();
 const bad=[],warn=[];
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return "q"+(h>>>0).toString(36)}

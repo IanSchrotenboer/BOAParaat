@@ -73,7 +73,7 @@ process.on('unhandledRejection',e=>{console.log(out.join('\n'));console.log('FAI
   await swipe(4,420,40,425);(await hash(p))==='#phb1'?ok('iPhone: te korte veeg doet niets'):fail('korte veeg');
   await swipe(4,300,12,600);(await hash(p))==='#phb1'?ok('iPhone: verticaal scrollen langs de rand doet niets'):fail('verticaal');
   await swipe(120,420,300,425);(await hash(p))==='#home'&&!(await p.locator('.edgeback.show').count())?ok('iPhone: veeg midden in het scherm wisselt van menu (PHB 1 → Overzicht), niet het terug-gebaar'):fail('midden '+await hash(p));
-  await nav(p,'profiel-examens');await p.click('[data-act="ex-new"]');await p.click('#exMod-cs');await w(150);await p.click('[data-cs-close]');await w(150);
+  await nav(p,'profiel-examens');await p.click('[data-act="ex-new"]');await p.click('#exMod-cs');await w(150);await p.click('.cs-back',{position:{x:20,y:20}});await w(150);
   await swipe(4,420,160,425);(await p.locator('#exForm').count())===0&&(await hash(p))==='#profiel-examens'?ok('iPhone: veeg sluit eerst het open formulier'):fail('ios formulier');
   if(p._e.length)fail('JS-fouten C: '+p._e.join(' | '));await p.context().close();
   // in gewone Safari niet (daar heeft de browser zelf al het gebaar)

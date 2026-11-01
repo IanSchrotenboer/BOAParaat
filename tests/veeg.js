@@ -14,12 +14,13 @@ async function open(b,opts={}){
 const hash=p=>p.evaluate(()=>location.hash.slice(1));
 const tabNu=p=>p.evaluate(()=>{const a=document.querySelector('#tabbar a[aria-current="page"]');return a?a.getAttribute('href').slice(1):''});
 const ga=async(p,h)=>{await p.evaluate(h=>location.hash=h,h);await w(350)};
-// een veeg met de vinger: van (x0,y0) naar (x1,y1) in 'ms' milliseconden; 'mid' wordt halverwege aangeroepen
+// een veeg met de vinger: van (x0,y0) naar (x1,y1) in 'ms' milliseconden; 'mid' wordt halverwege aangeroepen.
+// De aanrakingen krijgen vaste tijdstempels, zodat de snelheid van de veeg niet afhangt van hoe druk de testcomputer is.
 async function veeg(p,x0,y0,x1,y1,ms=220,mid,vingers=1,n=10){
-  const pt=(x,y)=>Array.from({length:vingers},(_,i)=>({x:x+i*40,y:y,id:i}));
-  await p._cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:pt(x0,y0)});
-  for(let i=1;i<=n;i++){await w(ms/n);await p._cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:pt(x0+(x1-x0)*i/n,y0+(y1-y0)*i/n)});if(i===Math.round(n/2)&&mid)await mid()}
-  await p._cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await w(450);
+  const pt=(x,y)=>Array.from({length:vingers},(_,i)=>({x:x+i*40,y:y,id:i}));const T0=Date.now()/1000,st=ms/n/1000;
+  await p._cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:pt(x0,y0),timestamp:T0});
+  for(let i=1;i<=n;i++){await w(ms/n);await p._cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:pt(x0+(x1-x0)*i/n,y0+(y1-y0)*i/n),timestamp:T0+i*st});if(i===Math.round(n/2)&&mid)await mid()}
+  await p._cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[],timestamp:T0+(n+1)*st});await w(450);
 }
 const links=(p,y=420)=>veeg(p,320,y,70,y);   // naar het volgende menu
 const rechts=(p,y=420)=>veeg(p,70,y,320,y);  // naar het vorige menu
@@ -32,9 +33,10 @@ const rust=p=>p.evaluate(()=>{const a=document.getElementById('app');return !a.s
   t(await tabNu(p)==='phb1','tabbalk wijst PHB 1 aan na het vegen');
   t(await rust(p),'pagina staat na het vegen weer recht (geen verschuiving of vervaging achtergebleven)');
   await links(p);await links(p);await links(p);t(await hash(p)==='phb4','verder vegen: PHB 2, PHB 3, PHB 4');
-  await links(p);t(await hash(p)==='stof','PHB 4 → Studiestof');
+  await links(p);t(await hash(p)==='rtgb','PHB 4 → RTGB');
+  await links(p);t(await hash(p)==='stof','RTGB → Studiestof');
   await links(p);t(await hash(p)==='stof'&&await rust(p),'Studiestof is het laatste menu: verder vegen veert terug');
-  await rechts(p);t(await hash(p)==='phb4','naar rechts vegen: terug naar PHB 4');
+  await rechts(p);t(await hash(p)==='rtgb','naar rechts vegen: terug naar RTGB');
   await ga(p,'home');await rechts(p);t(await hash(p)==='home'&&await rust(p),'Overzicht is het eerste menu: naar rechts vegen veert terug');
   // de pagina volgt de vinger
   let x='';await veeg(p,320,420,140,420,300,async()=>{x=await p.evaluate(()=>document.getElementById('app').style.transform)});
@@ -92,7 +94,7 @@ const rust=p=>p.evaluate(()=>{const a=document.getElementById('app');return !a.s
   await p.goBack();await w(350);t(await hash(p)==='phb1','terugknop na vegen: naar het vorige menu (PHB 1)');
   // studiestof-onderwerp telt als Studiestof
   await ga(p,'stof');const sub=await p.evaluate(()=>{const a=document.querySelector('#app a[href^="#stof-"]');return a?a.getAttribute('href').slice(1):''});
-  if(sub){await ga(p,sub);await rechts(p,300);t(await hash(p)==='phb4','vanuit een studiestof-onderwerp naar rechts: PHB 4')}
+  if(sub){await ga(p,sub);await rechts(p,300);t(await hash(p)==='rtgb','vanuit een studiestof-onderwerp naar rechts: RTGB')}
   // geen vegen in een oefensessie of op het profiel
   await ga(p,'phb1');await p.click('[data-act="oefen"]');await w(400);
   t(await hash(p)==='sessie','oefensessie gestart');

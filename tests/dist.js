@@ -1,4 +1,4 @@
-const fs=require('fs');let src='';for(const f of ['q1.js','q2.js','q3.js','q4.js','q5.js'])src+=fs.readFileSync(require('path').resolve(__dirname,'../bron',f),'utf8')+'\n';src+=';return [].concat(Q1,Q2,Q3,Q4,Q5)';const Q=new Function(src)();
+const fs=require('fs');let src='';for(const f of ['q1.js','q2.js','q3.js','q4.js','q5.js','q6.js'])src+=fs.readFileSync(require('path').resolve(__dirname,'../bron',f),'utf8')+'\n';src+=';return [].concat(Q1,Q2,Q3,Q4,Q5,Q6)';const Q=new Function(src)();
 // verwachte score per strategie 'kies het k-de langste' (gelijke lengtes delen de kans)
 const strat=[0,0,0,0];const pos=[0,0,0,0];const r3=[];
 Q.forEach((r,i)=>{const L=r[2].map(x=>x.length);const sorted=[...L].sort((a,b)=>b-a);

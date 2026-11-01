@@ -204,7 +204,7 @@ function appBack(){
 })();
 try{if(localStorage.getItem("wv-debug"))window.__nav={appBack,navStack}}catch(e){}
 
-// ---------- tabbladen: vegen en vloeiende overgangen (Overzicht, PHB 1 t/m 4, Studiestof) ----------
+// ---------- tabbladen: vegen en vloeiende overgangen (Overzicht, PHB 1 t/m 4, RTGB, Studiestof) ----------
 // Tikken op de tabbalk: het oude scherm schuift weg en vervaagt, het nieuwe schuift in vanaf dezelfde kant.
 // Vegen: het volgende of vorige tabblad schuift mee in beeld, zoals in een app; loslaten na een flinke of
 // snelle veeg maakt de wissel af, anders veert alles terug. Alleen met één vinger en alleen op deze zes
@@ -249,20 +249,21 @@ function tabTransition(app){
     const t=e.touches[0];if(t.clientX<EDGE||t.clientX>innerWidth-EDGE)return;
     if(!app.contains(e.target)||(e.target.closest&&e.target.closest(noSwipe))||scrollsX(e.target))return;
     const sel=window.getSelection&&getSelection();if(sel&&!sel.isCollapsed&&String(sel).trim())return;
-    on=true;sx=t.clientX;sy=t.clientY;spoor=[[Date.now(),0]];
+    on=true;sx=t.clientX;sy=t.clientY;spoor=[[e.timeStamp,0]];
   },{passive:true});
   document.addEventListener("touchmove",e=>{
     if(!on)return;if(e.touches.length!==1){if(locked)terug();reset();return}
     const t=e.touches[0];dx=t.clientX-sx;const dy=t.clientY-sy;
-    const nu=Date.now();spoor.push([nu,dx]);while(spoor.length>2&&nu-spoor[0][0]>120)spoor.shift();
+    const nu=e.timeStamp;spoor.push([nu,dx]);while(spoor.length>2&&nu-spoor[0][0]>120)spoor.shift();
     if(!locked){if(Math.abs(dy)>LOCK&&Math.abs(dy)>=Math.abs(dx)*.8){reset();return}
       if(Math.abs(dx)>LOCK&&Math.abs(dx)>Math.abs(dy)*1.4){locked=true;top0=app.getBoundingClientRect().top+scrollY}else return}
     e.preventDefault();if(motionOff())return;
     const s=dx<0?1:-1;if(tabList()[idx+s]){ghost(s);pos(dx,0)}else{drop();pos(dx*.2,0)}
   },{passive:false});
-  document.addEventListener("touchend",()=>{
+  // snelheid over de laatste 120 ms, op de tijdstempels van de aanrakingen zelf (niet vertraagd door een drukke telefoon)
+  document.addEventListener("touchend",e=>{
     if(!on||!locked){reset();return}
-    const t=tabList(),s0=spoor[0],v=Math.abs(dx-s0[1])/Math.max(1,Date.now()-s0[0]),s=dx<0?1:-1,next=idx+s,d=Math.abs(dx);
+    const t=tabList(),s0=spoor[0],v=Math.abs(dx-s0[1])/Math.max(1,e.timeStamp-s0[0]),s=dx<0?1:-1,next=idx+s,d=Math.abs(dx);
     const ver=d>Math.min(110,innerWidth*.28)||(v>.45&&d>40);reset();
     if(!ver||next<0||next>=t.length){terug();return}
     if(motionOff()){drop();location.hash=t[next];return}
@@ -287,7 +288,7 @@ function homeSide(wrong){
   return `<aside class="homeside" aria-label="Samenvatting">
     <section class="sidecard"><h2>Jouw voortgang</h2><dl class="sidestats">${st(pool.filter(q=>seen(q.id)).length,"vragen geoefend")}${st(a==null?"–":pct(a),"goed beantwoord")}${st(ex.filter(x=>x.p).length+"/"+ex.length,"examens gehaald")}${st(wrong,"fouten open")}</dl><a class="small" href="#profiel">Alles in je profiel →</a></section>
     ${pcInstall?`<section class="sidecard"><h2>Installeren op deze computer</h2><p class="small">Boa Paraat opent dan in een eigen venster, met een icoon in het startmenu of het dock, en werkt ook zonder internet.</p><div><button class="btn go" data-act="install">Installeren</button></div></section>`:""}
-    <section class="sidecard"><h2>Sneltoetsen</h2><ul class="keys">${keyRows([["H","Overzicht"],["1 2 3 4","PHB 1 t/m 4"],["S","Studiestof"],["P","Profiel"]])}</ul><div><button class="linkbtn" data-act="keys">Alle sneltoetsen <span class="kbd">?</span></button></div></section>
+    <section class="sidecard"><h2>Sneltoetsen</h2><ul class="keys">${keyRows([["H","Overzicht"],["1 2 3 4","PHB 1 t/m 4"],["5 of R","RTGB"],["S","Studiestof"],["P","Profiel"]])}</ul><div><button class="linkbtn" data-act="keys">Alle sneltoetsen <span class="kbd">?</span></button></div></section>
   </aside>`;
 }
 const keyRows=rows=>rows.map(([k,l])=>`<li><span>${l}</span><span>${k.split(" ").map(x=>`<span class="kbd">${x}</span>`).join(" ")}</span></li>`).join("");
@@ -301,7 +302,7 @@ function openDlg(html){
 function openKeys(){
   openDlg(`<div role="dialog" aria-modal="true" aria-labelledby="kdlgT">
     <div class="row" style="justify-content:space-between"><h2 id="kdlgT">Sneltoetsen</h2><button class="btn ghost sm" data-act="keys-close">Sluiten</button></div>
-    <div class="kcols"><section><h3>Overal</h3><ul class="keys">${keyRows([["H","Overzicht"],["1 2 3 4","PHB 1 t/m 4"],["S","Studiestof"],["P","Profiel"],["E","Mijn examens"],["?","Deze hulp"]])}</ul></section>
+    <div class="kcols"><section><h3>Overal</h3><ul class="keys">${keyRows([["H","Overzicht"],["1 2 3 4","PHB 1 t/m 4"],["5 of R","RTGB"],["S","Studiestof"],["P","Profiel"],["E","Mijn examens"],["?","Deze hulp"]])}</ul></section>
     <section><h3>Tijdens het oefenen</h3><ul class="keys">${keyRows([["A B C D","Antwoord kiezen"],["1 2 3 4","Antwoord kiezen"],["Enter","Volgende vraag"],["← →","Vorige of volgende vraag (toets en examen)"],["Esc","Stoppen of melding sluiten"]])}</ul></section></div>
     <p class="small">Tijdens een oefensessie of de praktijkoefening gelden alleen de toetsen voor het oefenen. In een tekstveld werken de sneltoetsen niet, zodat je gewoon kunt typen.</p></div>`);
 }
@@ -345,7 +346,7 @@ document.addEventListener("keydown",e=>{
   if(typing||needsWelcome())return;
   if(e.key==="?"){e.preventDefault();openKeys();return}
   if(busy||e.shiftKey)return;
-  const go={h:"home",s:"stof",p:"profiel",e:"profiel-examens","1":"phb1","2":"phb2","3":"phb3","4":"phb4"}[e.key.toLowerCase()];
+  const go={h:"home",s:"stof",p:"profiel",e:"profiel-examens",r:"rtgb","1":"phb1","2":"phb2","3":"phb3","4":"phb4","5":"rtgb"}[e.key.toLowerCase()];
   if(go){e.preventDefault();if(r!==go)location.hash=go}
 });
 function pcAfterRender(v){

@@ -262,10 +262,70 @@ const STOF = [
 <li>Geef de <b>cautie</b> en leg uit wat die betekent. Noem de rechten met uitleg, en vertel dat afzien ervan nadelige gevolgen kan hebben.</li>
 <li>Vraag duidelijk om een verklaring.</li>
 <li>Leg de vervolgprocedure uit en hoe iemand bezwaar kan maken. Sluit het gesprek netjes en professioneel af.</li>
+</ul>`},
+{id:"ambts", deel:"Ambtsinstructie en RTGB", titel:"Geweld, geweldmiddelen en fouilleren", kb:"", dia:"", html:`
+<p>De Ambtsinstructie voor de politie, de Koninklijke marechaussee en andere opsporingsambtenaren werkt artikel 7 van de Politiewet 2012 uit. Voor een boa met geweldsbevoegdheid gelden de artikelen die artikel 37 noemt; voor 'de korpschef' lees je dan de <b>direct toezichthouder</b>.</p>
+<h4>Geweld</h4>
+<ul>
+<li><b>Geweld</b> (art. 1): elke dwangmatige kracht van meer dan geringe betekenis op personen <i>of zaken</i>. Licht begeleiden van iemand die meewerkt, is geen geweld.</li>
+<li>Alleen in de <b>rechtmatige uitoefening van je functie</b>, als het doel dat rechtvaardigt en het niet anders kan (<b>subsidiariteit</b>), en <b>redelijk en gematigd</b> in verhouding tot het doel (<b>proportionaliteit</b>). Zo mogelijk eerst een <b>waarschuwing</b> (art. 7 lid 1 en 7 Politiewet 2012).</li>
+<li>Een geweldmiddel alleen als je ervoor <b>bevoegd</b> bent, het voor je taak gebruikt en erin <b>geoefend</b> bent (art. 4). Een boa gebruikt alleen het door de minister <b>voorgeschreven</b> middel (art. 38), pas nadat de bevoegdheid op de akte van beëdiging staat en de bekwaamheid is aangetoond (art. 39).</li>
+<li>Onder leiding van een aanwezige meerdere: geweld pas na diens <b>uitdrukkelijke last</b> (art. 5).</li>
+</ul>
+<h4>Pepperspray en wapenstok</h4>
+<ul>
+<li><b>Pepperspray</b> (art. 12a): aanhouding van iemand met een direct bruikbaar wapen die dat zal gebruiken; aanhouding van iemand die zich onttrekt; agressieve dieren; direct gevaar voor het leven of zwaar lichamelijk letsel.</li>
+<li><b>Wapenstok</b> (art. 12e): dezelfde aanhoudingsgronden en gevaar voor het leven, plus iemand <b>op afstand houden</b> die je belemmert of een bevoegd bevel niet opvolgt, en het verspreiden van een bedreigende menigte.</li>
+<li>Bij beide eerst <b>waarschuwen</b>, tenzij de omstandigheden dat redelijkerwijs niet toelaten (art. 12b en 12f).</li>
+</ul>
+<h4>Handboeien en mondafscherming</h4>
+<ul>
+<li>Alleen bij iemand die <b>rechtens van zijn vrijheid is beroofd</b>, niet bij een staandehouding (art. 22). Ezelsbruggetje <b>VVV</b>: <b>V</b>ervoer of verplaatsing, <b>V</b>luchtgevaar, <b>V</b>eiligheid.</li>
+<li>Melden: ezelsbruggetje <b>HOS</b>: <b>H</b>andboeien meld je <b>O</b>nverwijld <b>S</b>chriftelijk bij de hulpofficier van justitie, met de reden (art. 23).</li>
+<li>Mondafscherming (spuugmasker): bij vervoer of verplaatsing als dat voor de veiligheid nodig is (art. 22a), alleen als je aanwijzing dit omvat.</li>
+</ul>
+<h4>Veiligheids- en vervoersfouillering</h4>
+<ul>
+<li><b>Veiligheidsfouillering</b> (art. 7 lid 3 Politiewet 2012): bij iedereen met wie je in je taak te maken hebt, niet alleen verdachten, als uit feiten of omstandigheden <b>direct gevaar</b> blijkt voor leven of veiligheid. <b>Wel meldplicht</b>: onverwijld schriftelijk aan de hulpofficier van justitie, met de redenen (art. 21).</li>
+<li><b>Vervoersfouillering</b> (art. 7 lid 4 Politiewet 2012): bij iemand die je vervoert. <b>Geen meldplicht</b>.</li>
+<li>Allebei: <b>oppervlakkig aftasten</b> van de kleding en meegevoerde voorwerpen, zoveel mogelijk door iemand van <b>hetzelfde geslacht</b>; gevaarlijke voorwerpen neem je <b>in bewaring</b> (art. 20).</li>
+</ul>`},
+{id:"geweldmelding", deel:"Ambtsinstructie en RTGB", titel:"Geweld melden en de RTGB-toetsen", kb:"", dia:"", html:`
+<h4>Melden: wat, hoe en bij wie</h4>
+<p>Na geweld meld je <b>zo spoedig mogelijk</b> bij de <b>hulpofficier van justitie</b> die belast is met de registratie (art. 17). Ezelsbruggetje <b>GSM</b>: <b>G</b>eweld meld je <b>S</b>chriftelijk en <b>M</b>ondeling.</p>
+<ul>
+<li><b>Schriftelijk</b>, ezelsbruggetje <b>SAGG</b>: de <b>A</b>ard van het geweld, het <b>G</b>ebruikte geweldmiddel en de <b>G</b>evolgen.</li>
+<li><b>Mondeling</b>, ezelsbruggetje <b>MONFOR</b>: de <b>F</b>eiten, <b>O</b>mstandigheden en de <b>R</b>eden van het geweld.</li>
+<li>Gebruikte je geweld op uitdrukkelijke last van een aanwezige meerdere, dan meldt de meerdere.</li>
+<li>Alleen dreigen met geweld, zoals schreeuwen, hoef je sinds 1 juli 2020 niet meer te melden.</li>
+</ul>
+<h4>Het meldschema</h4>
+<ol class="flow">
+<li><b>Melding</b> bij de hulpofficier van justitie. Geen letsel: de melding wordt vastgelegd (in de praktijk een mutatie).</li>
+<li><b>Registratie</b> door de hulpofficier bij de dood, letsel van meer dan geringe betekenis, vuurwapengebruik, of als hij daartoe aanleiding ziet (art. 17 lid 3).</li>
+<li>De registratie gaat naar de <b>direct toezichthouder</b> (bij de politie: de korpschef), die het geweld beoordeelt (art. 17 lid 4, art. 18a).</li>
+<li><b>Kennisgeving aan de officier van justitie</b>: <b>terstond</b> bij de dood, zwaar lichamelijk letsel of vuurwapengebruik met letsel; in andere gevallen zo spoedig mogelijk als de direct toezichthouder daartoe aanleiding ziet (art. 18).</li>
+</ol>
+<h4>Letsel</h4>
+<ul>
+<li><b>Letsel van meer dan geringe betekenis</b>: letsel dat door een arts of verpleegkundige is behandeld, of medisch gezien behandeld had moeten worden.</li>
+<li><b>Zwaar lichamelijk letsel</b> (art. 82 Sr): onder meer ziekte zonder uitzicht op volkomen genezing, blijvende ongeschiktheid voor het beroep, verlies van een zintuig, verminking, en storing van de verstandelijke vermogens die langer dan vier weken duurt.</li>
+</ul>
+<h4>Zorg na geweld</h4>
+<ul>
+<li>Eerst de zorg: ernstig gewonden en bewustelozen per ambulance naar het ziekenhuis; bij lichte verwondingen verwijzen naar huisarts of EHBO (art. 24, voor de politie).</li>
+<li>Haal iemand zo snel mogelijk uit buikligging en let op ademhaling en aanspreekbaarheid (risico op positionele asfyxie).</li>
+</ul>
+<h4>De RTGB</h4>
+<ul>
+<li>Elk kalenderjaar de <b>toets geweldsbeheersing</b> en de <b>toets aanhoudings- en zelfverdedigingsvaardigheden</b>; met een vuurwapen elk halfjaar ook de <b>toets schietvaardigheid</b> (art. 2 RTGB).</li>
+<li>Niet gehaald: na afloop van de periode mag je de bevoegdheid en het middel niet meer gebruiken; de <b>direct toezichthouder</b> neemt het geweldmiddel in.</li>
+<li>De <b>werkgever</b> zorgt voor training en toetsing; jij bent zelf verantwoordelijk voor je deelname. De toetsen worden samengesteld door de Politieacademie en afgenomen door een gecertificeerde toetser.</li>
 </ul>`}
 ];
 // Vindplaatsen per wetsartikel: [regex op de bronverwijzing van de vraag, sectie, kennisboekje-blz, dia's]
 const STOF_ART = [
+[/art\. 1[789]a? Ambtsinstructie|18a Ambtsinstructie|art\. 24 Ambtsinstructie|RTGB|Stb\. 2020|art\. 82 Sr|Lesstof geweldsbeheersing/,"geweldmelding","",""],[/Ambtsinstructie/,"ambts","",""],
 [/art\. 70 Wp2000|art\. 70 lid/,"ovbewijs","85","23"],[/art\. 71 Wp2000/,"ovorde","90","29"],[/art\. 72 Wp2000/,"ovorde","91","30–31"],[/art\. 73 Wp2000/,"ovorde","93–94","33"],
 [/art\. 87 Wp2000/,"ovtoezicht","98–99","38"],[/art\. 89 Wp2000/,"ovopsp","105","41"],[/art\. 90 Wp2000/,"ovtoezicht","101","40"],[/art\. 91 Wp2000/,"ovopsp","107","43"],
 [/art\. 92/,"ovopsp","108","44"],[/art\. 97 Wp2000/,"ovopsp","109","45"],[/art\. 98/,"ovopsp","109–110","46"],[/art\. 101/,"ovstraf","95","35"],[/art\. 19 Wp2000|art\. 1 Wp2000|art\. 2 Wp2000/,"wpbegrip","75–82","8–19"],
@@ -288,4 +348,4 @@ const STOF_ART = [
 ];
 // Standaard-sectie per categorie als de bronverwijzing niets specifieks oplevert
 const STOF_CAT = {sr:"staat",ro:"rechtspraak",boa:"boa",pol:"politie",str:"recht",vd:"verhoor",bev:"bevoegd",kl:"aangifte",vrij:"aanhouden",fou:"fouilleren",bes:"fouilleren",pl:"woning",sch:"strafbaar",amb:"tegenambt",
-  wp:"ovopsp",bp:"ovbewijs",ovt:"ovtoezicht",spw:"spoor",com:"praktijk",agr:"praktijk",prof:"praktijk",waa:"pv",pv:"pv",avg:"privacy"};
+  wp:"ovopsp",bp:"ovbewijs",ovt:"ovtoezicht",spw:"spoor",com:"praktijk",agr:"praktijk",prof:"praktijk",waa:"pv",pv:"pv",aig:"ambts",aim:"geweldmelding",aiw:"ambts",aif:"ambts",air:"geweldmelding",avg:"privacy"};

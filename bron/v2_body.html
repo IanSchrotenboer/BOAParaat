@@ -43,7 +43,8 @@ const CATS = {
   wp:["phb1","Wet personenvervoer 2000"], bp:["phb1","Besluit personenvervoer 2000"], ovt:["phb1","Toezicht en optreden in het OV"], spw:["phb1","Spoorwegwet en Wet lokaal spoor"],
   com:["phb2","Communicatie"], agr:["phb2","Agressie en de-escalatie"], prof:["phb2","Professionele houding"],
   waa:["phb3","Waarnemen"], pv:["phb3","Proces-verbaal en verslag"],
-  avg:["phb4","AVG en Wpg"], wijk:["phb4","Wijkgericht werken"], cult:["phb4","Cultureel vakmanschap"]
+  avg:["phb4","AVG en Wpg"], wijk:["phb4","Wijkgericht werken"], cult:["phb4","Cultureel vakmanschap"],
+  aig:["rtgb","Geweld: begrip en voorwaarden"], aim:["rtgb","Melden en registreren"], aiw:["rtgb","Geweldmiddelen en handboeien"], aif:["rtgb","Veiligheids- en vervoersfouillering"], air:["rtgb","RTGB, hulpverlening en nazorg"]
 };
 const D4 = new Set(["wp","bp","ovt","spw"]);
 const MODS = [
@@ -55,12 +56,16 @@ const MODS = [
   {id:"phb3",code:"PHB 3",short:"Waarneming",name:"Waarneming en verslaglegging",desc:"Objectief waarnemen en een bruikbaar proces-verbaal schrijven.",note:"Bij ExTH maak je dit examen digitaal in een examencentrum: je bekijkt twee keer een film en legt je waarnemingen vast in het examensjabloon. Hieronder oefen je dat met een praktijkoefening, en daaronder de theorie met losse vragen.",
    blocks:[["A","Waarneming en verslag compleet",["waa","pv"]]]},
   {id:"phb4",code:"PHB 4",short:"Keuze",name:"Keuzemodule",desc:"AVG en Wpg, wijkgericht werken en cultureel vakmanschap.",note:"Welke module 4 je volgt, verschilt per werkgever en domein. In domein IV is module 4 een functiegerichte training. Kies het onderdeel dat bij jou past.",
-   blocks:[["A","AVG en Wpg",["avg"]],["B","Wijkgericht werken",["wijk"]],["C","Cultureel vakmanschap",["cult"]]]}
+   blocks:[["A","AVG en Wpg",["avg"]],["B","Wijkgericht werken",["wijk"]],["C","Cultureel vakmanschap",["cult"]]]},
+  {id:"rtgb",code:"RTGB",short:"Ambtsinstructie",name:"Ambtsinstructie en geweldsbeheersing",desc:"Geweld, melden, geweldmiddelen, handboeien en fouilleren volgens de Ambtsinstructie. Voor boa's met geweldsbevoegdheid, die dit elk jaar opnieuw laten toetsen (RTGB).",
+   note:"Met geweldsbevoegdheid moet je elk kalenderjaar de toets geweldsbeheersing en de toets aanhoudings- en zelfverdedigingsvaardigheden halen. Hier oefen je de kennis; de vaardigheden train je bij je werkgever. Vorm en norm van de echte toets bepaalt de Politieacademie.",
+   blocks:[["A","Geweld en melden",["aig","aim"]],["B","Middelen, fouilleren en nazorg",["aiw","aif","air"]]],
+   exam:{n:30,maxWrong:9,min:45,naam:"Oefentoets geweldsbeheersing"}}
 ];
 const MODBY = Object.fromEntries(MODS.map(m=>[m.id,m]));
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return "q"+(h>>>0).toString(36)}
 // vaste code per vraag (6e veld): blijft gelijk als de vraagtekst wordt herschreven, zodat de voortgang bewaard blijft
-const ALL = [].concat(Q1,Q2,Q3,Q4,Q5).map(r=>({id:r[5]||hash(r[1]),c:r[0],m:CATS[r[0]][0],q:r[1],o:r[2],e:r[3],r:r[4]||""}));
+const ALL = [].concat(Q1,Q2,Q3,Q4,Q5,Q6).map(r=>({id:r[5]||hash(r[1]),c:r[0],m:CATS[r[0]][0],q:r[1],o:r[2],e:r[3],r:r[4]||""}));
 const BYID = Object.fromEntries(ALL.map(q=>[q.id,q]));
 
 // ---------- opslag ----------
@@ -162,10 +167,12 @@ const ICON = {
   eye:'<svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
   // PHB 4 Keuzemodule: wegwijzer
   sign:'<svg viewBox="0 0 24 24"><path d="M12 2v20"/><path d="M5 5h11l3 2.5L16 10H5z"/><path d="M19 13H8l-3 2.5L8 18h11z"/></svg>',
+  // RTGB Ambtsinstructie: handboeien
+  cuffs:'<svg viewBox="0 0 24 24"><circle cx="6.5" cy="15" r="4"/><circle cx="17.5" cy="15" r="4"/><path d="M10.5 13.5h3"/><path d="M6.5 11V8.5"/><path d="M17.5 11V8.5"/><path d="M4.5 8.5h4M15.5 8.5h4"/></svg>',
   // Studiestof: blad met samenvatting
   doc:'<svg viewBox="0 0 24 24"><path d="M6 3h8l5 5v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M8.5 12.5h7"/><path d="M8.5 16h7"/></svg>'
 };
-const MODICON={phb1:"book",phb2:"talk",phb3:"eye",phb4:"sign"};
+const MODICON={phb1:"book",phb2:"talk",phb3:"eye",phb4:"sign",rtgb:"cuffs"};
 
 // ---------- navigatie ----------
 function route(){return (location.hash||"#home").slice(1)||"home"}
@@ -290,7 +297,7 @@ function viewHome(){
     ${weekStrip()}
     <section class="stack" style="gap:8px"><h2 class="secttl">Modules</h2>
     <ul class="hlist" aria-label="Modules">${MODS.map(m=>{const ms=mastery(inMod(m.id));return `
-      <li><a href="#${m.id}"><span class="hcode">${m.code.replace("PHB ","")}</span><span class="hname"><b>${esc(m.name)}</b><span class="hmeter" role="img" aria-label="${pct(ms)} beheerst"><i style="width:${pct(ms)}"></i></span></span><span class="hpct mono">${pct(ms)}</span></a></li>`}).join("")}</ul></section>
+      <li><a href="#${m.id}"><span class="hcode">${m.id==="rtgb"?ICON.cuffs:m.code.replace("PHB ","")}</span><span class="hname"><b>${esc(m.name)}</b><span class="hmeter" role="img" aria-label="${pct(ms)} beheerst"><i style="width:${pct(ms)}"></i></span></span><span class="hpct mono">${pct(ms)}</span></a></li>`}).join("")}</ul></section>
     <div class="hlinks"><a href="#stof">Studiestof</a>${wrong?`<button class="linkbtn" data-act="fouten" data-mod="">Foutenbank (${wrong})</button>`:""}<a href="#profiel-examens">Mijn examens</a></div>
   </div>${homeSide(wrong)}</div>`;
 }
@@ -308,7 +315,7 @@ function viewModule(m){
     ${m.id==="phb1"?`<div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}${dom()==="4"?`<p class="note">Je oefent de algemene stof plus de Wet personenvervoer 2000, het Besluit personenvervoer 2000 en toezicht volgens de Awb. Het oefenexamen bevat 12 OV-vragen en 38 algemene vragen.</p>`:""}</div>`:""}
     ${m.note?`<p class="note">${esc(m.note)}</p>`:""}
     ${m.id==="phb3"?`<div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}<p class="note">${dom()==="4"?"Domein IV: je oefent met camerabeelden uit het openbaar vervoer (perron en station) en schrijft je verslag in het sjabloon 'Examen Waarneming en Verslaglegging OV'.":"Domein I–III: je oefent met camerabeelden uit de openbare ruimte (plein en winkelgebied) en schrijft je verslag in het sjabloon 'Examen Waarneming en Verslaglegging'."} Je domein geldt ook voor PHB 1.</p></div>`+wvCard():""}
-    ${m.exam?`<div class="exam"><div class="big">${m.exam.n}</div><div class="stack" style="gap:10px"><div><h2>Oefenexamen${m.id==="phb1"&&dom()==="4"?" domein IV":""}</h2><p class="small">${m.exam.n} vragen uit alle onderwerpen · ${m.exam.min} minuten · geslaagd bij maximaal ${m.exam.maxWrong} fout. Je ziet de uitslag en uitleg pas na inleveren.</p></div><div class="row"><button class="btn hi" data-act="examen" data-mod="${m.id}">Start ${examCount(m.id)?"nieuw ":""}oefenexamen</button>${examCount(m.id)?`<span class="small">Oefenexamen ${examCount(m.id)+1} · andere vragen dan je vorige examen</span>`:""}</div></div></div>`:""}
+    ${m.exam?`<div class="exam"><div class="big">${m.exam.n}</div><div class="stack" style="gap:10px"><div><h2>${m.exam.naam||"Oefenexamen"}${m.id==="phb1"&&dom()==="4"?" domein IV":""}</h2><p class="small">${m.exam.n} vragen uit alle onderwerpen · ${m.exam.min} minuten · geslaagd bij maximaal ${m.exam.maxWrong} fout. Je ziet de uitslag en uitleg pas na inleveren.</p></div><div class="row"><button class="btn hi" data-act="examen" data-mod="${m.id}">Start ${examCount(m.id)?"nieuwe ":""}${m.exam.naam?"oefentoets":"oefenexamen"}</button>${examCount(m.id)?`<span class="small">${m.exam.naam?"Oefentoets":"Oefenexamen"} ${examCount(m.id)+1} · andere vragen dan je vorige examen</span>`:""}</div></div></div>`:""}
     <div class="section stack"><div><h2>Oefenen per onderwerp</h2><p class="small">Na elke vraag zie je direct het juiste antwoord, de uitleg en het wetsartikel.</p></div>
     <div class="cats">${cats.map(c=>{const l=inCat(c);const ms=mastery(l);return `<div class="cat"><span class="t">${D4.has(c)?`<span class="chip ov">OV</span> `:""}${esc(CATS[c][1])}</span><button class="btn" data-act="oefen" data-cat="${c}" aria-label="Oefenronde ${esc(CATS[c][1])}, ${Math.min(ROUND,l.length)} van ${l.length} vragen">Oefen ${Math.min(ROUND,l.length)}<span class="small" style="font-weight:400"> / ${l.length}</span></button><div class="row" style="gap:10px;flex-wrap:nowrap"><div class="meter" style="flex:1" role="img" aria-label="${pct(ms)} beheerst"><i style="width:${pct(ms)}"></i></div><span class="small mono">${pct(ms)}</span></div></div>`}).join("")}</div>
     <div class="row"><button class="btn go" data-act="mix" data-mod="${m.id}">Gemengd oefenen (20 vragen)</button>${wrong?`<button class="btn hi" data-act="fouten" data-mod="${m.id}">Fouten oefenen (${wrong})</button>`:""}</div></div>
@@ -318,7 +325,7 @@ function viewModule(m){
 }
 // ---------- examens (ExTH) ----------
 const EXTH_URL="https://mijn.exth.nl/";
-function exMods(){return [["phb1","PHB 1 Wet- en regelgeving"],["phb2","PHB 2 Bejegening"],["phb3","PHB 3 Waarneming en verslaglegging"],["phb4",dom()==="4"?"PHB 4 Functiegerichte training":"PHB 4 Keuzemodule"],["basis","Basisbekwaamheid boa"],["anders","Ander examen"]]}
+function exMods(){return [["phb1","PHB 1 Wet- en regelgeving"],["phb2","PHB 2 Bejegening"],["phb3","PHB 3 Waarneming en verslaglegging"],["phb4",dom()==="4"?"PHB 4 Functiegerichte training":"PHB 4 Keuzemodule"],["rtgb","RTGB-toets geweldsbeheersing"],["basis","Basisbekwaamheid boa"],["anders","Ander examen"]]}
 const EXSTAT={gepland:["Gepland","plan"],gehaald:["Gehaald","pass"],niet:["Niet gehaald","fail"],afgemeld:["Afgemeld","todo"]};
 let exEdit=null,exDel=null;
 function today(){const d=new Date();d.setHours(0,0,0,0);return d}
@@ -590,7 +597,7 @@ function launch(act,d,excl){
     const ex=new Set([...(store.e[key]||[]),...(excl||[])]);
     const qs=ov?shuffle(sample(["wp","bp","ovt","spw"],12,ex).concat(sample(GEN1(),m.exam.n-12,ex))):sample(catsOf(m),m.exam.n,ex);
     store.e[key]=qs.map(q=>q.id);save();
-    start({mode:"examen",title:m.code+" · Oefenexamen "+m.name+(ov?" domein IV":""),qs,mod:m.id,pass:{maxWrong:m.exam.maxWrong},min:m.exam.min,redo:{act,d}})}
+    start({mode:"examen",title:m.code+" · "+(m.exam.naam||"Oefenexamen "+m.name+(ov?" domein IV":"")),qs,mod:m.id,pass:{maxWrong:m.exam.maxWrong},min:m.exam.min,redo:{act,d}})}
 }
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-act]");if(!b)return;const act=b.dataset.act;const d=b.dataset;
