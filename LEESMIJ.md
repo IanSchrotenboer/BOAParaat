@@ -109,16 +109,22 @@ python3 release.py
 Dit script doet bij elke update hetzelfde:
 
 1. bouwt de app en maakt hem compact (`www/index.html`, en in `uit/` het losse bestand `Boa-Paraat.html`);
-2. zoekt onnodige code: ongebruikte functies, variabelen, CSS-klassen en knoppen zonder functie;
+2. zoekt onnodige code: ongebruikte functies, variabelen, CSS-klassen, CSS-variabelen, animaties en pictogrammen, knoppen zonder functie, dubbele functies, achtergebleven testcode (`console.log`, `debugger`, `alert`) en losse bestanden die niet in de app horen;
 3. controleert of de code ook op oudere iPhones en Android-telefoons werkt;
 4. controleert de vragenbank en studiestof (4 verschillende antwoorden, geen dubbele vragen, verwijzingen kloppen, het juiste antwoord is niet steeds het langste);
-5. test de app in een browser op telefoon, tablet en pc, inclusief terugknop en terug-gebaar, de praktijkoefening en de sneltoetsen;
+5. test de app in een browser op telefoon, tablet en pc, inclusief terugknop en terug-gebaar, vegen, de praktijkoefening, de toetsmatrijzen en de sneltoetsen, en draait een stresstest (`tests/stress.js`: zware gebruiker, trage telefoon, volle opslag, 8 uur open) en een chaostest (`tests/chaos.js`, zie hieronder);
 6. verhoogt bij een gewijzigde app het versienummer in `www/sw.js`, zodat iedereen de update krijgt;
 7. pakt `uit/Boa-Paraat-app.zip` en `uit/Boa-Paraat-web.zip` in.
 
+### Stresstest en chaostest
+
+`tests/chaos.js` is een 'aap' die op telefoon (licht en donker, domein I en IV) en pc honderden willekeurige dingen doet: knoppen en links aantikken (ook drie keer snel achter elkaar), vegen, typen (lange teksten, emoji, HTML), terug, herladen, het scherm draaien en de opslag beschadigen. Na elke paar stappen controleert hij dat er geen JS-fouten zijn, geen leeg scherm, geen verschoven pagina of achtergebleven overgang, geen horizontale scroll, hooguit één venster of keuzemenu, en dat de opslag leesbaar blijft. Daarna volgen gerichte belastingen: 60 keer razendsnel van tabblad wisselen, vegen tijdens een animatie, 15 oefenexamens achter elkaar per domein, gegevens uit oude versies en een lange sessie waarin het aantal elementen en het geheugen niet mogen groeien.
+
+Elke ronde gebruikt een ander zaad (het staat bovenaan de uitvoer). Vindt de test een fout, dan noemt hij het scherm en de laatste stappen ervoor; met `CHAOS_SEED=<zaad> node tests/chaos.js` speel je dezelfde ronde opnieuw af. `CHAOS_STAPPEN` regelt het aantal stappen (standaard 350 per ronde). Een gevonden fout krijgt altijd ook een vaste test in het bestand van het onderdeel (bijvoorbeeld `tests/veeg.js`), zodat hij niet terugkomt.
+
 ### Vragen toevoegen of aanpassen
 
-Vragen staan in `bron/q1.js` tot en met `bron/q5.js`. Schrijf ze volgens `bron/SCHRIJFWIJZER.md` (examentaal, vier aannemelijke antwoorden, uitleg en bron). Het releasescript controleert de regels die automatisch te controleren zijn. Laat bij een herschreven vraag het zesde veld (de vaste code) staan, dan blijft de voortgang van gebruikers bewaard.
+Vragen staan in `bron/q1.js` tot en met `bron/q7.js`; welke vraag bij welke toetsterm van ExTH hoort, staat in `bron/matrijs.js`. Schrijf ze volgens `bron/SCHRIJFWIJZER.md` (examentaal, vier aannemelijke antwoorden, uitleg en bron). Het releasescript controleert de regels die automatisch te controleren zijn. Laat bij een herschreven vraag het zesde veld (de vaste code) staan, dan blijft de voortgang van gebruikers bewaard.
 
 ### Een nieuwe versie uitbrengen
 

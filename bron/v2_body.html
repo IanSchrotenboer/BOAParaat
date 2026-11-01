@@ -169,7 +169,6 @@ function sample(cats,n,excl){
 }
 const ICON = {
   home:'<svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>',
-  user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
   // PHB 1 Wet- en regelgeving: wetboek
   book:'<svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 0 2 2h13v-2"/><path d="M4 19V5"/><path d="M9 7h6"/><path d="M9 10.5h6"/></svg>',
   // PHB 2 Bejegening: sprekende mond in een tekstballon
@@ -240,7 +239,7 @@ let pageAnim=false;
 $("#app").addEventListener("animationend",e=>{if(e.target.id==="app")e.target.classList.remove("enter","swl","swr")});
 function render(){
   const r=route();const app=$("#app");csClose(false);
-  if(needsWelcome()){app.dataset.v="welkom";app.innerHTML=viewWelcome();paintNav();enhanceSelects(app);tuneInputs(app);obAfterRender();return}
+  if(needsWelcome()){swipeAbort();app.dataset.v="welkom";app.innerHTML=viewWelcome();paintNav();enhanceSelects(app);tuneInputs(app);obAfterRender();return}
   let v="home",h;
   if(r==="sessie"&&S){v="sessie";h=S.done?viewResult():viewQuestion()}
   else if(r==="wv"){v="wv";h=viewWV()}
@@ -509,14 +508,18 @@ function importCode(txt){
   const obj=JSON.parse(decodeURIComponent(escape(atob(txt.slice(5)))));store=normalize(obj);save();
 }
 // Toetsmatrijs in het tabblad PHB 1: per toetsterm het aantal examenvragen en de oefenvragen in de app
+// de lijst met toetstermen pas opbouwen als je hem openklapt (scheelt de helft van de elementen op PHB 1)
 function viewMtx(){
-  const M=MTX();let tot=0;
-  const delen=M.delen.map(([nr,t,gs])=>{const n=gs.reduce((a,g)=>a+g[2],0);tot+=n;
+  const M=MTX(),tot=M.delen.reduce((a,d)=>a+d[2].reduce((b,g)=>b+g[2],0),0);
+  return `<details class="section mtx"><summary><span class="stack" style="gap:2px"><b>${esc(M.titel)}</b><span class="small">ExTH, ${esc(M.versie)} · ${tot} vragen · 90 minuten · geslaagd bij 70% goed${dom()==="1"?" · voor domein II en III gelden eigen matrijzen":""}</span></span></summary><div class="mbody"></div></details>`;
+}
+function mtxBody(){
+  const delen=MTX().delen.map(([nr,t,gs])=>{const n=gs.reduce((a,g)=>a+g[2],0);
     return `<li class="mdeel"><div class="mkop"><b>${esc(nr)}. ${esc(t)}</b><span class="small mono">${n} ${n===1?"vraag":"vragen"}</span></div><ul class="mlist">${gs.map(g=>{const qs=mtxQs(g);const ms=mastery(qs);
       return `<li><span class="mcode mono">${esc(g[0])}</span><span class="mt">${esc(g[1])}<span class="small">${g[2]} op het examen · ${qs.length} oefenvragen · ${pct(ms)} beheerst</span></span><button class="btn sm" data-act="mtx" data-g="${esc(g[0])}" aria-label="Oefen toetsterm ${esc(g[0])}, ${esc(g[1])}">Oefen</button></li>`}).join("")}</ul></li>`}).join("");
-  return `<details class="section mtx"><summary><span class="stack" style="gap:2px"><b>${esc(M.titel)}</b><span class="small">ExTH, ${esc(M.versie)} · ${tot} vragen · 90 minuten · geslaagd bij 70% goed${dom()==="1"?" · voor domein II en III gelden eigen matrijzen":""}</span></span></summary>
-    <p class="small">Het oefenexamen volgt deze verdeling precies. Per toetsterm kun je ook los oefenen.</p><ol class="mdelen">${delen}</ol></details>`;
+  return `<p class="small">Het oefenexamen volgt deze verdeling precies. Per toetsterm kun je ook los oefenen.</p><ol class="mdelen">${delen}</ol>`;
 }
+document.addEventListener("toggle",e=>{const d=e.target;if(d.open&&d.classList&&d.classList.contains("mtx")){const b=d.querySelector(".mbody");if(b&&!b.firstChild)b.innerHTML=mtxBody()}},true);
 function viewQuestion(){
   const it=S.items[S.i];const q=BYID[it.id];const n=S.items.length;const practice=S.mode==="oefen";
   const answered=practice&&it.pick!==null;const doneCount=S.items.filter(x=>x.pick!==null).length;

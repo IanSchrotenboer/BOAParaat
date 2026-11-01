@@ -77,6 +77,20 @@ const rust=p=>p.evaluate(()=>{const a=document.getElementById('app');return !a.s
   await ga(p,'phb1');await veeg(p,384,420,100,420);t(await hash(p)==='phb1','veeg vanaf de rechterrand: geen wissel');
   await ga(p,'home');await veeg(p,320,420,70,420,220,null,2);t(await hash(p)==='home','twee vingers (zoomen): geen wissel');
   // invulvelden, horizontaal scrollende inhoud en geselecteerde tekst
+  // gevonden met de chaostest (1.6.1): een tik op de tabbalk terwijl de veeg nog uitloopt, en een tweede vinger tijdens het vegen
+  {const T0=Date.now()/1000;const cdp=(type,pts,i)=>p._cdp.send('Input.dispatchTouchEvent',{type,touchPoints:pts,timestamp:T0+i*.02});
+    await cdp('touchStart',[{x:330,y:420}],0);for(let i=1;i<=6;i++)await cdp('touchMove',[{x:330-40*i,y:420}],i);await cdp('touchEnd',[],7);
+    await w(40);await p.evaluate(()=>document.querySelector('#tabbar a[href="#phb3"]').click());await w(700);
+    t(await hash(p)==='phb3'&&!(await p.locator('.swghost').count())&&await rust(p),'tik op PHB 3 terwijl een veeg nog uitloopt: PHB 3 wint, niets blijft verschoven');
+    await ga(p,'home');const T1=Date.now()/1000;const c2=(type,pts,i)=>p._cdp.send('Input.dispatchTouchEvent',{type,touchPoints:pts,timestamp:T1+i*.02});
+    await c2('touchStart',[{x:330,y:420,id:0}],0);for(let i=1;i<=4;i++)await c2('touchMove',[{x:330-30*i,y:420,id:0}],i);
+    await c2('touchStart',[{x:210,y:420,id:0},{x:100,y:500,id:1}],5);await c2('touchEnd',[],6);await w(500);
+    t(await hash(p)==='home'&&!(await p.locator('.swghost').count())&&await rust(p),'tweede vinger tijdens het vegen: pagina veert terug, niets blijft verschoven');
+    
+    await c2('touchStart',[{x:330,y:420}],10);for(let i=1;i<=4;i++)await c2('touchMove',[{x:330-30*i,y:420}],10+i);
+    await p.evaluate(()=>location.hash='profiel');await c2('touchEnd',[],15);await w(400);
+    t(await rust(p)&&!(await p.locator('.swghost').count()),'ander scherm tijdens het vegen (bijvoorbeeld de terugknop): niets blijft verschoven');
+    await p.evaluate(s=>localStorage.setItem('phb-trainer-v1',JSON.stringify(s)),STORE);await p.reload();await w(250);await ga(p,'home')}
   await p.evaluate(()=>{const d=document.createElement('div');d.innerHTML='<input id="vIn" style="position:absolute;left:40px;top:380px;width:310px;height:80px"><div id="vScr" style="position:absolute;left:40px;top:520px;width:310px;height:80px;overflow-x:auto"><div style="width:900px;height:60px"></div></div>';document.getElementById('app').appendChild(d);scrollTo(0,0)});
   await veeg(p,320,420,70,420);t(await hash(p)==='home','veeg over een invulveld: geen wissel');
   await veeg(p,320,560,70,560);t(await hash(p)==='home','veeg over inhoud die zelf opzij scrolt: geen wissel');

@@ -109,7 +109,8 @@ function viewWV(){
     ${viewWVTemplate(sc,W,false)}
     <details class="wvnotesbox"${W.notes?" open":""}><summary>Mijn aantekeningen</summary>${notes(true)}</details>
     ${wvAskSubmit?`<div class="confirm stack" style="gap:10px"><span><b>Verslag inleveren?</b> Daarna kun je niets meer wijzigen.</span><div class="row"><button class="btn hi" data-act="wv-submit">Ja, inleveren</button><button class="btn" data-act="wv-no-submit">Nog niet</button></div></div>`:`<div class="row"><button class="btn hi" data-act="wv-ask-submit">Verslag inleveren en laten nakijken</button></div>`}</div>`}
-  return "";
+  // onbekende fase (beschadigde of oude opslag): opnieuw beginnen bij de briefing
+  W.phase="brief";wvSaveDraft();return viewWV();
 }
 function wvAfterRender(){
   if(route()!=="wv"||!W)return;

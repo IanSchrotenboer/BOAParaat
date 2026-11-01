@@ -210,7 +210,7 @@ try{if(localStorage.getItem("wv-debug"))window.__nav={appBack,navStack}}catch(e)
 // snelle veeg maakt de wissel af, anders veert alles terug. Alleen met één vinger en alleen op deze zes
 // schermen; niet vanaf de schermrand (terug-gebaar van de telefoon), invulvelden, tabellen die opzij
 // scrollen of geselecteerde tekst. Met 'minder beweging' aan wisselt alles direct, zonder animatie.
-let swipeIn="",swipeGhost=null,tabPrev=-1;
+let swipeIn="",swipeGhost=null,tabPrev=-1,swipeAbort=()=>{};
 function tabList(){return ["home"].concat(MODS.map(m=>m.id),["stof"])}
 function tabIndex(r){const t=tabList();if(r==="stof"||r.indexOf("stof-")===0)return t.length-1;return t.indexOf(r)}
 function motionOff(){return !!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)}
@@ -225,6 +225,8 @@ function ghostOf(html,top,cls){
 // render() roept dit aan vlak voordat het nieuwe scherm in #app komt
 function tabTransition(app){
   const i=tabIndex(route()),from=tabPrev;tabPrev=i;
+  // een ander scherm tijdens een veeg (tik op de tabbalk, terug, examenklok): veeg afbreken, die wissel wint
+  if(swipeIn!=="ghost")swipeAbort();
   if(swipeIn==="ghost"){swipeIn="";pageAnim=false;app.style.transition="none";app.style.transform="";const g=swipeGhost;swipeGhost=null;if(g)requestAnimationFrame(()=>g.remove());return}
   if(!pageAnim||i<0||from<0||i===from||motionOff()||!app.firstElementChild)return;
   const dir=i>from?1:-1,old=ghostOf(app.innerHTML,app.getBoundingClientRect().top,dir>0?"swoutl":"swoutr");
@@ -242,9 +244,11 @@ function tabTransition(app){
   const drop=()=>{if(swipeGhost){swipeGhost.remove();swipeGhost=null}side=0};
   const ghost=s=>{if(side===s&&swipeGhost)return;drop();const id=tabList()[idx+s];if(!id)return;side=s;swipeGhost=ghostOf(html(id),top0,"swside")};
   const reset=()=>{on=false;locked=false;dx=0};
-  const terug=()=>{busy=true;pos(0,200);setTimeout(()=>{drop();app.style.transition="";app.style.transform="";busy=false},230)};
+  let tmr=0;const later=(f,ms)=>{clearTimeout(tmr);tmr=setTimeout(()=>{tmr=0;f()},ms)};
+  const terug=()=>{busy=true;pos(0,200);later(()=>{drop();app.style.transition="";app.style.transform="";busy=false},230)};
+  swipeAbort=()=>{if(!busy&&!on&&!swipeGhost&&!app.style.transform)return;clearTimeout(tmr);tmr=0;busy=false;reset();drop();app.style.transition="";app.style.transform=""};
   document.addEventListener("touchstart",e=>{
-    reset();if(busy||e.touches.length!==1||csOpen||keysOpen||!document.body.classList.contains("tabs")||document.body.classList.contains("kbd"))return;
+    if(on&&locked)terug();reset();if(busy||e.touches.length!==1||csOpen||keysOpen||!document.body.classList.contains("tabs")||document.body.classList.contains("kbd"))return;
     idx=tabIndex(route());if(idx<0||needsWelcome())return;
     const t=e.touches[0];if(t.clientX<EDGE||t.clientX>innerWidth-EDGE)return;
     if(!app.contains(e.target)||(e.target.closest&&e.target.closest(noSwipe))||scrollsX(e.target))return;
@@ -270,8 +274,8 @@ function tabTransition(app){
     // de rest van de weg in hetzelfde tempo als de vinger, tussen 170 en 320 ms
     const ms=Math.round(Math.max(170,Math.min(320,(innerWidth-d)/Math.max(v,1.1))));
     busy=true;ghost(s);pos(-s*innerWidth,ms);
-    setTimeout(()=>{busy=false;swipeIn="ghost";location.hash=t[next];
-      setTimeout(()=>{if(swipeIn==="ghost"){swipeIn="";drop();pos(0,0)}},500)},ms+20);
+    later(()=>{busy=false;swipeIn="ghost";location.hash=t[next];
+      later(()=>{if(swipeIn==="ghost"){swipeIn="";drop();pos(0,0)}},500)},ms+20);
   });
   document.addEventListener("touchcancel",()=>{if(on&&locked)terug();reset()});
 })();

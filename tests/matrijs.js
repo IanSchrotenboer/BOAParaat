@@ -36,6 +36,8 @@ async function stop(p){await p.evaluate(()=>{const s=document.getElementById('st
     const p=await open(b,d);
     await ga(p,'phb1');
     // paneel met de toetsmatrijs
+    t(await p.locator('.mlist li').count()===0,`${L}: toetstermen worden pas opgebouwd als je de matrijs openklapt`);
+    await p.click('.mtx summary');await w(150);
     const tot=await p.evaluate(()=>[...document.querySelectorAll('.mlist li')].length);
     const nGroep=MATRIJS[d].delen.reduce((a,x)=>a+x[2].length,0);
     t(tot===nGroep,`${L}: toetsmatrijs toont alle ${nGroep} toetstermen`);

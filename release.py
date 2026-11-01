@@ -122,6 +122,39 @@ sels = [s.strip() for s in re.findall(r'([^{}]+)\{[^{}]*\}', plat)]
 dubbel = sorted({s for s in sels if sels.count(s) > 1})
 for s in dubbel: let_op('CSS-selector staat twee keer: ' + s)
 if not dubbel: ok('geen dubbele CSS-selectors')
+# ongebruikte CSS-variabelen en animaties
+alles = head + body
+varn = sorted(set(re.findall(r'(--[\w-]+)\s*:', css_nc)))
+doodv = [v for v in varn if not re.search(r'var\(\s*' + re.escape(v) + r'(?![\w-])', alles) and not re.search(re.escape(v) + r'[\'"]', html_js)]
+for v in doodv: fout('CSS-variabele wordt nergens gebruikt: ' + v)
+kf = re.findall(r'@keyframes\s+([\w-]+)', css_nc)
+doodk = [k for k in kf if telt(k, alles) < 2]
+for k in doodk: fout('animatie wordt nergens gebruikt: @keyframes ' + k)
+if not doodv and not doodk: ok('alle %d CSS-variabelen en %d animaties worden gebruikt' % (len(varn), len(kf)))
+# ongebruikte pictogrammen
+mi = re.search(r'const ICON = \{(.*?)\n\};', body, flags=re.S)
+if mi:
+    rest = js_nc.replace(mi.group(1), '')
+    ik = re.findall(r'^\s*([A-Za-z_]\w*)\s*:', mi.group(1), flags=re.M)
+    doodi = [k for k in ik if not re.search(r'ICON\.' + k + r'\b|["\'`]' + k + r'["\'`]', rest)]
+    for k in doodi: fout('pictogram wordt nergens gebruikt: ICON.' + k)
+    if not doodi: ok('alle %d pictogrammen worden gebruikt' % len(ik))
+# losse bestanden in de hoofdmap die niet in de app of het project horen (schermafdrukken, testbestanden)
+TOEGESTAAN = {'LEESMIJ.md', 'capacitor.config.json', 'package.json', 'package-lock.json', 'release.py', '.gitignore'}
+los = sorted(f_ for f_ in os.listdir(ROOT) if os.path.isfile(os.path.join(ROOT, f_)) and f_ not in TOEGESTAAN)
+for f_ in los: fout('los bestand in de hoofdmap (hoort niet in het project): ' + f_)
+if not los: ok('geen losse bestanden in de hoofdmap')
+# achtergebleven testcode
+rest_dbg = [p_ for p_ in (r'\bconsole\.(?:log|debug)\(', r'\bdebugger\b', r'\balert\(') if re.search(p_, js_nc)]
+for p_ in rest_dbg: fout('testcode in de app: ' + p_.replace('\\b', '').replace('\\', ''))
+if not rest_dbg: ok('geen console.log, debugger of alert achtergebleven')
+# dubbele functies: twee functies met precies dezelfde inhoud
+fn = {}
+for naam_, lijf in re.findall(r'\bfunction\s+([\w$]+)\s*\(([^)]*\)\s*\{[^{}]{40,}\})', js_nc):
+    fn.setdefault(re.sub(r'\s+', '', lijf), []).append(naam_)
+dub = [v for v in fn.values() if len(v) > 1]
+for v in dub: let_op('functies met dezelfde inhoud: ' + ', '.join(v))
+if not dub: ok('geen functies met dubbele inhoud')
 
 # ---------------------------------------------------------------- 3. alle toestellen
 kop('3. Werkt op alle toestellen (syntaxis en oudere browsers)')
@@ -168,7 +201,8 @@ if not SNEL:
     kop('5. Browsertests')
     env = dict(os.environ, BOA_URL='file://' + os.path.join(UIT, 'Boa-Paraat.html'), BOA_SHOTS=os.path.join(UIT, 'schermen'))
     os.makedirs(env['BOA_SHOTS'], exist_ok=True)
-    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'rtgb.js', 'matrijs.js', 'stress.js']: draai(t, env)
+    env['CHAOS_SEED'] = os.environ.get('CHAOS_SEED', str(int(time.time()) % 100000)); ok('chaostest met zaad %s' % env['CHAOS_SEED'])
+    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'rtgb.js', 'matrijs.js', 'stress.js', 'chaos.js']: draai(t, env)
 else:
     let_op('browsertests overgeslagen (--snel)')
 

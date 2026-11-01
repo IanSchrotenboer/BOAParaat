@@ -9,18 +9,18 @@
    Kleur: koele grijsblauwe neutralen; gedempt uniformblauw als enige accent; een gedempte koperkleur (als van een insigne) alleen voor kleine markeringen. */
 :root{--ring:rgba(44,74,115,.22);color-scheme:light;accent-color:var(--navy);caret-color:var(--navy);
   --paper:#f4f6f9; --surface:#ffffff; --sunk:#f7f8fb; --ink:#1c2533; --muted:#5b6676; --line:#dce1e8; --track:#e3e8ef;
-  --navy:#2c4a73; --navy-ink:#ffffff; --navy-dim:#5b6676; --tint:#e7edf5; --hivis:#a0823a; --hivis-ink:#1f1a10; --link:#2c4a73; --blue:#2c4a73;
+  --navy:#2c4a73; --navy-ink:#ffffff; --tint:#e7edf5; --hivis:#a0823a; --hivis-ink:#1f1a10; --link:#2c4a73;
   --ok:#2f6b4f; --ok-bg:#e6f1ea; --bad:#a0564c; --bad-bg:#f6eae7; --warn-bg:#f6f1e4;
   --f-display:"Archivo","Arial Narrow",Arial,sans-serif; --f-body:"Public Sans","Segoe UI",Roboto,Helvetica,Arial,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
   --r:12px; --rb:10px; --tabh:64px; --l-bg:#2c4a73; --l-mark:#ffffff; --l-ink:#ffffff; --l-check:#2c4a73;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ring:rgba(157,184,224,.32);
   --paper:#10151c; --surface:#171e28; --sunk:#131922; --ink:#e3e8ef; --muted:#9ba7b6; --line:#273140; --track:#232c39;
-  --navy:#9db8e0; --navy-ink:#0f1a2b; --navy-dim:#9ba7b6; --tint:#1d2939; --hivis:#cfab5c; --hivis-ink:#1f1a10; --link:#a6c0e6; --blue:#9db8e0;
+  --navy:#9db8e0; --navy-ink:#0f1a2b; --tint:#1d2939; --hivis:#cfab5c; --hivis-ink:#1f1a10; --link:#a6c0e6;
   --l-bg:#10151c; --l-mark:#9db8e0; --l-ink:#e3e8ef; --l-check:#10151c; --ok:#79c79e; --ok-bg:#14271d; --bad:#e8968b; --bad-bg:#2f1b19; --warn-bg:#272418; color-scheme:dark}}
 :root[data-theme="dark"]{--ring:rgba(157,184,224,.32);
   --paper:#10151c; --surface:#171e28; --sunk:#131922; --ink:#e3e8ef; --muted:#9ba7b6; --line:#273140; --track:#232c39;
-  --navy:#9db8e0; --navy-ink:#0f1a2b; --navy-dim:#9ba7b6; --tint:#1d2939; --hivis:#cfab5c; --hivis-ink:#1f1a10; --link:#a6c0e6; --blue:#9db8e0;
+  --navy:#9db8e0; --navy-ink:#0f1a2b; --tint:#1d2939; --hivis:#cfab5c; --hivis-ink:#1f1a10; --link:#a6c0e6;
   --l-bg:#10151c; --l-mark:#9db8e0; --l-ink:#e3e8ef; --l-check:#10151c; --ok:#79c79e; --ok-bg:#14271d; --bad:#e8968b; --bad-bg:#2f1b19; --warn-bg:#272418; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -35,7 +35,7 @@ a{color:var(--link)}
 /* kopbalk + navigatie */
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);color:var(--ink);border-bottom:1px solid var(--line)}
 .bar .wrap{display:flex;align-items:center;gap:14px;padding-block:10px;min-height:58px}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;flex:none}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;flex:0 1 auto;min-width:0}
 .mark{display:block;width:36px;height:36px;flex:none}
 .mark svg{display:block;width:100%;height:100%}
 .mark .m-sh{fill:var(--navy)}
@@ -43,8 +43,8 @@ a{color:var(--link)}
 .mark .m-ck{fill:none;stroke:var(--navy-ink);stroke-width:5.4;stroke-linecap:round;stroke-linejoin:round}
 .mark .m-bl{fill:#c9a24a}
 .bname{display:flex;flex-direction:column;line-height:1.1;min-width:0}
-.brand b{font-family:var(--f-display);font-weight:700;font-size:19px;font-stretch:92%;white-space:nowrap;letter-spacing:-.01em}
-.brand .tag{font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap;letter-spacing:.01em;margin-top:2px}
+.brand b{font-family:var(--f-display);font-weight:700;font-size:19px;font-stretch:92%;white-space:nowrap;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis}
+.brand .tag{font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap;letter-spacing:.01em;margin-top:2px;overflow:hidden;text-overflow:ellipsis}
 .topnav{display:flex;gap:2px;margin-left:auto}
 .topnav a{display:inline-flex;align-items:center;gap:7px;color:var(--muted);text-decoration:none;font-weight:600;font-size:15px;padding:8px 11px;border-radius:7px;white-space:nowrap}
 .topnav .ic{display:inline-grid;place-items:center}
@@ -59,6 +59,7 @@ a{color:var(--link)}
 .ava{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--tint);color:var(--navy);font-family:var(--f-display);font-weight:800;font-size:13px;letter-spacing:.02em;flex:none}
 .ava.lg{width:64px;height:64px;font-size:24px}
 .timer{font-family:var(--f-mono);font-weight:600;font-variant-numeric:tabular-nums;background:var(--sunk);border:1px solid var(--line);padding:4px 10px;border-radius:6px}
+.bar .timer,.bar .timer[hidden]+.barbtn{margin-left:auto}
 .timer.low{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
 .barbtn{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:600;font-size:14px}
 @media (hover:hover){.barbtn:hover{background:var(--sunk)}}
@@ -585,6 +586,8 @@ footer{font-size:13px;color:var(--muted);padding-block:8px 32px}
   .wrap{padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
   .exam .big{font-size:38px}.brand .tag{display:none}
 }
+/* tijdens een examen of oefening op een heel smal scherm: alleen het schild, zodat klok en Stoppen passen */
+@media (max-width:359px){body:not(.tabs) .bname{display:none}}
 @media print{
   .bar,.tabbar,footer,.toc,.homeside,.btn,.toast,.kdlg{display:none!important}
   body{background:#fff}
