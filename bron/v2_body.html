@@ -45,7 +45,7 @@ const CATS = {
   waa:["phb3","Waarnemen"], pv:["phb3","Proces-verbaal en verslag"],
   gem:["phb1","Gemeente, samenwerking en ketenpartners"], bst:["phb1","Bestuursrecht en bestuurlijke sancties"], apv:["phb1","Algemene plaatselijke verordening (APV)"], wvw:["phb1","Verkeer: WVW 1994 en RVV 1990"], bijz:["phb1","Bijzondere wetten"],
   avg:["phb4","AVG en Wpg"], wijk:["phb4","Wijkgericht werken"], cult:["phb4","Cultureel vakmanschap"], jgd:["phb4","Jeugd en communicatie met jeugdigen"],
-  aig:["rtgb","Geweld: begrip en voorwaarden"], aim:["rtgb","Melden en registreren"], aiw:["rtgb","Geweldmiddelen en handboeien"], aif:["rtgb","Veiligheids- en vervoersfouillering"], air:["rtgb","RTGB, hulpverlening en nazorg"]
+  aig:["rtgb","Geweld: begrip en voorwaarden"], ais:["rtgb","Grondrechten en strafuitsluitingsgronden"], aim:["rtgb","Melden en registreren"], aiw:["rtgb","Geweldmiddelen en handboeien"], aif:["rtgb","Veiligheids- en vervoersfouillering"], air:["rtgb","RTGB-toetsen, toetsing en nazorg"]
 };
 const D4 = new Set(["wp","bp","ovt","spw"]);
 // domein I (openbare ruimte): onderwerpen uit de toetsmatrijs Domein I die niet voor domein IV gelden
@@ -64,9 +64,9 @@ const MODS = [
    blocks:[["A","AVG en Wpg",["avg"]],["B","Opmaken proces-verbaal",["pv","waa"]],["C","Wijkgericht werken",["wijk"]],["D","Jeugd",["jgd"]],["E","Cultureel vakmanschap",["cult"]]],
    blocks4:[["A","AVG en Wpg",["avg"]],["B","Opmaken proces-verbaal",["pv","waa"]],["C","Communicatie met jeugdigen",["jgd"]]]},
   {id:"rtgb",code:"RTGB",short:"Ambtsinstructie",name:"Ambtsinstructie en geweldsbeheersing",desc:"Geweld, melden, geweldmiddelen, handboeien en fouilleren volgens de Ambtsinstructie. Voor boa's met geweldsbevoegdheid, die dit elk jaar opnieuw laten toetsen (RTGB).",
-   note:"Met geweldsbevoegdheid moet je elk kalenderjaar de toets geweldsbeheersing en de toets aanhoudings- en zelfverdedigingsvaardigheden halen. Hier oefen je de kennis; de vaardigheden train je bij je werkgever. Vorm en norm van de echte toets bepaalt de Politieacademie.",
-   blocks:[["A","Geweld en melden",["aig","aim"]],["B","Middelen, fouilleren en nazorg",["aiw","aif","air"]]],
-   exam:{n:30,maxWrong:9,min:45,naam:"Oefentoets geweldsbeheersing"}}
+   note:"Met geweldsbevoegdheid moet je elk kalenderjaar de toets geweldsbeheersing (ambtsinstructietoets) en de toets aanhoudings- en zelfverdedigingsvaardigheden halen. De ambtsinstructietoets heeft 10 vragen in 30 minuten (tot en met de wapenstok) of 20 vragen in 45 minuten (met pepperspray of vuurwapen). Deze oefentoets volgt de lange vorm; de grens van 14 goed is een oefennorm, de echte norm bepaalt de Politieacademie.",
+   blocks:[["A","Geweld, recht en melden",["aig","ais","aim"]],["B","Middelen, fouilleren en de toetsen",["aiw","aif","air"]]],
+   exam:{n:20,maxWrong:6,min:45,naam:"Oefentoets ambtsinstructie"}}
 ];
 const MODBY = Object.fromEntries(MODS.map(m=>[m.id,m]));
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return "q"+(h>>>0).toString(36)}
@@ -257,6 +257,7 @@ const STOFBY = Object.fromEntries(STOF.map(s=>[s.id,s]));
 const NOREF = new Set(["wijk","cult"]);
 function refFor(q){
   if(NOREF.has(q.c))return null;
+  const rc=CATS[q.c]&&CATS[q.c][0]==="rtgb"?STOF_CAT[q.c]:null;if(rc&&STOFBY[rc])return {sec:rc,kb:STOFBY[rc].kb,dia:STOFBY[rc].dia};
   for(const [re,sec,kb,dia] of STOF_ART){if(q.r&&re.test(q.r))return {sec,kb,dia}}
   const sec=STOF_CAT[q.c];if(!sec||!STOFBY[sec])return null;return {sec,kb:STOFBY[sec].kb,dia:STOFBY[sec].dia};
 }

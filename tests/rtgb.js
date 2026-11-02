@@ -23,18 +23,18 @@ const store=p=>p.evaluate(()=>JSON.parse(localStorage.getItem('phb-trainer-v1')|
   // het tabblad zelf
   await ga(p,'rtgb');
   t((await p.textContent('#app h1')).includes('Ambtsinstructie'),'tabblad RTGB opent met de juiste titel');
-  t(await p.locator('#app .cat').count()===5,'vijf onderwerpen om te oefenen');
+  t(await p.locator('#app .cat').count()===6,'zes onderwerpen om te oefenen');
   t(await p.locator('#app .block').count()===2,'twee tussentijdse toetsen');
-  t((await p.textContent('#app .exam')).includes('Oefentoets geweldsbeheersing')&&(await p.textContent('#app .exam .big')).trim()==='30','oefentoets geweldsbeheersing met 30 vragen');
+  t((await p.textContent('#app .exam')).includes('Oefentoets ambtsinstructie')&&(await p.textContent('#app .exam .big')).trim()==='20','oefentoets ambtsinstructie met 20 vragen (lange vorm van de echte toets)');
   // oefenen per onderwerp, met verwijzing naar de samenvatting
-  await p.locator('#app .cat [data-act="oefen"]').nth(1).click();await w(400);
+  await p.locator('#app .cat [data-act="oefen"][data-cat="aim"]').click();await w(400);
   t(await p.evaluate(()=>location.hash)==='#sessie','oefenen "Melden en registreren" gestart');
   await p.locator('.opt').first().click();await w(250);
   const ref=await p.getAttribute('.ref a','href').catch(()=>null);
-  t(ref==='#stof-geweldmelding','uitleg verwijst naar de samenvatting "Geweld melden en de RTGB-toetsen"');
+  t(ref==='#stof-geweldmelding','uitleg verwijst naar de samenvatting "Geweld melden en leren van geweld"');
   await p.evaluate(()=>{const s=document.getElementById('stopBtn');s&&s.click()});await w(150);
   await p.evaluate(()=>{const y=document.querySelector('[data-act="stop-yes"]');y&&y.click()});await w(250);
-  // oefentoets: 30 vragen, 45 minuten, uitslag en geschiedenis
+  // oefentoets: 20 vragen, 45 minuten, uitslag en geschiedenis
   await ga(p,'rtgb');await p.click('#app [data-act="examen"]');await w(400);
   const timer=await p.textContent('#timer');
   t(/^4[45]:\d\d$/.test(timer.trim()),'oefentoets loopt met een klok van 45 minuten ('+timer.trim()+')');
@@ -43,17 +43,18 @@ const store=p=>p.evaluate(()=>JSON.parse(localStorage.getItem('phb-trainer-v1')|
     await p.locator('[data-act="ask-submit"]').first().click();await p.locator('[data-act="submit"]').click();break}
   await w(300);
   const s=await store(p);const h=(s.h||[])[0]||{};
-  t(h.m==='rtgb'&&h.n===30&&h.k==='examen','oefentoets ingeleverd en bewaard in de geschiedenis (30 vragen, module RTGB)');
-  t(/Oefentoets geweldsbeheersing/.test(h.t||''),'titel in de geschiedenis: "RTGB · Oefentoets geweldsbeheersing"');
+  t(h.m==='rtgb'&&h.n===20&&h.k==='examen','oefentoets ingeleverd en bewaard in de geschiedenis (20 vragen, module RTGB)');
+  t(/Oefentoets ambtsinstructie/.test(h.t||''),'titel in de geschiedenis: "RTGB · Oefentoets ambtsinstructie"');
   t(await p.locator('.verdict.pass').count()===1,'alles goed: oefentoets geslaagd');
   // studiestof
   await ga(p,'stof');
-  t(await p.locator('#s-ambts').count()===1&&await p.locator('#s-geweldmelding').count()===1,'studiestof: twee onderwerpen over de Ambtsinstructie en de RTGB');
+  t(await p.evaluate(()=>['ambts','rtgbmiddel','rtgbrecht','geweldmelding','rtgbexamen'].every(id=>document.getElementById('s-'+id))),'studiestof: vijf onderwerpen over de Ambtsinstructie en de RTGB');
+  t(await p.locator('#s-ambts table tr').count()===7&&(await p.textContent('#s-rtgbrecht')).includes('Noodweerexces')&&(await p.textContent('#s-rtgbexamen')).includes('FCB'),'categorieën BOA 1 t/m 6, strafuitsluitingsgronden en de toets AZV staan erin');
   t(await p.locator('#s-geweldmelding ol.flow li').count()===4,'meldschema in vier stappen');
-  t((await p.textContent('#s-geweldmelding')).includes('MONFOR')&&(await p.textContent('#s-ambts')).includes('VVV'),'ezelsbruggetjes staan erin (GSM, SAGG, MONFOR, VVV, HOS)');
-  t(await p.locator('#s-ambts [data-act="oefen"]').count()>=1,'vanuit de samenvatting direct oefenen');
-  await ga(p,'home');await ga(p,'stof-geweldmelding');await w(300);
-  const top=await p.evaluate(()=>Math.round(document.getElementById('s-geweldmelding').getBoundingClientRect().top));
+  t((await p.textContent('#s-geweldmelding')).includes('MONFOR')&&(await p.textContent('#s-rtgbmiddel')).includes('VVV'),'ezelsbruggetjes staan erin (GSM, SAGG, MONFOR, VVV, HOS)');
+  t(await p.locator('#s-rtgbrecht [data-act="oefen"]').count()>=1,'vanuit de samenvatting direct oefenen');
+  await ga(p,'home');await ga(p,'stof-rtgbexamen');await w(300);
+  const top=await p.evaluate(()=>Math.round(document.getElementById('s-rtgbexamen').getBoundingClientRect().top));
   t(top>=0&&top<160,'link naar het laatste onderwerp springt precies naar dat onderwerp (bovenkant op '+top+' px)');
   // profiel en mijn examens
   await ga(p,'profiel');

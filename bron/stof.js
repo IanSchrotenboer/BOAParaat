@@ -293,64 +293,177 @@ const STOF = [
 <li>Vraag duidelijk om een verklaring.</li>
 <li>Leg de vervolgprocedure uit en hoe iemand bezwaar kan maken. Sluit het gesprek netjes en professioneel af.</li>
 </ul>`},
-{id:"ambts", deel:"Ambtsinstructie en RTGB", titel:"Geweld, geweldmiddelen en fouilleren", kb:"", dia:"", html:`
-<p>De Ambtsinstructie voor de politie, de Koninklijke marechaussee en andere opsporingsambtenaren werkt artikel 7 van de Politiewet 2012 uit. Voor een boa met geweldsbevoegdheid gelden de artikelen die artikel 37 noemt; voor 'de korpschef' lees je dan de <b>direct toezichthouder</b>.</p>
-<h4>Geweld</h4>
+{id:"ambts", deel:"Ambtsinstructie en RTGB", titel:"Geweld: wettelijke basis en begrippen", kb:"", dia:"", html:`
+<p>Geweld is in Nederland in beginsel verboden, ook voor de overheid. Alleen de wet kan het toestaan, en dan onder strikte voorwaarden. De Ambtsinstructie voor de politie, de Koninklijke marechaussee en andere opsporingsambtenaren werkt artikel 7 van de Politiewet 2012 uit. Voor een boa met geweldsbevoegdheid gelden de artikelen die artikel 37 noemt; voor 'de korpschef' lees je dan de <b>direct toezichthouder</b>.</p>
+<h4>Van verbod naar bevoegdheid</h4>
 <ul>
-<li><b>Geweld</b> (art. 1): elke dwangmatige kracht van meer dan geringe betekenis op personen <i>of zaken</i>. Licht begeleiden van iemand die meewerkt, is geen geweld.</li>
-<li>Alleen in de <b>rechtmatige uitoefening van je functie</b>, als het doel dat rechtvaardigt en het niet anders kan (<b>subsidiariteit</b>), en <b>redelijk en gematigd</b> in verhouding tot het doel (<b>proportionaliteit</b>). Zo mogelijk eerst een <b>waarschuwing</b> (art. 7 lid 1 en 7 Politiewet 2012).</li>
-<li>Een geweldmiddel alleen als je ervoor <b>bevoegd</b> bent, het voor je taak gebruikt en erin <b>geoefend</b> bent (art. 4). Een boa gebruikt alleen het door de minister <b>voorgeschreven</b> middel (art. 38), pas nadat de bevoegdheid op de akte van beëdiging staat en de bekwaamheid is aangetoond (art. 39).</li>
+<li>Grondrechten: het recht op leven (art. 2 EVRM), het verbod op foltering en vernederende behandeling (art. 3 EVRM), het recht op vrijheid en veiligheid (art. 5 EVRM), gelijke behandeling (art. 1 Grondwet) en de onaantastbaarheid van het lichaam (art. 11 Grondwet). Mishandeling en openlijke geweldpleging zijn strafbaar.</li>
+<li>De politie heeft als taak de rechtsorde te handhaven <i>en</i> hulp te verlenen (art. 3 Politiewet 2012). De geweldsbevoegdheid staat in <b>art. 7 lid 1</b>, de veiligheidsfouillering in <b>lid 3</b> en de vervoersfouillering in <b>lid 4</b>.</li>
+<li>Via <b>art. 7 lid 9</b> kan de minister boa's aanwijzen die deze bevoegdheden ook hebben; dan geldt voor hen de Ambtsinstructie. Het staat op je <b>akte van beëdiging</b>. Een boa gebruikt geweld alleen in het verlengde van zijn eigen bevoegdheden, <b>niet om hulp te verlenen</b> zoals de politie.</li>
+<li>De wet is de grondslag; de Ambtsinstructie legt uit hoe je de bevoegdheid gebruikt.</li>
+</ul>
+<h4>Voorwaarden voor geweld (art. 7 Politiewet 2012)</h4>
+<ul>
+<li>Alleen in de <b>rechtmatige uitoefening van je functie</b>.</li>
+<li>Het doel rechtvaardigt het geweld, ook gelet op de gevaren ervan, en het doel is niet anders te bereiken: <b>subsidiariteit</b>. Geweld is het <b>ultimum remedium</b>, het laatste middel.</li>
+<li><b>Redelijk en gematigd</b> in verhouding tot het doel: <b>proportionaliteit</b> (lid 7).</li>
+<li>Zo mogelijk eerst een <b>waarschuwing</b>. Voor de wapenstok, pepperspray en het vuurwapen geldt daarnaast een eigen waarschuwingsplicht voor dat middel.</li>
+<li>Een middel alleen als het je is <b>toegekend</b>, je het voor die taak gebruikt en je erin <b>geoefend</b> bent (art. 4). Een boa gebruikt alleen het door de minister voorgeschreven middel (art. 38), pas nadat de bevoegdheid op de akte staat en de bekwaamheid is aangetoond (art. 39).</li>
 <li>Onder leiding van een aanwezige meerdere: geweld pas na diens <b>uitdrukkelijke last</b> (art. 5).</li>
 </ul>
-<h4>Pepperspray en wapenstok</h4>
+<h4>Begrippen (art. 1 Ambtsinstructie)</h4>
 <ul>
-<li><b>Pepperspray</b> (art. 12a): aanhouding van iemand met een direct bruikbaar wapen die dat zal gebruiken; aanhouding van iemand die zich onttrekt; agressieve dieren; direct gevaar voor het leven of zwaar lichamelijk letsel.</li>
-<li><b>Wapenstok</b> (art. 12e): dezelfde aanhoudingsgronden en gevaar voor het leven, plus iemand <b>op afstand houden</b> die je belemmert of een bevoegd bevel niet opvolgt, en het verspreiden van een bedreigende menigte.</li>
-<li>Bij beide eerst <b>waarschuwen</b>, tenzij de omstandigheden dat redelijkerwijs niet toelaten (art. 12b en 12f).</li>
+<li><b>Geweld</b>: elke dwangmatige kracht van meer dan geringe betekenis op personen <i>of zaken</i>. Licht begeleiden van iemand die meewerkt, is geen geweld.</li>
+<li><b>Aanwenden van geweld</b>: geweld gebruiken, ook met een geweldmiddel. Voor de meldplicht telt het <b>trekken van een vuurwapen</b> ook als aanwenden van geweld, tenzij het wapen standaard in de hand of over de schouder wordt gedragen.</li>
+<li><b>Geweldmiddel</b>: een toegekend middel om geweld mee te gebruiken, zoals de wapenstok, pepperspray en het vuurwapen.</li>
+<li><b>Vrijheidsbeperkend middel</b>: bedoeld om iemands vrijheid te beperken, zoals <b>handboeien</b> en de mondafscherming (spuugmasker). Handboeien zijn dus geen geweldmiddel, al kun je er wel geweld mee gebruiken.</li>
+<li><b>Verplaatsing</b>: iemand binnen dezelfde locatie overbrengen zonder vervoermiddel. Bij <b>vervoer</b> gebruik je een vervoermiddel.</li>
 </ul>
+<h4>Categorieën geweldsbevoegdheid</h4>
+<p>Elke categorie bouwt voort op de vorige. Ze staan los van de domeinen waarin boa's werken.</p>
+<div class="tblwrap"><table class="tbl stoftbl"><thead><tr><th>Categorie</th><th>Bevoegdheid</th></tr></thead><tbody>
+<tr><td>BOA 1</td><td>Geweld gebruiken</td></tr>
+<tr><td>BOA 2</td><td>+ veiligheids- en vervoersfouillering</td></tr>
+<tr><td>BOA 3</td><td>+ handboeien</td></tr>
+<tr><td>BOA 4</td><td>+ wapenstok (domein I, II, IV en VI)</td></tr>
+<tr><td>BOA 5</td><td>+ pepperspray (onder meer domein II en VI)</td></tr>
+<tr><td>BOA 6</td><td>+ vuurwapen (onder meer domein II en VI)</td></tr>
+</tbody></table></div>`},
+{id:"rtgbmiddel", deel:"Ambtsinstructie en RTGB", titel:"Middelen en fouilleren", kb:"", dia:"", html:`
 <h4>Handboeien en mondafscherming</h4>
 <ul>
-<li>Alleen bij iemand die <b>rechtens van zijn vrijheid is beroofd</b>, niet bij een staandehouding (art. 22). Ezelsbruggetje <b>VVV</b>: <b>V</b>ervoer of verplaatsing, <b>V</b>luchtgevaar, <b>V</b>eiligheid.</li>
-<li>Melden: ezelsbruggetje <b>HOS</b>: <b>H</b>andboeien meld je <b>O</b>nverwijld <b>S</b>chriftelijk bij de hulpofficier van justitie, met de reden (art. 23).</li>
+<li>Alleen bij iemand die <b>rechtens van zijn vrijheid is beroofd</b>, niet bij een staandehouding, ten behoeve van <b>vervoer of verplaatsing</b>, als redelijkerwijs gevaar te vrezen is voor <b>ontvluchting</b> of voor de <b>veiligheid</b> van de persoon zelf, jou of anderen (art. 22). Ezelsbruggetje <b>VVV</b>: <b>V</b>luchtgevaar of <b>V</b>eiligheid, bij <b>V</b>ervoer of verplaatsing.</li>
+<li>Melden: ezelsbruggetje <b>HOS</b>: <b>H</b>andboeien meld je <b>O</b>nverwijld <b>S</b>chriftelijk bij de hulpofficier van justitie, met de reden (art. 23). In de praktijk: gebruikte je daarbij ook geweld, dan een I8-formulier; zonder geweld vaak een mutatie of e-mail, afhankelijk van de politie-eenheid.</li>
 <li>Mondafscherming (spuugmasker): bij vervoer of verplaatsing als dat voor de veiligheid nodig is (art. 22a), alleen als je aanwijzing dit omvat.</li>
+</ul>
+<h4>Wapenstok (art. 12e en 12f)</h4>
+<ul>
+<li>Onder wapenstok vallen de <b>korte en de lange</b> wapenstok. Met een uitschuifbare wapenstok ontstaat in de praktijk sneller zwaarder letsel.</li>
+<li>Toegestaan: a. aanhouden van iemand met een direct bruikbaar wapen die dat zal gebruiken of aanstonds ander geweld tegen personen zal gebruiken; b. aanhouden van iemand die zich aan zijn aanhouding of vrijheidsbeneming <b>onttrekt</b>; c. iemand <b>op afstand houden</b> die je belemmert of een bevoegd gegeven bevel niet opvolgt; d. een bedreigende <b>samenscholing of menigte</b> verspreiden; e. direct gevaar voor het leven of zwaar lichamelijk letsel afwenden.</li>
+<li>Waarschuw onmiddellijk vooraf met luide stem dat je de wapenstok gaat gebruiken als het bevel niet wordt opgevolgd, tenzij de omstandigheden dat niet toelaten.</li>
+</ul>
+<h4>Pepperspray (art. 12a en 12b)</h4>
+<ul>
+<li>Toegestaan: a. aanhouden van iemand met een direct bruikbaar wapen of die aanstonds ander geweld gaat gebruiken; b. aanhouden van iemand die zich <b>onttrekt</b>; c. verdediging tegen of controle over <b>agressieve dieren</b>; d. direct gevaar voor het leven of zwaar lichamelijk letsel afwenden. Iemand op afstand houden is <b>geen</b> grond voor pepperspray.</li>
+<li><b>Onttrekken</b> is een actieve handeling, zoals wegrennen of het boeien tegenwerken. Iemand die passief blijft zitten, onttrekt zich niet.</li>
+<li>Waarschuw vooraf, tenzij de omstandigheden dat niet toelaten. Raak je de ogen niet, dan heeft pepperspray vaak niet het gewenste effect.</li>
+<li>Na gebruik verleen je zo mogelijk <b>nazorg</b>: koelen met water, want het brandende gevoel kan lang aanhouden.</li>
+</ul>
+<h4>Afweerbevoegdheid</h4>
+<p>Bij alle geweldmiddelen staat als grond: <b>direct gevaar</b> voor het leven of voor zwaar lichamelijk letsel afwenden. Dit sluit aan bij artikel 2 EVRM, dat geweld toestaat als het absoluut noodzakelijk is ter verdediging tegen onrechtmatig geweld, voor een rechtmatige aanhouding of tegen ontsnapping. Het gevaar moet er op dat moment zijn.</p>
+<h4>Vuurwapen (BOA 6)</h4>
+<ul>
+<li><b>Gebruik</b> is richten, gericht houden of schieten. Het <b>trekken</b> is nog geen gebruik, maar meld je wel als geweld.</li>
+<li>Ter hand nemen mag als gebruik is toegestaan, of als je redelijkerwijs verwacht dat zo'n situatie ontstaat; is die er niet (meer), dan berg je het wapen meteen op (art. 10).</li>
+<li>Gebruik is alleen toegestaan (art. 7): bij aanhouding van iemand die een vuurwapen of ander levensbedreigend geweld tegen personen gaat gebruiken; bij aanhouding van een vluchtende verdachte of veroordeelde van een misdrijf met vier jaar of meer dat een ernstige aantasting van de lichamelijke integriteit is, een gewelddadige woninginbraak, of bedreigend is voor de samenleving; bij ernstige wanordelijkheden in gesloten verband op last van het bevoegd gezag; om een ernstig gewond dier te doden; en om direct levensgevaar of zwaar lichamelijk letsel af te wenden.</li>
+<li>Bij de aanhoudingsgronden <b>geen vuurwapen</b> als de identiteit bekend is en uitstel geen onaanvaardbaar gevaar geeft (art. 7 lid 2).</li>
+<li>Waarschuw vooraf dat je gaat schieten; zo nodig met een <b>waarschuwingsschot</b>, zo gegeven dat gevaar voor personen en zaken zoveel mogelijk wordt vermeden (art. 10a).</li>
+<li>De <b>schiettoets</b> doe je twee keer per jaar. Een onvoldoende werkt direct: je draagt het vuurwapen niet tot je de toets hebt gehaald.</li>
 </ul>
 <h4>Veiligheids- en vervoersfouillering</h4>
 <ul>
+<li>Er zijn vier soorten onderzoek: <b>aan</b> de kleding, <b>in</b> de kleding, <b>aan</b> het lichaam en <b>in</b> het lichaam. De fouilleringen uit de Politiewet zijn een onderzoek <b>aan de kleding</b>: oppervlakkig aftasten, niets openmaken of lostornen.</li>
 <li><b>Veiligheidsfouillering</b> (art. 7 lid 3 Politiewet 2012): bij iedereen met wie je in je taak te maken hebt, niet alleen verdachten, als uit feiten of omstandigheden <b>direct gevaar</b> blijkt voor leven of veiligheid. <b>Wel meldplicht</b>: onverwijld schriftelijk aan de hulpofficier van justitie, met de redenen (art. 21).</li>
-<li><b>Vervoersfouillering</b> (art. 7 lid 4 Politiewet 2012): bij iemand die je vervoert. <b>Geen meldplicht</b>.</li>
-<li>Allebei: <b>oppervlakkig aftasten</b> van de kleding en meegevoerde voorwerpen, zoveel mogelijk door iemand van <b>hetzelfde geslacht</b>; gevaarlijke voorwerpen neem je <b>in bewaring</b> (art. 20).</li>
+<li><b>Vervoersfouillering</b> (art. 7 lid 4 Politiewet 2012): bij iemand die je gaat <b>vervoeren of insluiten</b>, ook zonder direct gevaar. <b>Geen meldplicht</b>.</li>
+<li>Allebei: zoveel mogelijk door iemand van <b>hetzelfde geslacht</b>; gevaarlijke voorwerpen neem je <b>in bewaring</b> (art. 20).</li>
+<li>Het doel is veiligheid. Fouilleer je vooral om bewijs te vinden, dan is dat <b>détournement de pouvoir</b>: de bevoegdheid gebruiken voor een verkeerd doel. Wat je bij een terechte fouillering vindt, mag je wel gebruiken.</li>
 </ul>`},
-{id:"geweldmelding", deel:"Ambtsinstructie en RTGB", titel:"Geweld melden en de RTGB-toetsen", kb:"", dia:"", html:`
+{id:"rtgbrecht", deel:"Ambtsinstructie en RTGB", titel:"Strafuitsluitingsgronden en toetsing van geweld", kb:"", dia:"", html:`
+<p>Wie geweld gebruikt, pleegt in beginsel een strafbaar feit, zoals mishandeling. Een <b>strafuitsluitingsgrond</b> maakt dat je daarvoor niet gestraft wordt. Er zijn twee soorten.</p>
+<h4>Rechtvaardigingsgronden: het feit was geoorloofd</h4>
+<ul>
+<li><b>Wettelijk voorschrift</b> (art. 42 lid 1 Sr). Lid 2: niet strafbaar is de ambtenaar die in de rechtmatige uitoefening van zijn taak en volgens zijn <b>geweldsinstructie</b> geweld gebruikt.</li>
+<li><b>Bevoegd gegeven ambtelijk bevel</b> (art. 43 lid 1 Sr).</li>
+<li><b>Noodweer</b> (art. 41 lid 1 Sr): noodzakelijke verdediging van eigen of andermans lijf, eerbaarheid of goed tegen een <b>ogenblikkelijke, wederrechtelijke aanranding</b>. Is de aanval voorbij, dan is er geen noodweer meer.</li>
+<li><b>Overmacht als noodtoestand</b> (art. 40 Sr): je moet kiezen tussen twee plichten of belangen.</li>
+</ul>
+<h4>Schulduitsluitingsgronden: het feit blijft onrechtmatig, maar je valt niets te verwijten</h4>
+<ul>
+<li><b>Noodweerexces</b> (art. 41 lid 2 Sr): je gaat over de grens van noodweer door een <b>hevige gemoedsbeweging</b> die de aanval veroorzaakte. Bijvoorbeeld vijf klappen waar één genoeg was. Het geweld wordt dan wel onderzocht.</li>
+<li><b>Onbevoegd gegeven ambtelijk bevel</b> (art. 43 lid 2 Sr): alleen als je het te goeder trouw als bevoegd zag en het binnen je ondergeschiktheid lag.</li>
+<li><b>Psychische overmacht</b> (art. 40 Sr): een drang van buitenaf waaraan je redelijkerwijs geen weerstand kon bieden.</li>
+</ul>
+<h4>Overtreding van de geweldsinstructie</h4>
+<p>Sinds 1 juli 2022 is het door eigen schuld overtreden van de geweldsinstructie een eigen strafbaar feit (<b>art. 372 Sr</b>). Een ambtenaar die een fout maakt, wordt dus niet meer meteen vervolgd voor mishandeling. Een onderzoek naar geweld kan bovendien plaatsvinden zonder dat je als verdachte wordt aangemerkt, zolang er geen redelijk vermoeden van een strafbaar feit is.</p>
+<h4>Toetsingskader</h4>
+<p>Bij de beoordeling van geweld wordt gekeken naar professionaliteit, in twee delen:</p>
+<div class="tblwrap"><table class="tbl stoftbl tk"><thead><tr><th>Wettelijk kader</th><th>Vakmanschap</th></tr></thead><tbody>
+<tr><td>Rechtmatige uitoefening van je functie?</td><td>Respectvol opgetreden?</td></tr>
+<tr><td>Rechtvaardigt het doel het geweld, gelet op de gevaren?</td><td>Voorspelbaar opgetreden?</td></tr>
+<tr><td>Zo mogelijk eerst gewaarschuwd?</td><td>De-escalerend opgetreden?</td></tr>
+<tr><td>Subsidiair: het minst ingrijpende middel?</td><td>Zorgvuldig opgetreden?</td></tr>
+<tr><td>Proportioneel: in verhouding tot het doel?</td><td>Moedig, maar niet overmoedig?</td></tr>
+<tr><td>Middel toegekend, getraind en volgens de regels gebruikt?</td><td></td></tr>
+</tbody></table></div>
+<h4>Doel Aanpak Analyse (DAA)</h4>
+<ol class="flow">
+<li><b>Doel</b>: wat wil ik in deze situatie bereiken, en wat is mijn taak als boa?</li>
+<li><b>Aanpak</b>: wat zijn de risico's voor mij, mijn collega's en de omgeving, en hoe beïnvloedt mijn gedrag de ander? <b>Mag ik?</b> (bevoegd) <b>Kan ik?</b> (mogelijkheden, beperkingen, vaardigheden) <b>Hoe?</b> (tactiek)</li>
+<li><b>Analyse</b>: doel bereikt? Welke risico's kwam ik tegen en had ik ze voorzien? Welke bevoegdheden gebruikte ik, en mocht dat? Wat doe ik de volgende keer anders?</li>
+</ol>
+<p>De DAA komt ook terug in de praktijktoets.</p>`},
+{id:"geweldmelding", deel:"Ambtsinstructie en RTGB", titel:"Geweld melden en leren van geweld", kb:"", dia:"", html:`
 <h4>Melden: wat, hoe en bij wie</h4>
 <p>Na geweld meld je <b>zo spoedig mogelijk</b> bij de <b>hulpofficier van justitie</b> die belast is met de registratie (art. 17). Ezelsbruggetje <b>GSM</b>: <b>G</b>eweld meld je <b>S</b>chriftelijk en <b>M</b>ondeling.</p>
 <ul>
-<li><b>Schriftelijk</b>, ezelsbruggetje <b>SAGG</b>: de <b>A</b>ard van het geweld, het <b>G</b>ebruikte geweldmiddel en de <b>G</b>evolgen.</li>
+<li><b>Schriftelijk</b>, ezelsbruggetje <b>SAGG</b>: de <b>A</b>ard van het geweld, het <b>G</b>ebruikte geweldmiddel en de <b>G</b>evolgen. In de praktijk met het <b>I8-formulier</b>.</li>
 <li><b>Mondeling</b>, ezelsbruggetje <b>MONFOR</b>: de <b>F</b>eiten, <b>O</b>mstandigheden en de <b>R</b>eden van het geweld.</li>
 <li>Gebruikte je geweld op uitdrukkelijke last van een aanwezige meerdere, dan meldt de meerdere.</li>
-<li>Alleen dreigen met geweld, zoals schreeuwen, hoef je sinds 1 juli 2020 niet meer te melden.</li>
+<li>Alleen dreigen met geweld, zoals schreeuwen, hoef je sinds 1 juli 2020 niet meer te melden. Het <b>trekken van een vuurwapen</b> meld je wel.</li>
+<li>Ook een boa <b>zonder geweldsbevoegdheid</b> meldt geweld dat hij als opsporingsambtenaar gebruikt, bijvoorbeeld bij noodweer.</li>
+</ul>
+<h4>Waarom melden?</h4>
+<ul>
+<li><b>Controleren en leren</b> van geweldgebruik (vooral het mondelinge deel).</li>
+<li><b>Zicht houden</b> op hoe vaak en hoe geweld wordt gebruikt: registratie en cijfers, jaarlijks zakelijk openbaar gemaakt (art. 19).</li>
+<li>Zo wordt de samenleving beschermd tegen misbruik van de geweldsbevoegdheid.</li>
 </ul>
 <h4>Het meldschema</h4>
 <ol class="flow">
-<li><b>Melding</b> bij de hulpofficier van justitie. Geen letsel: de melding wordt vastgelegd (in de praktijk een mutatie).</li>
-<li><b>Registratie</b> door de hulpofficier bij de dood, letsel van meer dan geringe betekenis, vuurwapengebruik, of als hij daartoe aanleiding ziet (art. 17 lid 3).</li>
-<li>De registratie gaat naar de <b>direct toezichthouder</b> (bij de politie: de korpschef), die het geweld beoordeelt (art. 17 lid 4, art. 18a).</li>
-<li><b>Kennisgeving aan de officier van justitie</b>: <b>terstond</b> bij de dood, zwaar lichamelijk letsel of vuurwapengebruik met letsel; in andere gevallen zo spoedig mogelijk als de direct toezichthouder daartoe aanleiding ziet (art. 18).</li>
+<li><b>Melding</b> bij de hulpofficier van justitie, mondeling en schriftelijk.</li>
+<li>De hulpofficier maakt een <b>mutatie</b> (goed gedaan, afgedaan) of een <b>geweldsregistratie</b>. Registratie is verplicht bij de dood, letsel van meer dan geringe betekenis of vuurwapengebruik, en kan ook als hij daartoe aanleiding ziet (art. 17 lid 3). De direct toezichthouder adviseert over de rechtmatigheid.</li>
+<li>Van de registratie krijgt de <b>direct toezichthouder</b> (bij de politie: de korpschef) terstond bericht; hij beoordeelt het geweld aan de hand van art. 7 Politiewet 2012 en de Ambtsinstructie (art. 17 lid 4, art. 18a). Bij de politie geeft een commissie geweldsaanwending eerst advies. De hulpofficier laat jou weten dat er een registratie is (art. 17 lid 5).</li>
+<li><b>Kennisgeving aan de officier van justitie</b>: <b>terstond</b> bij de dood, (vermoedelijk) zwaar lichamelijk letsel of vuurwapengebruik met letsel; in andere gevallen zo spoedig mogelijk als de direct toezichthouder daartoe aanleiding ziet (art. 18). Jij wordt daarover ingelicht.</li>
 </ol>
 <h4>Letsel</h4>
 <ul>
 <li><b>Letsel van meer dan geringe betekenis</b>: letsel dat door een arts of verpleegkundige is behandeld, of medisch gezien behandeld had moeten worden.</li>
 <li><b>Zwaar lichamelijk letsel</b> (art. 82 Sr): onder meer ziekte zonder uitzicht op volkomen genezing, blijvende ongeschiktheid voor het beroep, verlies van een zintuig, verminking, en storing van de verstandelijke vermogens die langer dan vier weken duurt.</li>
 </ul>
+<h4>Leren van geweld</h4>
+<p>De stelselherziening geweldsaanwending kwam er onder meer na onderzoek van de Nationale ombudsman, waaruit bleek dat te weinig werd geleerd van fouten. Leren gebeurt in de <b>kleine leercirkel</b> (jij, de betrokken collega's en je team) en de <b>grote leercirkel</b> (eenheid, organisatie of landelijk, zoals na de aanhouding waarbij Mitch Henriquez overleed). Eerlijk zijn over fouten draagt bij aan het vertrouwen in boa's.</p>`},
+{id:"rtgbexamen", deel:"Ambtsinstructie en RTGB", titel:"De RTGB-toetsen en zorg na geweld", kb:"", dia:"", html:`
+<h4>De RTGB</h4>
+<ul>
+<li>Je bent steeds voor de duur van een <b>kalenderjaar</b> geoefend als je in het jaar ervoor met voldoende resultaat hebt afgelegd: de <b>toets geweldsbeheersing</b> (de ambtsinstructietoets) en de <b>toets aanhoudings- en zelfverdedigingsvaardigheden</b> (AZV) (art. 2 RTGB). Met een vuurwapen doe je daarnaast twee keer per jaar de <b>schiettoets</b>; een onvoldoende daarvoor werkt direct.</li>
+<li>Niet gehaald: je mag de bevoegdheid en het middel niet meer gebruiken; de <b>direct toezichthouder</b> neemt het geweldmiddel in.</li>
+<li>De <b>werkgever</b> zorgt voor training en toetsing; jij bent zelf verantwoordelijk voor je deelname. De toetsen komen van de Politieacademie en worden afgenomen door gecertificeerde toetsers. Je opleider schrijft je in.</li>
+</ul>
+<h4>De ambtsinstructietoets</h4>
+<ul>
+<li>Tot en met de wapenstok (BOA 1 t/m 4): <b>10 meerkeuzevragen in 30 minuten</b>.</li>
+<li>Met pepperspray of vuurwapen (BOA 5 en 6): <b>20 meerkeuzevragen in 45 minuten</b>.</li>
+<li>Heb je dyslexie, geef dat dan met een dyslexieverklaring door bij de inschrijving.</li>
+</ul>
+<h4>De toets AZV (voorbeeld BOA 4)</h4>
+<ol class="flow">
+<li><b>Professionele beroepshouding</b>: zes cruciale punten, waaronder beroepsattitude, houding en afstand, de-escalerend communiceren, waarschuwen voor geweld en aanhouding, en subsidiair en proportioneel optreden.</li>
+<li><b>Verdedigen en aanvallen</b>: weren, blokken of ontwijken (cruciaal), arm- en beentechnieken.</li>
+<li><b>Wapenstok</b>: korte wapenstok slag, hak en stoot (cruciaal) en duwstoot; of de uitschuifbare wapenstok, slag (cruciaal) en duwstoot.</li>
+<li><b>Handboeien</b>: verticale boeiprocedure bij een verdachte die meewerkt.</li>
+<li><b>Duo-procedure aanhouden</b>: afspraken maken en samenwerken, <b>FCB</b> (fixeren, controleren, boeien), veiligheids- of vervoersfouillering, en omgevingsbewust blijven.</li>
+</ol>
+<p>Alle cruciale punten en alle vijf de blokken moeten voldoende zijn. Twee toetsers beoordelen; als ze je handelen niet goed konden zien, kunnen ze je vragen het toe te lichten. Je traint niet op de toetsdag zelf en een hertoets op dezelfde dag kan niet. De praktijktoets gebruikt de Doel Aanpak Analyse.</p>
+<h4>Tenue en meenemen</h4>
+<ul>
+<li>Sinds 1 januari 2026 zoveel mogelijk in <b>uniform met veiligheidsvest</b>, middelen op de voorgeschreven plaats. Alleen wie nooit in uniform werkt, mag burgerkleding dragen. Een overall of sportkleding is niet toegestaan; voldoe je niet aan deze voorwaarden, dan kan de toetser de toets niet laten doorgaan.</li>
+<li>Neem je <b>boa-legitimatie</b> en een <b>identiteitsbewijs</b> mee. Professionele beroepshouding, ook je uniform en hoe je de toetsers bejegent, is een cruciaal onderdeel.</li>
+</ul>
 <h4>Zorg na geweld</h4>
 <ul>
 <li>Eerst de zorg: ernstig gewonden en bewustelozen per ambulance naar het ziekenhuis; bij lichte verwondingen verwijzen naar huisarts of EHBO (art. 24, voor de politie).</li>
 <li>Haal iemand zo snel mogelijk uit buikligging en let op ademhaling en aanspreekbaarheid (risico op positionele asfyxie).</li>
-</ul>
-<h4>De RTGB</h4>
-<ul>
-<li>Elk kalenderjaar de <b>toets geweldsbeheersing</b> en de <b>toets aanhoudings- en zelfverdedigingsvaardigheden</b>; met een vuurwapen elk halfjaar ook de <b>toets schietvaardigheid</b> (art. 2 RTGB).</li>
-<li>Niet gehaald: na afloop van de periode mag je de bevoegdheid en het middel niet meer gebruiken; de <b>direct toezichthouder</b> neemt het geweldmiddel in.</li>
-<li>De <b>werkgever</b> zorgt voor training en toetsing; jij bent zelf verantwoordelijk voor je deelname. De toetsen worden samengesteld door de Politieacademie en afgenomen door een gecertificeerde toetser.</li>
+<li>Na pepperspray: zo mogelijk koelen met water.</li>
 </ul>`}
 ];
 // Vindplaatsen per wetsartikel: [regex op de bronverwijzing van de vraag, sectie, kennisboekje-blz, dia's]
@@ -379,4 +492,4 @@ const STOF_ART = [
 ];
 // Standaard-sectie per categorie als de bronverwijzing niets specifieks oplevert
 const STOF_CAT = {sr:"staat",ro:"rechtspraak",boa:"boa",pol:"politie",str:"recht",vd:"verhoor",bev:"bevoegd",kl:"aangifte",vrij:"aanhouden",fou:"fouilleren",bes:"fouilleren",pl:"woning",sch:"strafbaar",amb:"tegenambt",
-  wp:"ovopsp",bp:"ovbewijs",ovt:"ovtoezicht",spw:"spoor",com:"praktijk",agr:"praktijk",prof:"praktijk",waa:"pv",pv:"pv",gem:"ruimte",bst:"bestuur",apv:"ruimte",wvw:"ruimte",bijz:"ruimte",jgd:"bevoegd",aig:"ambts",aim:"geweldmelding",aiw:"ambts",aif:"ambts",air:"geweldmelding",avg:"privacy"};
+  wp:"ovopsp",bp:"ovbewijs",ovt:"ovtoezicht",spw:"spoor",com:"praktijk",agr:"praktijk",prof:"praktijk",waa:"pv",pv:"pv",gem:"ruimte",bst:"bestuur",apv:"ruimte",wvw:"ruimte",bijz:"ruimte",jgd:"bevoegd",aig:"ambts",ais:"rtgbrecht",aim:"geweldmelding",aiw:"rtgbmiddel",aif:"rtgbmiddel",air:"rtgbexamen",avg:"privacy"};
