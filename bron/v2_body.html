@@ -23,7 +23,7 @@
   </div>
 </header>
 <div class="pages"><main class="wrap" id="app"></main></div>
-<footer class="wrap">Oefenmateriaal op basis van de exameneisen voor boa's. Wetgeving bijgewerkt tot oktober 2026; controleer bij twijfel altijd je wettenbundel. Je profiel en voortgang worden alleen op dit apparaat, in deze browser bewaard. <button class="linkbtn kbdhint" type="button" data-act="keys">Sneltoetsen</button></footer>
+<footer class="wrap">Oefenmateriaal op basis van de exameneisen voor boa's. Wetgeving bijgewerkt tot oktober 2026; controleer bij twijfel altijd je wettenbundel. <span id="opslagTekst">Je profiel en voortgang worden alleen op dit apparaat, in deze browser bewaard.</span> <button class="linkbtn kbdhint" type="button" data-act="keys">Sneltoetsen</button></footer>
 <nav class="tabbar" id="tabbar" aria-label="Modules"></nav>
 <div class="toast" id="toast" role="status" hidden></div>
 
@@ -96,11 +96,14 @@ function normalize(p){const b=blank();if(!isObj(p))return b;
   P.dom=q.dom==="4"?"4":"1";P.rol=q.rol==="scholier"||q.rol==="werkend"?q.rol:"";P.thema=["licht","donker"].includes(q.thema)?q.thema:"systeem";
   if(q.ob)P.ob=1;if(typeof q.gezien==="string")P.gezien=q.gezien;
   const m=isObj(q.mld)?q.mld:{};P.mld={oefen:m.oefen===true,examen:m.examen===true,tijd:/^\d{2}:\d{2}$/.test(m.tijd)?m.tijd:"19:00"};if(m.gevraagd)P.mld.gevraagd=1;if(typeof m.weg==="string")P.mld.weg=m.weg;
-  if(!P.rol&&(P.akte||P.naam))P.rol="werkend";return b}
+  if(!P.rol&&(P.akte||P.naam))P.rol="werkend";
+  if(typeof p.t==="number")b.t=p.t;if(typeof p.r==="number")b.r=p.r;if(typeof p.eig==="string")b.eig=p.eig.slice(0,60);
+  if(Array.isArray(p.weg))b.weg=p.weg.filter(x=>typeof x==="string").slice(-300);return b}
 try{const raw=localStorage.getItem(KEY);if(raw)store=normalize(JSON.parse(raw));
   const old=localStorage.getItem("phb-trainer-domein");if(old==="4"&&!(JSON.parse(raw||"{}").p))store.p.dom="4";}catch(e){}
 let saveFout=false;
-function save(){try{localStorage.setItem(KEY,JSON.stringify(store));saveFout=false}catch(e){if(!saveFout){saveFout=true;setTimeout(()=>toast("Je voortgang kan nu niet worden bewaard: de opslag van je browser of telefoon is vol. Maak ruimte vrij of zet je voortgang over via Profiel."),0)}}mldLater()}
+function save(){store.t=Date.now();saveLokaal();cloudLater()}
+function saveLokaal(){try{localStorage.setItem(KEY,JSON.stringify(store));saveFout=false}catch(e){if(!saveFout){saveFout=true;setTimeout(()=>toast("Je voortgang kan nu niet worden bewaard: de opslag van je browser of telefoon is vol. Maak ruimte vrij of zet je voortgang over via Profiel."),0)}}mldLater()}
 // twee tabbladen of vensters tegelijk: de nieuwste gegevens van het andere tabblad overnemen, zodat niets verloren gaat
 window.addEventListener("storage",e=>{if(e.key!==KEY||!e.newValue)return;try{store=normalize(JSON.parse(e.newValue))}catch(x){return}
   applyTheme();const r=route();if(!(r==="sessie"&&S&&!S.done)&&!(r==="wv"&&W)&&!document.querySelector("#app form:focus-within"))render()});
@@ -239,6 +242,7 @@ let pageAnim=false;
 $("#app").addEventListener("animationend",e=>{if(e.target.id==="app")e.target.classList.remove("enter","swl","swr")});
 function render(){
   const r=route();const app=$("#app");csClose(false);
+  if(needsLogin()){swipeAbort();app.dataset.v="login";app.innerHTML=viewLogin();paintNav();return}
   if(needsWelcome()){swipeAbort();app.dataset.v="welkom";app.innerHTML=viewWelcome();paintNav();enhanceSelects(app);tuneInputs(app);obAfterRender();return}
   let v="home",h;
   if(r==="sessie"&&S){v="sessie";h=S.done?viewResult():viewQuestion()}
@@ -468,6 +472,7 @@ function viewProfile(tab){
       <div class="stat"><div class="v">${wrong}</div><div class="l">fouten open</div></div>
     </div>
     <div class="section stack"><div><h2>Voortgang per module</h2><p class="small">Beheerst betekent: de laatste keer goed beantwoord. Tik op een module voor de details per onderwerp.</p></div>${modCards}</div>
+    ${viewAccount()}
     <div class="section stack"><h2>Gegevens</h2>
       <form class="panel stack" id="profForm" autocomplete="off">
         <div class="fields">
@@ -633,6 +638,7 @@ document.addEventListener("click",e=>{
   if(act==="ob-dom"){obDraft=obCollect();obDom=d.v;delete obErr.dom;render();return}
   if(act.indexOf("wv-")===0&&wvClick(act,{...d}))return;
   if(act.indexOf("yt-")===0&&ytClick(act,{...d}))return;
+  if(["login","sync","logout","logout-no","acc-del","acc-del-no","acc-del-yes"].includes(act)&&cloudAct(act))return;
   if(["oefen","mix","fouten","toets","examen","mtx"].includes(act)){launch(act,{...d});return}
   if(act==="akte-edit"){const go=()=>{const f=$("#pAkte");if(f){f.scrollIntoView({block:"center"});f.focus()}};if($("#pAkte"))go();else{location.hash="profiel";setTimeout(go,120)}return}
   if(act==="thema"){store.p.thema=d.v;save();applyTheme();render();toast(d.v==="donker"?"Donkere weergave":d.v==="licht"?"Lichte weergave":"Weergave volgt je systeem");return}
@@ -646,10 +652,10 @@ document.addEventListener("click",e=>{
   if(act==="ex-cancel"){exEdit=null;exOpen=false;render();return}
   if(act==="ex-del"){exDel=d.id;render();return}
   if(act==="ex-del-no"){exDel=null;render();return}
-  if(act==="ex-del-yes"){store.x=store.x.filter(x=>x.id!==d.id);exDel=null;if(exEdit===d.id)exEdit=null;save();render();toast("Examen verwijderd");return}
+  if(act==="ex-del-yes"){store.x=store.x.filter(x=>x.id!==d.id);wegZet("x",d.id);exDel=null;if(exEdit===d.id)exEdit=null;save();render();toast("Examen verwijderd");return}
   if(act==="reset"){confirmReset=true;render();return}
   if(act==="reset-no"){confirmReset=false;render();return}
-  if(act==="reset-yes"){store=blank();save();applyTheme();confirmReset=false;obDom=null;obExam=false;obErr={};obDraft=null;location.hash="home";render();toast("Alles gewist");return}
+  if(act==="reset-yes"){const eig=store.eig;store=blank();store.r=Date.now();if(eig)store.eig=eig;save();applyTheme();confirmReset=false;obDom=null;obExam=false;obErr={};obDraft=null;location.hash="home";render();toast("Alles gewist");return}
   if(act==="export"){showExport=!showExport;showImport=false;render();if(showExport){const t=$("#expCode");const code=t.value;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(code).then(()=>toast("Code gekopieerd"),()=>{t.focus();t.select();toast("Selecteer en kopieer de code")})}else{t.focus();t.select()}}return}
   if(act==="import"){showImport=!showImport;showExport=false;render();return}
   if(act==="import-go"){try{importCode($("#impCode").value);applyTheme();showImport=false;render();toast("Voortgang geladen")}catch(err){toast("Deze code klopt niet. Kopieer hem opnieuw, helemaal.")}return}

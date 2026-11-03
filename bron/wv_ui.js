@@ -217,7 +217,7 @@ function wvClick(act,d){
   if(act==="wv-pause"){wvCollect();wvSaveDraft();stopFilm();W=null;clearInterval(wvTick);wvAskStop=false;location.hash="phb3";toast("Je oefening is bewaard. Ga verder via PHB 3.");return true}
   if(act==="wv-del"){wvDel=d.id;render();return true}
   if(act==="wv-del-no"){wvDel=null;render();return true}
-  if(act==="wv-del-yes"){store.w=(store.w||[]).filter(x=>x.id!==d.id);wvDel=null;save();render();toast("Verslag verwijderd");return true}
+  if(act==="wv-del-yes"){store.w=(store.w||[]).filter(x=>x.id!==d.id);wegZet("w",d.id);wvDel=null;save();render();toast("Verslag verwijderd");return true}
   return false;
 }
 function ytClick(act,d){
@@ -227,7 +227,7 @@ function ytClick(act,d){
   if(act==="yt-sug"){const s=YT_SUGGEST[+d.i];if(s){$("#ytUrl").value="https://youtu.be/"+s.vid;$("#ytTitel").value=s.titel}return true}
   if(act==="yt-del"){ytDel=d.id;render();return true}
   if(act==="yt-del-no"){ytDel=null;render();return true}
-  if(act==="yt-del-yes"){store.yt=(store.yt||[]).filter(x=>x.id!==d.id);ytDel=null;save();render();toast("Video verwijderd");return true}
+  if(act==="yt-del-yes"){store.yt=(store.yt||[]).filter(x=>x.id!==d.id);wegZet("yt",d.id);ytDel=null;save();render();toast("Video verwijderd");return true}
   return false;
 }
 function ytSubmit(){

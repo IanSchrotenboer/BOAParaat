@@ -137,6 +137,18 @@ Gaat er iets mis, dan stopt het script, noemt het wat er mis is en pakt het niet
 
 Nodig voor de browsertests: Node.js 20 of nieuwer en Playwright (`npm install --no-save playwright` en `npx playwright install chromium`). Op GitHub draait de taak **Testen** dit automatisch bij elke upload.
 
+## Account en cloudopslag (Supabase)
+
+Vanaf versie 1.8 log je in de app en op de website in met je Google-account. De voortgang staat dan in Supabase, zodat je hem niet kwijtraakt en op meerdere apparaten verder kunt.
+
+- **Code:** `bron/cloud.js`. Inloggen gaat via Supabase Auth met Google (PKCE). In de Android-app opent Google in de browser van de telefoon en keert de app terug via `nl.boa.phbtrainer://login`; de GitHub-taak zet die koppeling in het Android-project.
+- **Instellingen:** `bron/cloud.json` met het projectadres (`url`) en de publishable key (`key`). Beide zijn openbaar: de beveiliging zit in de database-regels. Zonder dit bestand werkt de app zonder inloggen, zoals vroeger.
+- **Database:** `supabase/migrations/`. Eén tabel `voortgang` met één rij per gebruiker. Row level security zorgt dat iedereen alleen zijn eigen rij ziet. `verwijder_mijn_account()` verwijdert het account en de voortgang (AVG).
+- **Samenvoegen:** oefenresultaten, geschiedenis, oefendagen, verslagen en examens van twee apparaten worden samengevoegd. Profiel en instellingen volgen de laatste wijziging. Iets wat je verwijdert, komt niet terug, en na 'Alles wissen' komt oude voortgang niet terug.
+- **Offline:** na de eerste keer inloggen werkt de app ook offline. Bij de volgende verbinding wordt alles bijgewerkt.
+- **Los HTML-bestand en voorbeeld in claude.ai:** Google kan daar niet inloggen. Daar werkt de app zonder account, alleen op dat apparaat.
+- **Test:** `tests/cloud.js` bootst Supabase na (inloggen, twee apparaten, offline, verlopen sessie, uitloggen, account verwijderen, andere gebruiker op hetzelfde apparaat) en draait bij elke release mee.
+
 ## Goed om te weten
 
 - Meldingen: onder **Profiel → Meldingen** zet je de oefenherinnering (dagelijks op een gekozen tijd, alleen als je nog niet hebt geoefend) en de examenherinnering (7, 3 en 1 dag ervoor, om 18:00) aan of uit. Meldingen buiten de app werken in de Android- en iOS-app; in de browser verschijnen ze als kaart op het overzicht.

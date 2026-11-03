@@ -60,6 +60,12 @@ a{color:var(--link)}
 .ava.lg{width:64px;height:64px;font-size:24px}
 .timer{font-family:var(--f-mono);font-weight:600;font-variant-numeric:tabular-nums;background:var(--sunk);border:1px solid var(--line);padding:4px 10px;border-radius:6px}
 .bar .timer,.bar .timer[hidden]+.barbtn{margin-left:auto}
+/* inloggen en account */
+.login .panel{max-width:520px}.lgoogle{width:100%;justify-content:center;min-height:52px;font-size:17px}
+.lbezig{display:flex;align-items:center;gap:10px;margin:0;font-weight:600}
+.spin{width:20px;height:20px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--navy);animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.acc{display:flex;align-items:center;gap:12px;min-width:0}.accmail{overflow-wrap:anywhere}.accoff{color:var(--bad)}
 .timer.low{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
 .barbtn{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:600;font-size:14px}
 @media (hover:hover){.barbtn:hover{background:var(--sunk)}}

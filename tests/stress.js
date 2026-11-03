@@ -60,7 +60,8 @@ async function routes(p,label,lim){
   const b=await chromium.launch();const T0=Date.now();
   // lokale webserver met de web-app (zoals GitHub Pages)
   const srv=http.createServer((req,res)=>{let f=path.join(WWW,decodeURIComponent(req.url.split('?')[0]));if(f.endsWith('/'))f+='index.html';
-    fs.readFile(f,(e,data)=>{if(e){res.writeHead(404);return res.end()}const ext=path.extname(f);const gz=/gzip/.test(req.headers['accept-encoding']||'')&&ext!=='.png';
+    fs.readFile(f,(e,data)=>{if(e){res.writeHead(404);return res.end()}if(f.endsWith('.html'))data=Buffer.from(data.toString('utf8').replace(/const CLOUD=\{[^;]*\};/,'const CLOUD=null;')); // inloggen wordt apart getest in cloud.js
+    const ext=path.extname(f);const gz=/gzip/.test(req.headers['accept-encoding']||'')&&ext!=='.png';
       // zoals GitHub Pages: gecomprimeerd versturen
       res.writeHead(200,Object.assign({'Content-Type':{'.html':'text/html','.js':'text/javascript','.json':'application/json','.webmanifest':'application/manifest+json','.png':'image/png'}[ext]||'application/octet-stream'},gz?{'Content-Encoding':'gzip'}:{}));res.end(gz?require('zlib').gzipSync(data):data)})}).listen(0);
   const port=srv.address().port;const url=`http://localhost:${port}/`;

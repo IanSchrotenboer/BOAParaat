@@ -37,6 +37,25 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      - name: Inloggen met Google - terugkeren naar de app (nl.boa.phbtrainer://login)
+        run: |
+          python3 - <<'PY'
+          p='android/app/src/main/AndroidManifest.xml';s=open(p).read()
+          f='''
+                      <intent-filter android:autoVerify="false">
+                          <action android:name="android.intent.action.VIEW" />
+                          <category android:name="android.intent.category.DEFAULT" />
+                          <category android:name="android.intent.category.BROWSABLE" />
+                          <data android:scheme="nl.boa.phbtrainer" android:host="login" />
+                      </intent-filter>'''
+          if 'android:scheme="nl.boa.phbtrainer"' not in s:
+              i=s.index('</intent-filter>',s.index('android.intent.action.MAIN'))+len('</intent-filter>')
+              s=s[:i]+f+s[i:]
+          assert 'singleTask' in s, 'MainActivity moet launchMode singleTask hebben'
+          open(p,'w').write(s);print('deeplink toegevoegd')
+          PY
+          grep -n "nl.boa.phbtrainer\|launchMode" android/app/src/main/AndroidManifest.xml
+
       - name: App-iconen maken
         continue-on-error: true
         run: npx capacitor-assets generate --android --iconBackgroundColor "#2c4a73" --iconBackgroundColorDark "#10151c" --splashBackgroundColor "#2c4a73" --splashBackgroundColorDark "#10151c"
