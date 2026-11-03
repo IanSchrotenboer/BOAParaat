@@ -117,7 +117,9 @@ async function uitloggen(){
 let confirmUitOffline=false;
 async function accountWeg(){
   cloudBezig="Je account wordt verwijderd…";render();
-  try{await rest("POST","rpc/verwijder_mijn_account",{});
+  try{const t=await token();
+    const r=await fetch(CLOUD.url+"/functions/v1/verwijder-account",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+t,"Content-Type":"application/json"},body:"{}"});
+    if(!r.ok)throw new Error("HTTP "+r.status);
     const s=sesGet();if(s)fetch(CLOUD.url+"/auth/v1/logout",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+s.a}}).catch(()=>{});
     wisLokaal();cloudBezig="";cloudDel=false;location.hash="home";render();toast("Je account en je voortgang zijn verwijderd")}
   catch(e){cloudBezig="";cloudFout="Verwijderen is niet gelukt. Controleer je internetverbinding en probeer het opnieuw.";render()}}

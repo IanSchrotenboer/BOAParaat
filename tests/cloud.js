@@ -43,8 +43,8 @@ const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);r
     if(u.pathname==='/rest/v1/voortgang'&&req.method==='POST'){const b=JSON.parse(body);
       if(b.user_id!==ses.u)return json(res,403,{message:'row level security'});
       db.rows[b.user_id]={data:b.data,app_versie:b.app_versie,bijgewerkt:Date.now()};db.schrijf=(db.schrijf||0)+1;return json(res,201,null)}
-    if(u.pathname==='/rest/v1/rpc/verwijder_mijn_account'){delete db.rows[ses.u];delete db.users[ses.u];for(const [r,id] of Object.entries(db.refresh))if(id===ses.u)delete db.refresh[r];return json(res,204,null)}
   }
+  if(u.pathname==='/functions/v1/verwijder-account'&&req.method==='POST'){if(!ses||ses.exp<Date.now())return json(res,401,{error:'niet ingelogd'});delete db.rows[ses.u];delete db.users[ses.u];for(const [r,id] of Object.entries(db.refresh))if(id===ses.u)delete db.refresh[r];return json(res,200,{verwijderd:true})}
   json(res,404,{message:'?'})})});
 const app=http.createServer((req,res)=>{const u=new URL(req.url,'http://x');
   if(u.pathname==='/frame.html'){res.writeHead(200,{'Content-Type':'text/html'});return res.end(`<iframe src="${APP}/app.html#home" style="width:390px;height:800px"></iframe>`)}

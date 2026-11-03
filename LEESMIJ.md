@@ -143,7 +143,7 @@ Vanaf versie 1.8 log je in de app en op de website in met je Google-account. De 
 
 - **Code:** `bron/cloud.js`. Inloggen gaat via Supabase Auth met Google (PKCE). In de Android-app opent Google in de browser van de telefoon en keert de app terug via `nl.boa.phbtrainer://login`; de GitHub-taak zet die koppeling in het Android-project.
 - **Instellingen:** `bron/cloud.json` met het projectadres (`url`) en de publishable key (`key`). Beide zijn openbaar: de beveiliging zit in de database-regels. Zonder dit bestand werkt de app zonder inloggen, zoals vroeger.
-- **Database:** `supabase/migrations/`. Eén tabel `voortgang` met één rij per gebruiker. Row level security zorgt dat iedereen alleen zijn eigen rij ziet. `verwijder_mijn_account()` verwijdert het account en de voortgang (AVG).
+- **Database:** `supabase/migrations/`. Eén tabel `voortgang` met één rij per gebruiker. Row level security zorgt dat iedereen alleen zijn eigen rij ziet. De Edge Function `supabase/functions/verwijder-account` verwijdert het account en de voortgang (AVG).
 - **Samenvoegen:** oefenresultaten, geschiedenis, oefendagen, verslagen en examens van twee apparaten worden samengevoegd. Profiel en instellingen volgen de laatste wijziging. Iets wat je verwijdert, komt niet terug, en na 'Alles wissen' komt oude voortgang niet terug.
 - **Offline:** na de eerste keer inloggen werkt de app ook offline. Bij de volgende verbinding wordt alles bijgewerkt.
 - **Los HTML-bestand en voorbeeld in claude.ai:** Google kan daar niet inloggen. Daar werkt de app zonder account, alleen op dat apparaat.

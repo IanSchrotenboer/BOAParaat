@@ -2800,7 +2800,7 @@ if(a==="mld-test"){const LN=LNp();if(!LN)return;(async()=>{if(!(await mldPerm())
 try{await LN.schedule({notifications:[{id:9,title:"Zo ziet een herinnering eruit",body:"Je krijgt een seintje om te oefenen en voor je examen.",schedule:{at:new Date(Date.now()+3000),allowWhileIdle:true},channelId:"herinneringen",smallIcon:"ic_stat_boa",iconColor:"#2c4a73",extra:{route:"profiel"}}]});toast("Testmelding komt over een paar seconden")}catch(x){toast("Testmelding lukte niet")}})();return}
 });
 document.addEventListener("change",e=>{if(e.target.id==="mlTijd"){store.p.mld.tijd=e.target.value;save();render();mldPlan();toast("Oefenherinnering om "+e.target.value)}});
-const CLOUD=null;
+const CLOUD={"url": "https://xtrrubficvtvkqxdrfgr.supabase.co", "key": "sb_publishable_xo3p-ctt2WL0Qs3xjqVzLg_OtBu4NXj"};
 const SES="boa-sessie",PKCE="boa-pkce",REDIR_APP="nl.boa.phbtrainer://login";
 let cloudBezig="",cloudFout="",cloudSync={t:0,ok:true,bezig:false},cloudDel=false,cloudUit=false;
 const isNative=()=>{const C=window.Capacitor;return !!(C&&(C.isNativePlatform?C.isNativePlatform():C.Plugins&&C.Plugins.App))};
@@ -2900,7 +2900,9 @@ wisLokaal();cloudBezig="";location.hash="home";render();toast("Je bent uitgelogd
 let confirmUitOffline=false;
 async function accountWeg(){
 cloudBezig="Je account wordt verwijderd…";render();
-try{await rest("POST","rpc/verwijder_mijn_account",{});
+try{const t=await token();
+const r=await fetch(CLOUD.url+"/functions/v1/verwijder-account",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+t,"Content-Type":"application/json"},body:"{}"});
+if(!r.ok)throw new Error("HTTP "+r.status);
 const s=sesGet();if(s)fetch(CLOUD.url+"/auth/v1/logout",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+s.a}}).catch(()=>{});
 wisLokaal();cloudBezig="";cloudDel=false;location.hash="home";render();toast("Je account en je voortgang zijn verwijderd")}
 catch(e){cloudBezig="";cloudFout="Verwijderen is niet gelukt. Controleer je internetverbinding en probeer het opnieuw.";render()}}
