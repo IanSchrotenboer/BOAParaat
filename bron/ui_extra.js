@@ -16,8 +16,9 @@ function viewWelcome(){
       <div class="field"><label for="obWerk">${rol==="scholier"?"Werkgever of opleiding":"Werkgever"} <span class="req" aria-hidden="true">*</span></label><input id="obWerk" name="organization" autocomplete="organization" autocapitalize="words" enterkeyhint="next" placeholder="${rol==="scholier"?"Bijvoorbeeld gemeente Utrecht of je opleiding":"Bijvoorbeeld gemeente Utrecht of NS"}" value="${esc(p.werk||"")}" required${inv("werk")}>${err("werk")}</div>
       <div class="field"><label for="obRol">Ik ben <span class="req" aria-hidden="true">*</span></label><select id="obRol" required${inv("rol")}><option value=""${rol?"":" selected"}>Kies scholier of werkend</option><option value="werkend"${rol==="werkend"?" selected":""}>Werkend</option><option value="scholier"${rol==="scholier"?" selected":""}>Scholier</option></select><p class="small fhelp">${rol==="scholier"?"Als scholier heb je nog geen akte, dus die vul je niet in.":"Werkend: je hebt een akte van opsporingsbevoegdheid."}</p>${err("rol")}</div>
       ${rol==="werkend"?`<div class="field"><label for="obAkte">Akte van opsporingsbevoegdheid geldig tot <span class="req" aria-hidden="true">*</span></label><input id="obAkte" type="date" value="${esc(p.akte||"")}" required${inv("akte")}><p class="small fhelp">Staat op je akte. De app rekent hiermee terug, zodat je je PHB-modules op tijd afrondt.</p>${err("akte")}</div>`:""}
-      <div class="field"><span class="flabel" id="obDomL">Domein <span class="req" aria-hidden="true">*</span></span>
-        <div class="seg" role="radiogroup" aria-labelledby="obDomL"${obErr.dom?' aria-describedby="err-dom"':""}><button type="button" role="radio" data-act="ob-dom" data-v="1" aria-checked="${d==="1"}" aria-pressed="${d==="1"}">Domein I–III<small>Algemeen en openbare ruimte</small></button><button type="button" role="radio" data-act="ob-dom" data-v="4" aria-checked="${d==="4"}" aria-pressed="${d==="4"}">Domein IV<small>Openbaar vervoer</small></button></div>${err("dom")}</div>
+      ${lic()?`<div class="field"><span class="flabel">Licentie</span><p class="small domvast">${esc(LIC[lic()].naam)}</p></div>`:`<div class="field"><label for="obLic">Licentiecode <span class="small" style="font-weight:400">(optioneel, van je werkgever)</span></label><div class="row licrow"><input id="obLic" autocapitalize="characters" spellcheck="false" placeholder="Bijvoorbeeld NS-XXXX-XXXX"${licFout?' aria-invalid="true" aria-describedby="err-lic"':""}><button type="button" class="btn" data-act="ob-lic">Toepassen</button></div>${licFout?`<p class="ferr" id="err-lic">${esc(licFout)}</p>`:""}</div>`}
+      ${lic()&&LIC[lic()].dom?domVast():`<div class="field"><span class="flabel" id="obDomL">Domein <span class="req" aria-hidden="true">*</span></span>
+        <div class="seg" role="radiogroup" aria-labelledby="obDomL"${obErr.dom?' aria-describedby="err-dom"':""}><button type="button" role="radio" data-act="ob-dom" data-v="1" aria-checked="${d==="1"}" aria-pressed="${d==="1"}">Domein I–III<small>Algemeen en openbare ruimte</small></button><button type="button" role="radio" data-act="ob-dom" data-v="4" aria-checked="${d==="4"}" aria-pressed="${d==="4"}">Domein IV<small>Openbaar vervoer</small></button></div>${err("dom")}</div>`}
       <div class="obexam">
         <label class="check"><input type="checkbox" id="obHas" ${obExam?"checked":""}><span>Ik heb al een examen gepland bij ExTH <span class="small" style="font-weight:400">(optioneel)</span></span></label>
         ${obExam?`<div class="fields">
@@ -42,6 +43,7 @@ function obSubmit(){
   if(!f.werk)obErr.werk="Vul je werkgever in.";
   if(!f.rol)obErr.rol="Kies of je scholier bent of werkend.";
   if(f.rol==="werkend"&&!/^\d{4}-\d{2}-\d{2}$/.test(f.akte))obErr.akte="Vul de datum in tot wanneer je akte geldig is.";
+  if(!obDom&&lic()&&LIC[lic()].dom)obDom=LIC[lic()].dom;
   if(!obDom)obErr.dom="Kies je domein.";
   if(obExam&&!f.datum)obErr.datum="Vul de datum van je examen in, of zet het vinkje uit.";
   if(Object.keys(obErr).length){render();const first=document.querySelector('[aria-invalid="true"], #err-dom');if(first){first.scrollIntoView({block:"center"});if(first.focus)first.focus()}return}
@@ -306,7 +308,7 @@ function openDlg(html){
 function openKeys(){
   openDlg(`<div role="dialog" aria-modal="true" aria-labelledby="kdlgT">
     <div class="row" style="justify-content:space-between"><h2 id="kdlgT">Sneltoetsen</h2><button class="btn ghost sm" data-act="keys-close">Sluiten</button></div>
-    <div class="kcols"><section><h3>Overal</h3><ul class="keys">${keyRows([["H","Overzicht"],["1 2 3 4","PHB 1 t/m 4"],["5 of R","RTGB"],["S","Studiestof"],["P","Profiel"],["E","Mijn examens"],["?","Deze hulp"]])}</ul></section>
+    <div class="kcols"><section><h3>Overal</h3><ul class="keys">${keyRows([["H","Overzicht"],["1 2 3 4","PHB 1 t/m 4"],["5 of R","RTGB"],["S","Studiestof"],["P","Profiel"],["E","Mijn examens"],["F","Foutenanalyse"],["?","Deze hulp"]])}</ul></section>
     <section><h3>Tijdens het oefenen</h3><ul class="keys">${keyRows([["A B C D","Antwoord kiezen"],["1 2 3 4","Antwoord kiezen"],["Enter","Volgende vraag"],["← →","Vorige of volgende vraag (toets en examen)"],["Esc","Stoppen of melding sluiten"]])}</ul></section></div>
     <p class="small">Tijdens een oefensessie of de praktijkoefening gelden alleen de toetsen voor het oefenen. In een tekstveld werken de sneltoetsen niet, zodat je gewoon kunt typen.</p></div>`);
 }
@@ -350,7 +352,7 @@ document.addEventListener("keydown",e=>{
   if(typing||needsWelcome())return;
   if(e.key==="?"){e.preventDefault();openKeys();return}
   if(busy||e.shiftKey)return;
-  const go={h:"home",s:"stof",p:"profiel",e:"profiel-examens",r:"rtgb","1":"phb1","2":"phb2","3":"phb3","4":"phb4","5":"rtgb"}[e.key.toLowerCase()];
+  const go={h:"home",s:"stof",p:"profiel",e:"profiel-examens",r:"rtgb",f:"fouten","1":"phb1","2":"phb2","3":"phb3","4":"phb4","5":"rtgb"}[e.key.toLowerCase()];
   if(go){e.preventDefault();if(r!==go)location.hash=go}
 });
 function pcAfterRender(v){

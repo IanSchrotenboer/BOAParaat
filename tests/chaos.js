@@ -11,7 +11,7 @@ const w=ms=>new Promise(r=>setTimeout(r,ms));
 const SEED=+(process.env.CHAOS_SEED||Date.now()%100000);const STAPPEN=+(process.env.CHAOS_STAPPEN||350);
 let rs=SEED;const rnd=()=>{rs=(rs*1103515245+12345)%2147483648;return rs/2147483648};const kies=a=>a[Math.floor(rnd()*a.length)];
 process.on('unhandledRejection',e=>{console.log(out.join('\n'));console.log(`FAIL test liep vast (zaad ${SEED}): `+String(e&&e.message||e).split('\n')[0]);process.exit(1)});
-const ROUTES=['home','phb1','phb2','phb3','phb4','rtgb','stof','stof-boa','stof-ambts','stof-ruimte','profiel','profiel-examens','profiel-phb3','onbekend-scherm'];
+const ROUTES=['home','phb1','phb2','phb3','phb4','rtgb','stof','stof-boa','stof-ambts','stof-ruimte','profiel','profiel-examens','profiel-phb3','fouten','onbekend-scherm'];
 const NIET=['install','ex-ics','export','mld-test','wv-full']; // bestandsdownloads, installeren en volledig scherm overslaan
 const START={s:{},h:[],x:[],p:{naam:'Chaos Aap',dom:'1',werk:'Gemeente',rol:'werkend',akte:'2029-01-01',ob:1,gezien:'9',mld:{gevraagd:1}}};
 async function open(b,opts,d){

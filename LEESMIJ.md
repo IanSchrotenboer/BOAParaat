@@ -137,6 +137,15 @@ Gaat er iets mis, dan stopt het script, noemt het wat er mis is en pakt het niet
 
 Nodig voor de browsertests: Node.js 20 of nieuwer en Playwright (`npm install --no-save playwright` en `npx playwright install chromium`). Op GitHub draait de taak **Testen** dit automatisch bij elke upload.
 
+## Licenties (huisstijl per organisatie)
+
+Met een licentiecode van de werkgever krijgt de app de kleuren en het logo van die organisatie, in de rustige opmaak van Boa Paraat, en de inhoud die bij die boa's hoort. De gebruiker vult de code in bij Profiel → Licentie of op het welkomstscherm.
+
+- **NS:** blauw als hoofdkleur, geel alleen als dunne lijn onder de kopbalk, vast op domein IV openbaar vervoer. In donkere weergave een rustiger lichtblauw.
+- **Logo:** zet het officiële logo dat de organisatie aanlevert in `bron/licenties/ns-logo.svg` (of `.png`). Het releasescript voegt het in de kopbalk en bij Profiel → Licentie in. Zonder dat bestand staat alleen "Examentrainer voor NS" in de kopbalk.
+- **Codes:** in `bron/v2_body.html` (`LIC`) staan alleen controlegetallen van geldige codes, niet de codes zelf. Een nieuwe code voeg je toe met het controlegetal van `hash("boa-lic:" + CODE)`, met CODE in hoofdletters zonder streepjes of spaties. Dit is geen echte beveiliging; toegang per gebruiker volgt met de accounts.
+- **Test:** `tests/licentie.js`.
+
 ## Goed om te weten
 
 - Meldingen: onder **Profiel → Meldingen** zet je de oefenherinnering (dagelijks op een gekozen tijd, alleen als je nog niet hebt geoefend) en de examenherinnering (7, 3 en 1 dag ervoor, om 18:00) aan of uit. Meldingen buiten de app werken in de Android- en iOS-app; in de browser verschijnen ze als kaart op het overzicht.
