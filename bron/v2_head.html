@@ -22,6 +22,11 @@
   --paper:#10151c; --surface:#171e28; --sunk:#131922; --ink:#e3e8ef; --muted:#9ba7b6; --line:#273140; --track:#232c39;
   --navy:#9db8e0; --navy-ink:#0f1a2b; --tint:#1d2939; --hivis:#cfab5c; --hivis-ink:#1f1a10; --link:#a6c0e6;
   --l-bg:#10151c; --l-mark:#9db8e0; --l-ink:#e3e8ef; --l-check:#10151c; --ok:#79c79e; --ok-bg:#14271d; --bad:#e8968b; --bad-bg:#2f1b19; --warn-bg:#272418; color-scheme:dark}
+/* Licentie NS: blauw als accent, geel alleen als dunne markering (rustig, weinig afleidend) */
+:root[data-lic="ns"]{--ring:rgba(0,48,130,.22);--navy:#003082;--navy-ink:#ffffff;--tint:#e8eef8;--link:#003082;--hivis:#e9b400;--warn-bg:#fdf6dc;--l-bg:#003082;--l-check:#003082}
+@media (prefers-color-scheme: dark){:root[data-lic="ns"]:not([data-theme="light"]){--ring:rgba(143,176,234,.32);--navy:#8fb0ea;--navy-ink:#0b1730;--tint:#16233a;--link:#a3c0f0;--hivis:#ffc917;--warn-bg:#29240f;--l-bg:#10151c;--l-check:#10151c}}
+:root[data-lic="ns"][data-theme="dark"]{--ring:rgba(143,176,234,.32);--navy:#8fb0ea;--navy-ink:#0b1730;--tint:#16233a;--link:#a3c0f0;--hivis:#ffc917;--warn-bg:#29240f;--l-bg:#10151c;--l-check:#10151c}
+:root[data-lic="ns"] .bar{border-bottom:3px solid #ffc917}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html{overflow-x:hidden}
@@ -66,6 +71,24 @@ a{color:var(--link)}
 .spin{width:20px;height:20px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--navy);animation:spin .8s linear infinite;flex:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 .acc{display:flex;align-items:center;gap:12px;min-width:0}.accmail{overflow-wrap:anywhere}.accoff{color:var(--bad)}
+/* licentie */
+.liclogo{height:26px;width:auto;max-width:96px;object-fit:contain;flex:none;padding-left:10px;margin-left:2px;border-left:1px solid var(--line)}
+.lichead{display:flex;align-items:center;gap:14px}.lichead .liclogo{height:34px;border:0;padding:0;margin:0}
+.licrow{flex-wrap:nowrap}.licrow input{flex:1;min-width:0}.domvast{margin:0;padding:10px 12px;background:var(--tint);border-radius:var(--rb);color:var(--ink)}
+/* foutenanalyse */
+.fcta{border-left:3px solid var(--navy)}.fcta h2{margin:0 0 4px}
+ol.zwak{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+ol.zwak li{display:flex;flex-direction:column;gap:12px}
+.fsub{margin:14px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--f-mono)}
+.chip.rep{background:var(--warn-bg);color:var(--ink)}
+.fkaart{display:flex;flex-direction:column;gap:14px;border-left:3px solid var(--bad)}
+.fkkop{display:flex;align-items:center;gap:14px;min-width:0}.fkkop h2{margin:0;font-size:18px}
+.fkn{display:grid;place-items:center;min-width:44px;height:44px;padding:0 8px;border-radius:12px;background:var(--bad-bg);color:var(--bad);font-weight:700;font-size:18px;flex:none}
+.pbadge{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;margin-left:4px;border-radius:999px;background:var(--bad-bg);color:var(--bad);font:600 12px/1 var(--f-mono);vertical-align:1px}
+a.statlink{text-decoration:none;color:inherit}a.statlink .l{text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+@media (hover:hover){a.statlink:hover{background:var(--sunk)}}
+@media (min-width:700px){.fkaart{flex-direction:row;align-items:center;justify-content:space-between}}
+.ftbl th{white-space:nowrap}.ftbl td.n .btn{font-family:var(--f-body)}
 .timer.low{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
 .barbtn{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:600;font-size:14px}
 @media (hover:hover){.barbtn:hover{background:var(--sunk)}}

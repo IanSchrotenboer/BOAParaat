@@ -79,7 +79,7 @@ process.on('unhandledRejection',e=>{console.log(out.join('\n'));console.log('FAI
   if(await p.locator('.verdict').count())ok('stoppen in oefenronde toont resultaat');else fail('stoppen in oefenronde');
   // foutenbank
   await p.evaluate(()=>location.hash='home');await p.waitForTimeout(80);
-  if(await p.locator('[data-act="fouten"]').count()){await p.click('[data-act="fouten"]');await p.waitForTimeout(60);if(await p.locator('#qtext').count())ok('foutenbank start');else fail('foutenbank')}else fail('foutenbank-link ontbreekt');
+  if(await p.locator('.hlinks a[href="#profiel-fouten"]').count()){await p.click('.hlinks a[href="#profiel-fouten"]');await p.waitForTimeout(300);await p.click('.fcta [data-act="fouten"]');await p.waitForTimeout(60);if(await p.locator('#qtext').count())ok('foutenanalyse → fouten wegwerken start');else fail('fouten wegwerken')}else fail('link naar de foutenanalyse ontbreekt');
   await p.click('#stopBtn');await p.waitForTimeout(60);
   // toets
   await p.evaluate(()=>location.hash='phb1');await p.waitForTimeout(80);

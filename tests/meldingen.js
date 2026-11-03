@@ -1,5 +1,10 @@
 // Opstartscherm, overgangen en meldingen. De meldingen-plug-in van de app wordt nagebootst, zodat we zien wat er wordt ingepland.
-const BOA_URL=process.env.BOA_URL||('file://'+require('path').resolve(__dirname,'../uit/Boa-Paraat.html'));
+// Deze test bootst de Android-app na (Capacitor). Inloggen met Google wordt apart getest in cloud.js; hier draait
+// een kopie van de app zonder cloudkoppeling, zodat de test niet afhangt van het echte Supabase-project.
+const BOA_URL=(()=>{const fs=require('fs'),path=require('path'),os=require('os');
+  const src=process.env.BOA_URL?decodeURIComponent(process.env.BOA_URL.replace(/^file:\/\//,'').split('#')[0]):path.resolve(__dirname,'../uit/Boa-Paraat.html');
+  const k=path.join(os.tmpdir(),'boa-'+path.basename(__filename,'.js')+'.html');
+  fs.writeFileSync(k,fs.readFileSync(src,'utf8').replace(/const CLOUD=\{[^;]*\};/,'const CLOUD=null;'));return 'file://'+k})();
 const SHOTS=process.env.BOA_SHOTS||require('os').tmpdir();
 const {chromium}=require('playwright');
 const out=[];const t=(c,m)=>out.push((c?'ok   ':'FAIL ')+m);

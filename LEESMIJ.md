@@ -139,7 +139,7 @@ Nodig voor de browsertests: Node.js 20 of nieuwer en Playwright (`npm install --
 
 ## Account en cloudopslag (Supabase)
 
-Vanaf versie 1.8 log je in de app en op de website in met je Google-account. De voortgang staat dan in Supabase, zodat je hem niet kwijtraakt en op meerdere apparaten verder kunt.
+Vanaf versie 1.9 log je in de app en op de website in met je Google-account. De voortgang staat dan in Supabase, zodat je hem niet kwijtraakt en op meerdere apparaten verder kunt.
 
 - **Code:** `bron/cloud.js`. Inloggen gaat via Supabase Auth met Google (PKCE). In de Android-app opent Google in de browser van de telefoon en keert de app terug via `nl.boa.phbtrainer://login`; de GitHub-taak zet die koppeling in het Android-project.
 - **Instellingen:** `bron/cloud.json` met het projectadres (`url`) en de publishable key (`key`). Beide zijn openbaar: de beveiliging zit in de database-regels. Zonder dit bestand werkt de app zonder inloggen, zoals vroeger.
@@ -148,6 +148,15 @@ Vanaf versie 1.8 log je in de app en op de website in met je Google-account. De 
 - **Offline:** na de eerste keer inloggen werkt de app ook offline. Bij de volgende verbinding wordt alles bijgewerkt.
 - **Los HTML-bestand en voorbeeld in claude.ai:** Google kan daar niet inloggen. Daar werkt de app zonder account, alleen op dat apparaat.
 - **Test:** `tests/cloud.js` bootst Supabase na (inloggen, twee apparaten, offline, verlopen sessie, uitloggen, account verwijderen, andere gebruiker op hetzelfde apparaat) en draait bij elke release mee.
+
+## Licenties (huisstijl per organisatie)
+
+Met een licentiecode van de werkgever krijgt de app de kleuren en het logo van die organisatie, in de rustige opmaak van Boa Paraat, en de inhoud die bij die boa's hoort. De gebruiker vult de code in bij Profiel → Licentie of op het welkomstscherm.
+
+- **NS:** blauw als hoofdkleur, geel alleen als dunne lijn onder de kopbalk, vast op domein IV openbaar vervoer. In donkere weergave een rustiger lichtblauw.
+- **Logo:** zet het officiële logo dat de organisatie aanlevert in `bron/licenties/ns-logo.svg` (of `.png`). Het releasescript voegt het in de kopbalk en bij Profiel → Licentie in. Zonder dat bestand staat alleen "Examentrainer voor NS" in de kopbalk.
+- **Codes:** in `bron/v2_body.html` (`LIC`) staan alleen controlegetallen van geldige codes, niet de codes zelf. Een nieuwe code voeg je toe met het controlegetal van `hash("boa-lic:" + CODE)`, met CODE in hoofdletters zonder streepjes of spaties. Dit is geen echte beveiliging; toegang per gebruiker volgt met de accounts.
+- **Test:** `tests/licentie.js`.
 
 ## Goed om te weten
 

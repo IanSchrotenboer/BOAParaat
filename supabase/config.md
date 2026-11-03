@@ -3,7 +3,7 @@
 - Project: `xtrrubficvtvkqxdrfgr` (regio eu-central-1, Frankfurt), organisatie IanSchrotenboer's Org.
 - API: https://xtrrubficvtvkqxdrfgr.supabase.co, publishable key staat in `bron/cloud.json` (openbaar).
 - Database: `migrations/` (tabel `voortgang` met row level security).
-- Edge Function: `functions/verwijder-account` (account verwijderen, verify_jwt aan).
+- Edge Function: `functions/verwijder-account` (account verwijderen; verify_jwt uit, de functie controleert het toegangsbewijs zelf).
 
 ## Handmatig ingesteld in het dashboard
 

@@ -1,5 +1,7 @@
 // Account verwijderen (AVG): de ingelogde gebruiker verwijdert zijn eigen account.
 // De rij in 'voortgang' gaat automatisch mee (on delete cascade).
+// verify_jwt staat uit: de functie controleert het toegangsbewijs zelf via auth.getUser (werkt ook met de
+// nieuwe ondertekeningssleutels van Supabase).
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const cors = {

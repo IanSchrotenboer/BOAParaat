@@ -164,6 +164,25 @@ const nS=s=>Object.keys((s&&s.s)||{}).length;
   await p1.reload();await w(1500);
   t(!(await p1.locator('[data-act="login"]').count())&&nS(await store(p1))>=12,'ingelogd en database onbereikbaar bij het opstarten: de app werkt gewoon met je voortgang');
   db.stuk=false;
+  // ---------- 13. Android-app: inloggen via de browser van de telefoon en terug via nl.boa.phbtrainer://login ----------
+  db.als={id:'u-dirk',email:'dirk@example.com',naam:'Dirk Jansen'};
+  {const ctx=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    await ctx.addInitScript(()=>{window.__h={};window.Capacitor={isNativePlatform:()=>true,getPlatform:()=>'android',Plugins:{
+      App:{addListener:(e,f)=>{(window.__h[e]=window.__h[e]||[]).push(f);return {remove(){}}},getLaunchUrl:()=>Promise.resolve(null),exitApp:()=>{}},
+      Browser:{open:o=>{window.__open=o.url;return Promise.resolve()},close:()=>{window.__dicht=1;return Promise.resolve()}}}}});
+    const pa=await ctx.newPage();pa._errs=[];pa.on('pageerror',e=>pa._errs.push(e.message));
+    await pa.goto(APP+'/app.html#home');await w(300);
+    t(await pa.locator('[data-act="login"]').count()===1,'app: inlogscherm');
+    await pa.click('[data-act="login"]');await w(300);
+    const open=await pa.evaluate(()=>window.__open||'');
+    t(open.startsWith(SUPA)&&/redirect_to=nl\.boa\.phbtrainer%3A%2F%2Flogin/.test(open)&&pa.url().includes('/app.html'),'app: Google opent in de browser van de telefoon (de app zelf blijft staan), terugkeren via nl.boa.phbtrainer://login');
+    // de browser volgt Supabase en Google; de telefoon opent daarna de app met de code
+    const r=await fetch(open,{redirect:'manual'});const terug=r.headers.get('location')||'';
+    t(terug.startsWith('nl.boa.phbtrainer://login?code='),'app: na Google gaat de telefoon terug naar de app met een eenmalige code');
+    await pa.evaluate(u=>window.__h.appUrlOpen.forEach(f=>f({url:u})),terug);await w(1200);
+    t(await pa.locator('#obForm').count()===1&&(await pa.inputValue('#obNaam'))==='Dirk Jansen'&&await pa.evaluate(()=>window.__dicht===1),'app: ingelogd, browser gesloten, welkomstscherm met naam uit Google');
+    t(!pa._errs.length,'app: geen JS-fouten'+(pa._errs.length?': '+pa._errs.join(' | '):''));
+    await ctx.close()}
   // ---------- 13. ingesloten (zoals in claude.ai) en los bestand: geen inloggen mogelijk ----------
   const p4=await (await b.newContext()).newPage();await p4.goto(APP+'/frame.html');await w(800);
   const fr=p4.frames().find(f=>/app\.html/.test(f.url()));
