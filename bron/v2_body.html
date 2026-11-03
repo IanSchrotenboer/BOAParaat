@@ -200,7 +200,7 @@ function paintNav(){
   $("#tabbar").innerHTML=tabs.map(([id,l,ic,full])=>`<a href="#${id}"${cur(id)?' aria-current="page"':""}${full?` aria-label="${esc(full)}"`:""}><span class="ic" aria-hidden="true">${ic}</span>${esc(l)}</a>`).join("");
   $("#topnav").hidden=inSession;$("#tabbar").hidden=inSession;$("#profBtn").hidden=inSession;
   document.body.classList.toggle("tabs",!inSession);
-  const pb=$("#profBtn");if(r.indexOf("profiel")===0)pb.setAttribute("aria-current","page");else pb.removeAttribute("aria-current");
+  const pb=$("#profBtn");if(r.indexOf("profiel")===0||r==="fouten")pb.setAttribute("aria-current","page");else pb.removeAttribute("aria-current");
   $("#profAva").textContent=initials(store.p.naam);
   $("#stopBtn").hidden=!inSession||welcome;paintTimer();
 }
@@ -249,8 +249,7 @@ function render(){
   if(r==="sessie"&&S){v="sessie";h=S.done?viewResult():viewQuestion()}
   else if(r==="wv"){v="wv";h=viewWV()}
   else if(r.indexOf("verslag-")===0){v="verslag";h=viewWVResult(r.slice(8))}
-  else if(r==="profiel"||r==="profiel-examens"||r==="profiel-phb3"){v="profiel";h=viewProfile(r==="profiel-examens"?"examens":"voortgang")}
-  else if(r==="fouten"){v="fouten";h=viewFouten()}
+  else if(r==="profiel"||r==="profiel-examens"||r==="profiel-phb3"||r==="profiel-fouten"||r==="fouten"){v="profiel";h=viewProfile(r==="profiel-examens"?"examens":r==="profiel-fouten"||r==="fouten"?"fouten":"voortgang")}
   else if(r==="stof"||r.indexOf("stof-")===0){v="stof";h=viewStof()}
   else if(MODBY[r]){v="module";h=viewModule(MODBY[r])}
   else h=viewHome();
@@ -310,12 +309,13 @@ function viewHome(){
     <div class="stack" style="gap:6px"><h1>${naam?`Hoi ${esc(naam)}`:"Klaar voor je PHB?"}</h1>
     <p class="lede">${sub}</p></div>
     ${hero}
+    ${foutKaart("home")}
     ${homeNudges(tgt)}
     ${weekStrip()}
     <section class="stack" style="gap:8px"><h2 class="secttl">Modules</h2>
     <ul class="hlist" aria-label="Modules">${MODS.map(m=>{const ms=mastery(inMod(m.id));return `
       <li><a href="#${m.id}"><span class="hcode">${m.id==="rtgb"?ICON.cuffs:m.code.replace("PHB ","")}</span><span class="hname"><b>${esc(m.name)}</b><span class="hmeter" role="img" aria-label="${pct(ms)} beheerst"><i style="width:${pct(ms)}"></i></span></span><span class="hpct mono">${pct(ms)}</span></a></li>`}).join("")}</ul></section>
-    <div class="hlinks"><a href="#stof">Studiestof</a>${Object.keys(store.s).length?`<a href="#fouten">Foutenanalyse${wrong?` (${wrong} open)`:""}</a>`:""}<a href="#profiel-examens">Mijn examens</a></div>
+    <div class="hlinks"><a href="#stof">Studiestof</a>${Object.keys(store.s).length?`<a href="#profiel-fouten">Foutenanalyse</a>`:""}<a href="#profiel-examens">Mijn examens</a></div>
   </div>${homeSide(wrong)}</div>`;
 }
 function themeSwitch(){
@@ -337,7 +337,7 @@ function viewModule(m){
     ${m.id==="phb1"?viewMtx():""}
     <div class="section stack"><div><h2>Oefenen per onderwerp</h2><p class="small">Na elke vraag zie je direct het juiste antwoord, de uitleg en het wetsartikel.</p></div>
     <div class="cats">${cats.map(c=>{const l=inCat(c);const ms=mastery(l);return `<div class="cat"><span class="t">${D4.has(c)?`<span class="chip ov">OV</span> `:""}${esc(CATS[c][1])}${m.id==="phb1"&&!l.some(inMtx)?` <span class="chip bg" title="Komt niet voor in de toetsmatrijs van jouw domein">achtergrond</span>`:""}</span><button class="btn" data-act="oefen" data-cat="${c}" aria-label="Oefenronde ${esc(CATS[c][1])}, ${Math.min(ROUND,l.length)} van ${l.length} vragen">Oefen ${Math.min(ROUND,l.length)}<span class="small" style="font-weight:400"> / ${l.length}</span></button><div class="row" style="gap:10px;flex-wrap:nowrap"><div class="meter" style="flex:1" role="img" aria-label="${pct(ms)} beheerst"><i style="width:${pct(ms)}"></i></div><span class="small mono">${pct(ms)}</span></div></div>`}).join("")}</div>
-    <div class="row"><button class="btn go" data-act="mix" data-mod="${m.id}">Gemengd oefenen (20 vragen)</button>${wrong?`<button class="btn hi" data-act="fouten" data-mod="${m.id}">Fouten wegwerken (${wrong})</button>`:""}</div>${wrong?`<p class="small"><a href="#fouten">Bekijk in de foutenanalyse</a> waar je fouten zitten.</p>`:""}</div>
+    <div class="row"><button class="btn go" data-act="mix" data-mod="${m.id}">Gemengd oefenen (20 vragen)</button>${wrong?`<button class="btn hi" data-act="fouten" data-mod="${m.id}">Fouten wegwerken (${wrong})</button>`:""}</div>${wrong?`<p class="small"><a href="#profiel-fouten">Bekijk in de foutenanalyse</a> waar je fouten zitten.</p>`:""}</div>
     <div class="section stack"><div><h2>Tussentijdse toetsen</h2><p class="small">Toets zonder tussentijdse feedback. Geslaagd bij 70% goed, net als bij het examen.</p></div>
     <div class="blocks">${blocksOf(m).map((b,bi)=>{const n=b[2].reduce((a,c)=>a+inCat(c).length,0);const k=Math.min(20,n);return `<div class="block"><span class="eyebrow">Toets ${b[0]}</span><h3>${esc(b[1])}</h3><p class="small">${b[2].map(c=>esc(CATS[c][1])).join(" · ")}</p><div><button class="btn" data-act="toets" data-mod="${m.id}" data-b="${bi}">Start toets (${k} vragen)</button></div></div>`}).join("")}</div></div>
   </div>`;
@@ -465,16 +465,18 @@ function viewProfile(tab){
       <div class="meta"><span>${sn}/${l.length} geoefend</span><span>${ac==null?"nog geen antwoorden":pct(ac)+" goed"}</span>${m.exam?`<span>${best==null?"nog geen examen":"beste examen "+best+"/"+m.exam.n}</span>`:""}<span>${tt.length?tp+"/"+tt.length+" toetsen gehaald":"nog geen toets"}</span>${isW?`<span>${wrecs.length?wrecs.length+(wrecs.length===1?" verslag":" verslagen")+" · beste "+Math.max(...wrecs.map(r=>r.score))+"/100":"nog geen verslag"}</span>`:""}${la?`<span>laatst ${fmtDate(la)}</span>`:""}<span class="more">Details per onderwerp</span></div>
     </summary><div class="body">${cats}${isW?wvProfileList():""}<div class="row"><a class="btn" href="#${m.id}">Naar ${m.code}</a>${l.some(q=>lastWrong(q.id))?`<button class="btn hi" data-act="fouten" data-mod="${m.id}">Fouten wegwerken (${l.filter(q=>lastWrong(q.id)).length})</button>`:""}</div></div></details>`}).join("");
   const head=`<div class="idcard"><span class="ava lg">${esc(initials(p.naam))}</span><div class="stack" style="gap:4px;min-width:0"><span class="eyebrow">Mijn profiel</span><h2>${p.naam?esc(p.naam):"Naam nog niet ingevuld"}</h2><p class="small">${p.rol==="scholier"?"Boa in opleiding, ":"Boa "}${dom()==="4"?"domein IV · openbaar vervoer":"domein I–III"}${p.werk?" · "+esc(p.werk):""}</p>${countdown?`<p class="small mono">${countdown}</p>`:""}</div>${akteStatus(p)}</div>
-    <nav class="ptabs" aria-label="Profiel"><a href="#profiel"${tab!=="examens"?' aria-current="page"':""}>Voortgang</a><a href="#profiel-examens"${tab==="examens"?' aria-current="page"':""}>Examens <span class="small">ExTH</span></a></nav>`;
+    <nav class="ptabs" aria-label="Profiel"><a href="#profiel"${tab==="voortgang"?' aria-current="page"':""}>Voortgang</a><a href="#profiel-fouten"${tab==="fouten"?' aria-current="page"':""}>Fouten${wrong?` <span class="pbadge">${wrong}</span>`:""}</a><a href="#profiel-examens"${tab==="examens"?' aria-current="page"':""}>Examens <span class="small">ExTH</span></a></nav>`;
   if(tab==="examens")return `<div class="stack">${head}${viewExams()}</div>`;
+  if(tab==="fouten")return `<div class="stack">${head}<div class="stack" style="gap:6px"><h2>Foutenanalyse</h2><p class="small">Waar gaat het nog mis? Per module, onderwerp en toetsterm zie je waar je fouten zitten, en je werkt ze hier gericht weg.</p></div>${foutInhoud()}</div>`;
   return `<div class="stack">${head}
     <div class="stats">
       <div class="stat"><div class="v">${ans}<span class="small"> / ${pool.length}</span></div><div class="l">vragen geoefend</div></div>
       <div class="stat"><div class="v">${a==null?"–":pct(a)}</div><div class="l">goed beantwoord</div></div>
       <div class="stat"><div class="v">${exams.filter(x=>x.p).length}<span class="small"> / ${exams.length}</span></div><div class="l">examens gehaald</div></div>
-      <div class="stat"><div class="v">${wrong}</div><div class="l">fouten open</div></div>
+      <a class="stat statlink" href="#profiel-fouten"><div class="v">${wrong}</div><div class="l">fouten open</div></a>
     </div>
-    <div class="section stack"><div><h2>Voortgang per module</h2><p class="small">Beheerst betekent: de laatste keer goed beantwoord. Tik op een module voor de details per onderwerp.${wrong?` Waar je fouten zitten, zie je in de <a href="#fouten">foutenanalyse</a>.`:""}</p></div>${modCards}</div>
+    ${foutKaart("profiel")}
+    <div class="section stack"><div><h2>Voortgang per module</h2><p class="small">Beheerst betekent: de laatste keer goed beantwoord. Tik op een module voor de details per onderwerp.${wrong?` Waar je fouten zitten, zie je in de <a href="#profiel-fouten">foutenanalyse</a>.`:""}</p></div>${modCards}</div>
     <div class="section stack"><h2>Gegevens</h2>
       <form class="panel stack" id="profForm" autocomplete="off">
         <div class="fields">
@@ -602,7 +604,7 @@ function viewResult(){
     ${(()=>{const lbl=fromEx?"Nieuw oefenexamen":S.redo&&S.redo.act==="toets"?"Nieuwe toets met andere vragen":"Nieuwe ronde met nieuwe vragen";
       const again=S.redo?(S.locked?`<button class="btn go" disabled aria-disabled="true" title="Eerst deze vragen opnieuw oefenen">${fromEx?"Nieuw oefenexamen":"Nieuwe ronde"}</button>`:`<button class="btn hi" data-act="again">${lbl}</button>`):"";
       const fix=!S.locked&&wrongs.length?`<button class="btn ${S.redo?"go":"hi"}" data-act="redo-wrong">Fouten opnieuw oefenen (${wrongs.length})</button>`:"";
-      return `<div class="row ractions">${again+fix}`})()}<a class="btn" href="#${S.mod||"home"}">Terug naar ${S.mod?MODBY[S.mod].code:"overzicht"}</a><a class="btn ghost" href="${S.herh?"#fouten":"#profiel"}">${S.herh?"Foutenanalyse":"Mijn voortgang"}</a></div>
+      return `<div class="row ractions">${again+fix}`})()}<a class="btn" href="#${S.mod||"home"}">Terug naar ${S.mod?MODBY[S.mod].code:"overzicht"}</a><a class="btn ghost" href="${S.herh?"#profiel-fouten":"#profiel"}">${S.herh?"Foutenanalyse":"Mijn voortgang"}</a></div>
     ${fromEx&&!S.locked?(()=>{const m=MODBY[S.redo.d.mod];const pool=poolOf(S.redo);const bs=new Set(S.base);const fresh=pool.filter(q=>!bs.has(q.id)).length;
       return `<p class="small">${fresh>=m.exam.n?`Het volgende oefenexamen wordt opnieuw samengesteld, met ${m.exam.n} vragen die niet in dit examen zaten.`:`Het volgende oefenexamen wordt opnieuw samengesteld: ${fresh} vragen die niet in dit examen zaten, aangevuld met vragen die je het langst niet hebt gezien.`}</p>`})():""}
     ${practice&&!fromEx&&!S.locked&&S.redo?(()=>{const pool=poolOf(S.redo);const bs=new Set(S.base);const fresh=pool.filter(q=>!bs.has(q.id)).length;const size=S.redo.act==="oefen"||S.redo.act==="mtx"?ROUND:S.redo.act==="mix"?20:40;

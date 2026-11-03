@@ -29,7 +29,12 @@ const ga=async(p,h)=>{await p.evaluate(h=>location.hash=h,h);await w(300)};
   t(zw[0]==='Staatsrecht'&&zw.includes('Rechterlijke organisatie en OM'),'zwakke plekken: onderwerp met de meeste fouten bovenaan ('+zw.join(', ')+')');
   t(await p.locator('ol.zwak li a[href^="#stof-"]').count()>=1,'zwakke plek verwijst naar de juiste samenvatting');
   t(await p.locator('.pmod table tbody tr').count()>=2&&/Per toetsterm/.test(txt),'per module een tabel per onderwerp, en voor PHB 1 per toetsterm');
-  await ga(p,'phb1');t(await p.locator('#app a[href="#fouten"]').count()>=1,'module met open fouten: link naar de foutenanalyse');await ga(p,'fouten');
+  await ga(p,'phb1');t(await p.locator('#app a[href="#profiel-fouten"]').count()>=1,'module met open fouten: link naar de foutenanalyse');
+  await ga(p,'home');t(await p.locator('#app .fkaart [data-act="fouten"]').count()===1&&/open fouten/.test(await p.textContent('#app .fkaart')),'overzicht: kaart met open fouten en knop Fouten wegwerken, direct onder Verder oefenen');
+  await ga(p,'profiel');t(await p.locator('.ptabs a[href="#profiel-fouten"] .pbadge').count()===1&&await p.locator('#app .fkaart').count()===1,'profiel: tabblad Fouten met aantal, en de foutenkaart bij je voortgang');
+  await p.click('.ptabs a[href="#profiel-fouten"]');await w(300);
+  t(await p.locator('.ptabs a[aria-current="page"][href="#profiel-fouten"]').count()===1&&await p.locator('.fcta [data-act="fouten"]').count()===1&&await p.getAttribute('#profBtn','aria-current')==='page','profiel → Fouten: de volledige analyse met Fouten wegwerken');
+  await ga(p,'fouten');
   // per onderwerp oefenen vanuit de analyse
   await ga(p,'fouten');const c=await p.getAttribute('ol.zwak li [data-act="fouten"]','data-cat');
   await p.click('ol.zwak li [data-act="fouten"]');await w(300);
@@ -55,14 +60,14 @@ const ga=async(p,h)=>{await p.evaluate(h=>location.hash=h,h);await w(300)};
   t(/weggewerkt/.test(res)&&/opgelost/.test(res),'uitslag: hoeveel fouten je hebt weggewerkt en hoeveel er nog open staan');
   s=await store(p);const open2=Object.values(s.s).filter(v=>v[2]===0).length;
   t(open2<fout,`na de ronde minder open fouten (${fout} → ${open2})`);
-  t(await p.locator('a[href="#fouten"]').count()>=1,'vanuit de uitslag terug naar de foutenanalyse');
+  t(await p.locator('a[href="#profiel-fouten"]').count()>=1,'vanuit de uitslag terug naar de foutenanalyse');
   // opgeloste fouten herhalen
   await ga(p,'fouten');t(await p.locator('[data-act="herhaal"]').count()===1,'opgeloste fouten kun je herhalen');
   await p.click('[data-act="herhaal"]');await w(300);
   t(await p.evaluate(()=>location.hash)==='#sessie'&&/Opgeloste fouten herhalen/.test(await p.textContent('#app')),'herhalen start een ronde met opgeloste fouten');
   await p.evaluate(()=>{const s=document.getElementById('stopBtn');s&&s.click()});await w(150);await p.evaluate(()=>{const y=document.querySelector('[data-act="stop-yes"],[data-act="finish"]');y&&y.click()});await w(200);
   // ingangen
-  await ga(p,'home');t(await p.locator('.hlinks a[href="#fouten"]').count()===1,'overzicht: link naar de foutenanalyse');
+  await ga(p,'home');t(await p.locator('.hlinks a[href="#profiel-fouten"]').count()===1&&!(await p.locator('#app .fkaart').count()),'overzicht: zonder open fouten geen foutenkaart, wel de link naar de analyse');
   t(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'foutenanalyse: geen horizontale scroll op de telefoon');
   t(!p._errs.length,'geen JS-fouten'+(p._errs.length?': '+p._errs.join(' | '):''));
   await b.close();

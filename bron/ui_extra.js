@@ -292,7 +292,7 @@ function homeSide(wrong){
   const pool=MODS.flatMap(m=>inMod(m.id));const a=acc(pool);const ex=store.h.filter(x=>x.k==="examen");
   const st=(v,l)=>`<div><dt>${l}</dt><dd>${v}</dd></div>`;
   return `<aside class="homeside" aria-label="Samenvatting">
-    <section class="sidecard"><h2>Jouw voortgang</h2><dl class="sidestats">${st(pool.filter(q=>seen(q.id)).length,"vragen geoefend")}${st(a==null?"–":pct(a),"goed beantwoord")}${st(ex.filter(x=>x.p).length+"/"+ex.length,"examens gehaald")}${st(wrong,"fouten open")}</dl><a class="small" href="#profiel">Alles in je profiel →</a></section>
+    <section class="sidecard"><h2>Jouw voortgang</h2><dl class="sidestats">${st(pool.filter(q=>seen(q.id)).length,"vragen geoefend")}${st(a==null?"–":pct(a),"goed beantwoord")}${st(ex.filter(x=>x.p).length+"/"+ex.length,"examens gehaald")}${st(wrong?`<a href="#profiel-fouten">${wrong}</a>`:0,"fouten open")}</dl><a class="small" href="#profiel">Alles in je profiel →</a></section>
     ${pcInstall?`<section class="sidecard"><h2>Installeren op deze computer</h2><p class="small">Boa Paraat opent dan in een eigen venster, met een icoon in het startmenu of het dock, en werkt ook zonder internet.</p><div><button class="btn go" data-act="install">Installeren</button></div></section>`:""}
     <section class="sidecard"><h2>Sneltoetsen</h2><ul class="keys">${keyRows([["H","Overzicht"],["1 2 3 4","PHB 1 t/m 4"],["5 of R","RTGB"],["S","Studiestof"],["P","Profiel"]])}</ul><div><button class="linkbtn" data-act="keys">Alle sneltoetsen <span class="kbd">?</span></button></div></section>
   </aside>`;
@@ -352,7 +352,7 @@ document.addEventListener("keydown",e=>{
   if(typing||needsWelcome())return;
   if(e.key==="?"){e.preventDefault();openKeys();return}
   if(busy||e.shiftKey)return;
-  const go={h:"home",s:"stof",p:"profiel",e:"profiel-examens",r:"rtgb",f:"fouten","1":"phb1","2":"phb2","3":"phb3","4":"phb4","5":"rtgb"}[e.key.toLowerCase()];
+  const go={h:"home",s:"stof",p:"profiel",e:"profiel-examens",r:"rtgb",f:"profiel-fouten","1":"phb1","2":"phb2","3":"phb3","4":"phb4","5":"rtgb"}[e.key.toLowerCase()];
   if(go){e.preventDefault();if(r!==go)location.hash=go}
 });
 function pcAfterRender(v){
