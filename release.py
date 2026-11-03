@@ -37,6 +37,7 @@ data = '\n'.join(lees(BRON, f) for f in ['q1.js', 'q2.js', 'q3.js', 'q4.js', 'q5
 extra = ''.join(lees(BRON, f) for f in ['wv.js', 'wv_ui.js', 'ui_extra.js', 'fouten.js', 'licentie.js', 'cloud.js'])
 # Supabase: projectadres en publishable key (openbaar; de beveiliging zit in de database-regels, zie supabase/)
 CLOUD = json.load(open(os.path.join(BRON, 'cloud.json'))) if os.path.exists(os.path.join(BRON, 'cloud.json')) else {}
+extra = extra.replace('/*__SITE__*/""', json.dumps(json.load(open(os.path.join(BRON, 'site.json'))).get('adres', '')))
 extra = extra.replace('/*__CLOUD__*/null', json.dumps({'url': CLOUD['url'].rstrip('/'), 'key': CLOUD['key']}) if CLOUD.get('url') and CLOUD.get('key') else 'null')
 VERSIE = json.load(open(os.path.join(ROOT, 'package.json')))['version']
 notities = os.path.join(ROOT, 'release-notities', 'v' + VERSIE + '.md')
@@ -91,6 +92,14 @@ pwa = ('<link rel="manifest" href="manifest.webmanifest">\n<link rel="icon" type
 web = full.replace('<meta name="mobile-web-app-capable" content="yes">\n', '<meta name="mobile-web-app-capable" content="yes">\n' + pwa, 1)
 web = web.replace('</body>', '<script>if("serviceWorker" in navigator&&!window.Capacitor&&/^https?:$/.test(location.protocol)){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>\n</body>', 1)
 open(os.path.join(WWW, 'index.html'), 'w', encoding='utf-8').write(web)
+# website: over.html en privacy.html (nodig voor de merknaam op het inlogscherm van Google)
+SITE = json.load(open(os.path.join(BRON, 'site.json')))
+for naam in ('over.html', 'privacy.html'):
+    t = lees(BRON, 'site', naam).replace('{{CSS}}', lees(BRON, 'site', 'site.css').replace('\n', ''))
+    t = t.replace('{{CONTACT}}', SITE.get('contact') or '(contactadres volgt)').replace('{{BEHEERDER}}', SITE.get('beheerder') or 'de beheerder van Boa Paraat')
+    t = t.replace('{{DATUM}}', time.strftime('%d-%m-%Y', time.localtime(os.path.getmtime(os.path.join(BRON, 'site', 'privacy.html')))))
+    open(os.path.join(WWW, naam), 'w', encoding='utf-8').write(t)
+if not SITE.get('contact') or not SITE.get('beheerder'): let_op('website: vul beheerder en contact in bron/site.json in voor de privacyverklaring')
 bron_bytes = len((head + body).encode())
 kb = lambda n: '%.0f kB' % (n / 1024)
 ok('versie %s, %d punten bij Nieuw' % (VERSIE, len(NIEUW)))
@@ -213,7 +222,7 @@ if not SNEL:
     env = dict(os.environ, BOA_URL='file://' + os.path.join(UIT, 'Boa-Paraat.html'), BOA_SHOTS=os.path.join(UIT, 'schermen'))
     os.makedirs(env['BOA_SHOTS'], exist_ok=True)
     env['CHAOS_SEED'] = os.environ.get('CHAOS_SEED', str(int(time.time()) % 100000)); ok('chaostest met zaad %s' % env['CHAOS_SEED'])
-    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'rtgb.js', 'matrijs.js', 'fouten.js', 'licentie.js', 'stress.js', 'cloud.js', 'chaos.js']: draai(t, env)
+    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'rtgb.js', 'matrijs.js', 'tablet.js', 'fouten.js', 'licentie.js', 'stress.js', 'cloud.js', 'chaos.js']: draai(t, env)
 else:
     let_op('browsertests overgeslagen (--snel)')
 

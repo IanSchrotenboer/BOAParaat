@@ -93,9 +93,9 @@ a.statlink{text-decoration:none;color:inherit}a.statlink .l{text-decoration:unde
 .barbtn{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:600;font-size:14px}
 @media (hover:hover){.barbtn:hover{background:var(--sunk)}}
 
-/* tabbalk telefoon */
+/* tabbalk telefoon en tablet (aanraakscherm tot 1100 px breed, ook liggend) */
 .tabbar{display:none}
-@media (max-width:780px){
+@media (max-width:780px),(pointer:coarse) and (max-width:1099px){
   .topnav{display:none}
   .prof .lbl{display:none}
   .prof{padding:3px;margin-left:auto}
@@ -244,7 +244,7 @@ p{margin:0}
 .catrow{display:grid;grid-template-columns:minmax(0,1fr) 34% auto;gap:10px;align-items:center;font-size:14px}
 .catrow .mono{text-align:right;min-width:42px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:8px;font-weight:600;z-index:20;font-size:14px}
-@media (max-width:780px){body.tabs .toast{bottom:calc(var(--tabh) + 16px + env(safe-area-inset-bottom,0px))}}
+@media (max-width:780px),(pointer:coarse) and (max-width:1099px){body.tabs .toast{bottom:calc(var(--tabh) + 16px + env(safe-area-inset-bottom,0px))}}
 /* studiestof */
 .ref{display:flex;flex-direction:column;gap:3px;margin-top:12px;padding-top:10px;border-top:1px dashed currentColor;border-top-color:var(--line);font-size:14px}
 .ref .where{font-family:var(--f-mono);font-size:13px}
@@ -260,7 +260,7 @@ p{margin:0}
 .prose p{margin:0 0 8px}
 .prose h4{font-family:var(--f-display);font-size:15px;margin:12px 0 6px;font-stretch:90%}
 /* telefoon en tablet: onderwerpen buiten beeld pas opbouwen bij het scrollen (studiestof opent sneller) */
-@media (max-width:1099px){.stofsec{content-visibility:auto;contain-intrinsic-size:auto 640px}}
+@media (max-width:999px){.stofsec{content-visibility:auto;contain-intrinsic-size:auto 640px}}
 .chip.bg{background:transparent;border-style:dashed;color:var(--muted);font-weight:500}
 .mtx{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:0}
 .mtx>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;cursor:pointer;list-style:none}
@@ -578,7 +578,7 @@ footer{font-size:13px;color:var(--muted);padding-block:8px 32px}
 .kdlg h3{font-size:13px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:6px}
 .kcols{display:grid;grid-template-columns:1fr 1fr;gap:18px 28px}
 @media (max-width:560px){.kcols{grid-template-columns:1fr}}
-@media (min-width:1100px){
+@media (min-width:1000px){
   .wrap{max-width:1120px}
   #app[data-v="sessie"]>*,#app[data-v="profiel"]>*,#app[data-v="verslag"]>*{max-width:860px;margin-left:auto;margin-right:auto}
   .homegrid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:32px;align-items:start}
@@ -592,6 +592,15 @@ footer{font-size:13px;color:var(--muted);padding-block:8px 32px}
   .blocks{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
   .lede{max-width:72ch}
 }
+/* tablet: tabbalk iets ruimer en gecentreerd, grotere aanraakvlakken; sneltoetsen alleen met een toetsenbord */
+@media (pointer:coarse) and (min-width:600px) and (max-width:1099px){
+  :root{--tabh:66px}
+  .tabbar{padding-left:max(env(safe-area-inset-left,0px),calc((100vw - 760px)/2));padding-right:max(env(safe-area-inset-right,0px),calc((100vw - 760px)/2))}
+  .tabbar a{font-size:12.5px}.tabbar svg{width:22px;height:22px}
+  .opt{min-height:58px}.btn{min-height:46px}
+}
+@media (hover:none) and (pointer:coarse){.keyscard{display:none}}
+@media (pointer:coarse) and (min-width:1000px) and (max-width:1099px){.stofgrid .toc{max-height:calc(100vh - 110px - var(--tabh))}.homeside{top:78px}}
 /* telefoon: compactere maten op smalle schermen (kleine telefoons, of een browser die de pagina vergroot
    omdat de lettergrootte van de telefoon hoger staat) */
 @media (max-width:380px){

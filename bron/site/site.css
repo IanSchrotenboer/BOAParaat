@@ -1,0 +1,16 @@
+:root{color-scheme:light dark;--ink:#1c2533;--muted:#5b6676;--paper:#f4f6f9;--surface:#fff;--line:#dce1e8;--navy:#2c4a73}
+@media (prefers-color-scheme:dark){:root{--ink:#e3e8ef;--muted:#9ba7b6;--paper:#10151c;--surface:#171e28;--line:#273140;--navy:#9db8e0}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 "Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header,main,footer{max-width:760px;margin:0 auto;padding:0 20px}
+header{padding-top:20px;padding-bottom:8px}
+.merk{display:inline-flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-weight:700;font-size:18px}
+.merk img{border-radius:8px}
+main{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:28px 24px;margin-top:12px}
+h1{font-size:32px;line-height:1.15;margin:0 0 12px}h2{font-size:20px;margin:28px 0 8px}
+p{margin:0 0 12px}ul{padding-left:20px;margin:0 0 12px}li{margin-bottom:6px}
+a{color:var(--navy)}.klein{color:var(--muted);font-size:14px}.lead{font-size:18px;color:var(--muted)}
+.knoppen{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.knop{display:inline-block;padding:11px 18px;border-radius:10px;background:var(--navy);color:var(--surface);text-decoration:none;font-weight:600}
+.knop.licht{background:transparent;color:var(--navy);border:1px solid var(--line)}
+footer{padding-top:16px;padding-bottom:32px;color:var(--muted);font-size:14px}

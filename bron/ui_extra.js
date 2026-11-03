@@ -295,7 +295,7 @@ function homeSide(wrong){
   return `<aside class="homeside" aria-label="Samenvatting">
     <section class="sidecard"><h2>Jouw voortgang</h2><dl class="sidestats">${st(pool.filter(q=>seen(q.id)).length,"vragen geoefend")}${st(a==null?"–":pct(a),"goed beantwoord")}${st(ex.filter(x=>x.p).length+"/"+ex.length,"examens gehaald")}${st(wrong?`<a href="#profiel-fouten">${wrong}</a>`:0,"fouten open")}</dl><a class="small" href="#profiel">Alles in je profiel →</a></section>
     ${pcInstall?`<section class="sidecard"><h2>Installeren op deze computer</h2><p class="small">Boa Paraat opent dan in een eigen venster, met een icoon in het startmenu of het dock, en werkt ook zonder internet.</p><div><button class="btn go" data-act="install">Installeren</button></div></section>`:""}
-    <section class="sidecard"><h2>Sneltoetsen</h2><ul class="keys">${keyRows([["H","Overzicht"],["1 2 3 4","PHB 1 t/m 4"],["5 of R","RTGB"],["S","Studiestof"],["P","Profiel"]])}</ul><div><button class="linkbtn" data-act="keys">Alle sneltoetsen <span class="kbd">?</span></button></div></section>
+    <section class="sidecard keyscard"><h2>Sneltoetsen</h2><ul class="keys">${keyRows([["H","Overzicht"],["1 2 3 4","PHB 1 t/m 4"],["5 of R","RTGB"],["S","Studiestof"],["P","Profiel"]])}</ul><div><button class="linkbtn" data-act="keys">Alle sneltoetsen <span class="kbd">?</span></button></div></section>
   </aside>`;
 }
 const keyRows=rows=>rows.map(([k,l])=>`<li><span>${l}</span><span>${k.split(" ").map(x=>`<span class="kbd">${x}</span>`).join(" ")}</span></li>`).join("");

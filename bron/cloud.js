@@ -8,6 +8,7 @@
 // Inloggen is verplicht waar het technisch kan (app en website). In een los HTML-bestand of een ingesloten
 // voorbeeld (iframe) kan Google niet inloggen; daar werkt de app zoals voorheen, alleen op dit apparaat.
 const CLOUD=/*__CLOUD__*/null;
+const SITE=/*__SITE__*/"";
 const SES="boa-sessie",PKCE="boa-pkce",REDIR_APP="nl.boa.phbtrainer://login";
 let cloudBezig="",cloudFout="",cloudSync={t:0,ok:true,bezig:false},cloudDel=false,cloudUit=false;
 const isNative=()=>{const C=window.Capacitor;return !!(C&&(C.isNativePlatform?C.isNativePlatform():C.Plugins&&C.Plugins.App))};
@@ -133,7 +134,7 @@ function viewLogin(){
       ${cloudBezig?`<p class="lbezig" role="status"><span class="spin" aria-hidden="true"></span>${esc(cloudBezig)}</p>`:`<button class="btn hi lgoogle" data-act="login">Inloggen met Google</button>`}
       ${cloudFout?`<p class="ferr" role="alert">${esc(cloudFout)}</p>`:""}
       ${!navigator.onLine&&!cloudBezig?`<p class="small">Je bent nu offline. De eerste keer inloggen kan alleen met internet; daarna werkt de app ook offline.</p>`:""}
-      <p class="small">We bewaren alleen je e-mailadres, je naam en je oefenvoortgang, in een beveiligde database in de EU. Niemand anders kan ze zien. Je kunt je account en al je gegevens altijd verwijderen via Profiel.</p>
+      <p class="small">We bewaren alleen je e-mailadres, je naam en je oefenvoortgang, in een beveiligde database in de EU. Niemand anders kan ze zien. Je kunt je account en al je gegevens altijd verwijderen via Profiel.${SITE?` <a href="${SITE}privacy.html" target="_blank" rel="noopener" data-ext>Privacyverklaring</a>`:""}</p>
     </div></div>`}
 function viewAccount(){
   if(!cloudKan())return `<div class="section stack"><h2>Account</h2><p class="small">In deze versie blijft je voortgang op dit apparaat. Inloggen met je Google-account kan in de Boa Paraat-app en op de website.</p></div>`;
@@ -146,6 +147,7 @@ function viewAccount(){
       confirmUitOffline?`<div class="confirm stack" style="gap:10px"><span><b>Je bent offline.</b> Wat je sinds de laatste keer bijwerken hebt geoefend, staat nog niet in je account. Als je nu uitlogt, ben je dat kwijt.</span><div class="row"><button class="btn danger" data-act="logout">Toch uitloggen</button><button class="btn" data-act="logout-no">Annuleren</button></div></div>`:
       cloudDel?`<div class="confirm stack" style="gap:10px"><span><b>Account verwijderen?</b> Je account en al je voortgang, examens en verslagen worden definitief verwijderd, ook van dit apparaat. Dit kan niet ongedaan worden gemaakt.</span><div class="row"><button class="btn danger" data-act="acc-del-yes">Ja, definitief verwijderen</button><button class="btn" data-act="acc-del-no">Annuleren</button></div></div>`:
       `<div class="row"><button class="btn" data-act="sync">Nu bijwerken</button><button class="btn" data-act="logout">Uitloggen</button><button class="btn danger" data-act="acc-del">Account verwijderen</button></div>`}
+    ${SITE?`<p class="small"><a href="${SITE}privacy.html" target="_blank" rel="noopener" data-ext>Privacyverklaring</a></p>`:""}
     </div></div>`}
 function cloudAct(act){
   if(act==="login"){loginStart();return true}
@@ -156,6 +158,9 @@ function cloudAct(act){
   if(act==="acc-del-no"){cloudDel=false;render();return true}
   if(act==="acc-del-yes"){accountWeg();return true}
   return false}
+// externe links (privacyverklaring) in de app via de browser van de telefoon
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("a[data-ext]");const B=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.Browser;
+  if(a&&isNative()&&B){e.preventDefault();B.open({url:a.href}).catch(()=>{})}});
 // ----- opstarten (na de eerste weergave) -----
 setTimeout(function(){
   if(!cloudKan())return;
