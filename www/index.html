@@ -2916,7 +2916,8 @@ if(!navigator.onLine){cloudFout="Je bent offline. Om in te loggen heb je interne
 cloudFout="";cloudHint="";cloudBezig="Google wordt geopend…";render();
 try{const v=randStr(64);const ch=b64url(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v)));
 try{localStorage.setItem(PKCE,v)}catch(e){}
-const u=CLOUD.url+"/auth/v1/authorize?provider=google&redirect_to="+encodeURIComponent(redirectUrl())+"&code_challenge="+ch+"&code_challenge_method=s256&prompt=select_account";
+const red=DESK()&&DESK().loginRedirect?await DESK().loginRedirect():redirectUrl();
+const u=CLOUD.url+"/auth/v1/authorize?provider=google&redirect_to="+encodeURIComponent(red)+"&code_challenge="+ch+"&code_challenge_method=s256&prompt=select_account";
 const B=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.Browser;
 if(DESK()){await DESK().open(u);cloudBezig="";cloudHint="Log in via het venster van je browser. Daarna kom je vanzelf terug in Boa Paraat.";render()}
 else if(isNative()&&B){await B.open({url:u,presentationStyle:"popover"});cloudBezig="";render()}else location.assign(u);
@@ -3048,7 +3049,7 @@ setTimeout(function(){
 if(!cloudKan())return;
 const ot=document.getElementById("opslagTekst");if(ot)ot.textContent="Je profiel en voortgang worden bewaard in je account, beveiligd in een database in de EU.";
 if(!isNative()&&/[?&](code|error)=/.test(location.search))loginTerug(location.href);
-if(DESK()&&DESK().onLoginUrl)DESK().onLoginUrl(u=>{if(typeof u==="string"&&u.indexOf(REDIR_APP)===0)loginTerug(u)});
+if(DESK()&&DESK().onLoginUrl)DESK().onLoginUrl(u=>{if(typeof u==="string"&&(u.indexOf(REDIR_APP)===0||/^http:\/\/127\.0\.0\.1:\d+\/login(\?|$)/.test(u)))loginTerug(u)});
 const A=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.App;
 if(isNative()&&A){try{A.addListener("appUrlOpen",e=>{if(e&&e.url&&e.url.indexOf(REDIR_APP)===0)loginTerug(e.url)});
 if(A.getLaunchUrl)A.getLaunchUrl().then(r=>{if(r&&r.url&&r.url.indexOf(REDIR_APP)===0)loginTerug(r.url)}).catch(()=>{});

@@ -143,22 +143,26 @@ jobs:
           if gh release view "v$VN" > /dev/null 2>&1; then echo "nieuw=false" >> "$GITHUB_OUTPUT"; else echo "nieuw=true" >> "$GITHUB_OUTPUT"; fi
 
       - name: Proefversie op GitHub (pre-release, alleen op een proef-tak)
+        id: proef
         if: startsWith(github.ref_name, 'proef-')
-        run: cp Boa-Paraat.apk Boa-Paraat-Proef.apk && cp uit/Boa-Paraat-proef.html Boa-Paraat-proef.html
+        run: |
+          cp Boa-Paraat.apk Boa-Paraat-Proef.apk && cp uit/Boa-Paraat-proef.html Boa-Paraat-proef.html
+          echo "tag=proef-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
       - name: Proefversie publiceren
         if: startsWith(github.ref_name, 'proef-')
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: proef-${{ github.run_number }}
+          tag_name: ${{ steps.proef.outputs.tag }}
           target_commitish: ${{ github.sha }}
-          name: Proefversie ${{ github.ref_name }} (${{ github.run_number }})
+          name: Proefversie ${{ github.ref_name }} (${{ steps.proef.outputs.tag }})
           prerelease: true
           make_latest: false
           body: |
             Proefversie, niet voor gebruikers. Tak `${{ github.ref_name }}`, commit ${{ github.sha }}.
 
             - `Boa-Paraat-Proef.apk`: installeert naast de gewone app als **Boa Paraat Proef** (met inloggen, betaalmuur en eenmalige licentiecodes).
-            - `Boa-Paraat-proef.html`: los bestand voor de computer, zonder inloggen (abonnement alleen op dat apparaat, codes werken niet).
+            - `Boa-Paraat-Proef-Windows.exe`, `Boa-Paraat-Proef-Mac.dmg`, `Boa-Paraat-Proef-Linux.deb` en `.AppImage`: de proefversie als programma voor de computer, **Boa Paraat Proef**, naast de gewone desktop-app (komen er een paar minuten later bij).
+            - `Boa-Paraat-proef.html`: los bestand, zonder inloggen (abonnement alleen op dat apparaat, codes werken niet).
           files: |
             Boa-Paraat-Proef.apk
             Boa-Paraat-proef.html

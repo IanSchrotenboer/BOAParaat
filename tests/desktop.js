@@ -27,7 +27,15 @@ const ext=app=>app.evaluate(()=>global.__boa.extern.slice());
   t(await p.locator('[data-act="login"]').count()===1,'eerste start: inlogscherm met Inloggen met Google');await SHOT(p,'1-inloggen');
   await p.click('[data-act="login"]');await w(500);
   let e=await ext(app);const au=e.find(u=>/\/auth\/v1\/authorize\?provider=google/.test(u))||'';
-  t(/redirect_to=nl\.boa\.phbtrainer%3A%2F%2Flogin/.test(au)&&/code_challenge=[\w-]{20,}/.test(au)&&/code_challenge_method=s256/.test(au),'inloggen opent Google in de standaardbrowser, met terugkeer naar nl.boa.phbtrainer://login (PKCE)');
+  const PROEF=await app.evaluate(()=>global.__boa.PROEF);
+  if(!PROEF)t(/redirect_to=nl\.boa\.phbtrainer%3A%2F%2Flogin/.test(au)&&/code_challenge=[\w-]{20,}/.test(au)&&/code_challenge_method=s256/.test(au),'inloggen opent Google in de standaardbrowser, met terugkeer naar nl.boa.phbtrainer://login (PKCE)');
+  else{const m=au.match(/redirect_to=(http%3A%2F%2F127\.0\.0\.1%3A\d+%2Flogin)/);
+    t(!!m&&/code_challenge_method=s256/.test(au),'proef: inloggen opent Google met terugkeer naar een eigen adres op deze computer (niet nl.boa.phbtrainer://, dat blijft van de gewone app)');
+    // de browser komt terug op dat adres: het programma moet de terugkeer ontvangen
+    const terug=decodeURIComponent(m?m[1]:'')+'?error=access_denied&error_description=Proef%20terugkeer';
+    const r=await fetch(terug).catch(()=>null);const tx=r?await r.text():'';await w(500);
+    t(r&&r.ok&&/Boa Paraat Proef/.test(tx)&&/Inloggen is niet gelukt \(Proef terugkeer\)/.test(await p.textContent('#app')),'proef: terugkeer van de browser komt aan in het programma; de browser toont "je kunt terug"');
+    t((await p.textContent('.brand .tag')).includes('proef')&&/proef/.test(await p.title()),'proef: herkenbaar als proefversie (kopbalk en venstertitel)')}
   await SHOT(p,'2-inloggen-browser');
   t(await p.locator('.lhint').count()===1&&/browser/.test(await p.textContent('.lhint'))&&await p.locator('[data-act="login"]').count()===1,'hint: verder inloggen in de browser; knop blijft beschikbaar');
   t(await p.evaluate(()=>!!localStorage.getItem('boa-pkce')),'PKCE-sleutel bewaard voor de terugkeer');
@@ -47,7 +55,8 @@ const ext=app=>app.evaluate(()=>global.__boa.extern.slice());
   await p.evaluate(pr=>{localStorage.setItem('boa-sessie',JSON.stringify({a:'x',r:'y',x:Date.now()+3600e3,u:{id:'00000000-0000-0000-0000-000000000001',email:'test@example.com',naam:'Desk Test'}}));
     localStorage.setItem('phb-trainer-v1',JSON.stringify({s:{},h:[],x:[],eig:'00000000-0000-0000-0000-000000000001',p:pr}))},profiel);
   await p.reload();await w(800);
-  t(await p.locator('#app h1').count()>=1&&!(await p.locator('[data-act="login"]').count()),'na inloggen: de app opent op het overzicht');await SHOT(p,'3-overzicht');
+  t(await p.locator('#app h1').count()>=1&&!(await p.locator('[data-act="login"]').count()),'na inloggen: de app opent op het overzicht');
+  if(PROEF)t(await p.locator('#tabbar .slotje').count()===3&&await p.locator('.hlist .chip.plus').count()===3,'proef: PHB 3, PHB 4 en RTGB achter de betaalmuur');await SHOT(p,'3-overzicht');
   await p.evaluate(()=>location.hash='stof');await w(300);
   await SHOT(p,'4-studiestof');
   t(!/Kennisboekje|Lesdia/.test(await p.textContent('#app')),'studiestof zonder Kennisboekje en Lesdia\'s');
