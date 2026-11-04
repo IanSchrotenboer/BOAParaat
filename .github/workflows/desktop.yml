@@ -160,7 +160,8 @@ jobs:
 
   publiceer-proef:
     needs: bouw
-    if: startsWith(github.ref_name, 'proef-')
+    # ook als één systeem (meestal de Mac, door wachtrijen bij GitHub) niet klaar is: de rest wel publiceren
+    if: always() && startsWith(github.ref_name, 'proef-') && needs.bouw.result != 'skipped'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -186,6 +187,7 @@ jobs:
           name: Proefversie ${{ github.ref_name }} (${{ steps.tag.outputs.tag }})
           prerelease: true
           make_latest: false
+          fail_on_unmatched_files: false
           files: |
             dist/Boa-Paraat-Proef-Windows.exe
             dist/Boa-Paraat-Proef-Mac.dmg
