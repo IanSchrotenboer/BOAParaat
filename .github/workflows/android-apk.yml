@@ -5,9 +5,14 @@ name: Android APK bouwen
 # Geheimen (Settings → Secrets and variables → Actions): ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS.
 # Zonder die geheimen wordt met een tijdelijke sleutel ondertekend: dan kan een update NIET over de oude versie heen.
 
+# Op een tak die met proef- begint (bijvoorbeeld proef-betaalmuur) bouwt deze taak een PROEFVERSIE:
+# app-ID nl.boa.phbtrainer.proef en naam 'Boa Paraat Proef', zodat hij naast de gewone app op de telefoon
+# staat, met de proefbouw van de app (uit/proef-www-index.html). Die komt als 'pre-release' op GitHub en
+# telt niet als nieuwste versie: gebruikers en de updatemelding merken er niets van.
+
 on:
   push:
-    branches: [main]
+    branches: [main, 'proef-*']
   workflow_dispatch:
 
 jobs:
@@ -31,6 +36,18 @@ jobs:
 
       - name: Afhankelijkheden installeren
         run: npm install
+
+      - name: Proefversie klaarzetten (alleen op een proef-tak)
+        if: startsWith(github.ref_name, 'proef-')
+        run: |
+          python3 release.py --snel
+          cp uit/proef-www-index.html www/index.html
+          python3 - <<'PY'
+          import json;p='capacitor.config.json';c=json.load(open(p))
+          c['appId']='nl.boa.phbtrainer.proef';c['appName']='Boa Paraat Proef'
+          json.dump(c,open(p,'w'),indent=2);print(c['appId'],c['appName'])
+          PY
+          grep -c "const BETAALMUUR=true" www/index.html
 
       - name: Android-project maken
         run: |
@@ -124,6 +141,27 @@ jobs:
           VN=$(node -p "require('./package.json').version")
           echo "tag=v$VN" >> "$GITHUB_OUTPUT"
           if gh release view "v$VN" > /dev/null 2>&1; then echo "nieuw=false" >> "$GITHUB_OUTPUT"; else echo "nieuw=true" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Proefversie op GitHub (pre-release, alleen op een proef-tak)
+        if: startsWith(github.ref_name, 'proef-')
+        run: cp Boa-Paraat.apk Boa-Paraat-Proef.apk && cp uit/Boa-Paraat-proef.html Boa-Paraat-proef.html
+      - name: Proefversie publiceren
+        if: startsWith(github.ref_name, 'proef-')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: proef-${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          name: Proefversie ${{ github.ref_name }} (${{ github.run_number }})
+          prerelease: true
+          make_latest: false
+          body: |
+            Proefversie, niet voor gebruikers. Tak `${{ github.ref_name }}`, commit ${{ github.sha }}.
+
+            - `Boa-Paraat-Proef.apk`: installeert naast de gewone app als **Boa Paraat Proef** (met inloggen, betaalmuur en eenmalige licentiecodes).
+            - `Boa-Paraat-proef.html`: los bestand voor de computer, zonder inloggen (abonnement alleen op dat apparaat, codes werken niet).
+          files: |
+            Boa-Paraat-Proef.apk
+            Boa-Paraat-proef.html
 
       - name: Release op GitHub (alleen bij een nieuw versienummer)
         if: steps.v.outputs.nieuw == 'true' && github.ref == 'refs/heads/main'

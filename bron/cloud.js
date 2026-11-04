@@ -60,7 +60,7 @@ async function loginTerug(url){
     store.eig=s.u.id;if(!store.p.naam&&s.u.naam&&!store.p.ob)obNaamVoor=s.u.naam;
     sesSet(s);cloudBezig="Je voortgang wordt opgehaald…";render();
     await cloudSyncNu(true);
-    cloudBezig="";applyTheme();if(!needsWelcome())toast("Ingelogd als "+s.u.email);render();
+    cloudBezig="";applyTheme();applyLic();if(!needsWelcome())toast("Ingelogd als "+s.u.email);render();
   }catch(e){cloudBezig="";cloudFout=e.status>=500||!navigator.onLine?"Geen verbinding met de server. Probeer het zo opnieuw.":"Inloggen is niet gelukt. Probeer het opnieuw.";render()}}
 let obNaamVoor="";
 // geldig toegangsbewijs; vernieuwt het zo nodig. Verlopen of ingetrokken: opnieuw inloggen
@@ -108,6 +108,7 @@ async function cloudSyncNu(eerste){
     if(lokaal&&JSON.stringify(store)===voor){store=normalize(m);saveLokaal();if(!eerste)verversNaSync()}
     if(naar)await rest("POST","voortgang?on_conflict=user_id",{user_id:s.u.id,data:store,app_versie:APP_VERSIE},{Prefer:"resolution=merge-duplicates,return=minimal"});
     cloudSync={t:Date.now(),ok:true,bezig:false};
+    rechtenOphalen();
   }catch(e){cloudSync={t:cloudSync.t,ok:false,bezig:false}}
   if(route().indexOf("profiel")===0&&!document.querySelector("#app form:focus-within"))render();
   if(syncWeer){syncWeer=false;cloudLater()}
@@ -129,7 +130,7 @@ async function accountWeg(){
     const s=sesGet();if(s)fetch(CLOUD.url+"/auth/v1/logout",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+s.a}}).catch(()=>{});
     wisLokaal();cloudBezig="";cloudDel=false;location.hash="home";render();toast("Je account en je voortgang zijn verwijderd")}
   catch(e){cloudBezig="";cloudFout="Verwijderen is niet gelukt. Controleer je internetverbinding en probeer het opnieuw.";render()}}
-function wisLokaal(){sesSet(null);clearTimeout(syncT);store=blank();try{localStorage.removeItem(KEY)}catch(e){}confirmUitOffline=false;cloudUit=false;applyTheme()}
+function wisLokaal(){sesSet(null);try{localStorage.removeItem("boa-recht")}catch(e){}clearTimeout(syncT);store=blank();try{localStorage.removeItem(KEY)}catch(e){}confirmUitOffline=false;cloudUit=false;applyTheme()}
 // ----- schermen -----
 function viewLogin(){
   return `<div class="welcome login">

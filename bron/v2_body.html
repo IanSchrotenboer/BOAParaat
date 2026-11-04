@@ -35,6 +35,7 @@
 "use strict";
 // ---------- configuratie ----------
 /*__VERSIE__*/
+const BETAALMUUR=/*__BETAALMUUR__*/false; // proefversie met betaalmuur (zie betaal.js)
 const CATS = {
   sr:["phb1","Staatsrecht"], ro:["phb1","Rechterlijke organisatie en OM"], boa:["phb1","Opsporingsambtenaar, boa en privacy"], pol:["phb1","De politie"],
   str:["phb1","Materieel en formeel strafrecht"], vd:["phb1","Verdachte, verhoor en raadsman"], bev:["phb1","Bevoegdheden algemeen en jeugd"], kl:["phb1","Vervolging en klachtdelicten"],
@@ -198,9 +199,10 @@ function paintNav(){
   const r=route();const welcome=needsWelcome();const inSession=welcome||(r==="sessie"&&S&&!S.done)||(r==="wv"&&!!W);
   const items=[["home","Overzicht",ICON.home]].concat(MODS.map(m=>[m.id,m.code,ICON[MODICON[m.id]],m.name])).concat([["stof","Studiestof",ICON.doc]]);
   const cur=id=>r===id||(id==="stof"&&r.indexOf("stof-")===0);
-  $("#topnav").innerHTML=items.map(([id,l,ic,full])=>`<a href="#${id}"${cur(id)?' aria-current="page"':""}${full?` title="${esc(full)}"`:""}><span class="ic" aria-hidden="true">${ic}</span>${l}</a>`).join("");
+  const sl=id=>opSlot(id)?SLOT:"",slT=id=>opSlot(id)?" (Plus)":"";
+  $("#topnav").innerHTML=items.map(([id,l,ic,full])=>`<a href="#${id}"${cur(id)?' aria-current="page"':""}${full?` title="${esc(full+slT(id))}"`:""}><span class="ic" aria-hidden="true">${ic}${sl(id)}</span>${l}</a>`).join("");
   const tabs=[["home","Overzicht",ICON.home,"Overzicht"]].concat(MODS.map(m=>[m.id,m.code,ICON[MODICON[m.id]],m.code+" "+m.name])).concat([["stof","Stof",ICON.doc,"Studiestof"]]);
-  $("#tabbar").innerHTML=tabs.map(([id,l,ic,full])=>`<a href="#${id}"${cur(id)?' aria-current="page"':""}${full?` aria-label="${esc(full)}"`:""}><span class="ic" aria-hidden="true">${ic}</span>${esc(l)}</a>`).join("");
+  $("#tabbar").innerHTML=tabs.map(([id,l,ic,full])=>`<a href="#${id}"${cur(id)?' aria-current="page"':""}${full?` aria-label="${esc(full+slT(id))}"`:""}><span class="ic" aria-hidden="true">${ic}${sl(id)}</span>${esc(l)}</a>`).join("");
   $("#topnav").hidden=inSession;$("#tabbar").hidden=inSession;$("#profBtn").hidden=inSession;
   document.body.classList.toggle("tabs",!inSession);
   const pb=$("#profBtn");if(r.indexOf("profiel")===0||r==="fouten")pb.setAttribute("aria-current","page");else pb.removeAttribute("aria-current");
@@ -211,6 +213,7 @@ function paintNav(){
 // ---------- sessie ----------
 let S=null,tick=null,confirmStop=false,confirmSubmit=false,confirmReset=false,showExport=false,showImport=false;
 function start(opts){
+  if(BETAALMUUR){const vrij=opts.qs.filter(q=>!opSlot(q.m));if(!vrij.length&&opts.qs.length){location.hash="plus-"+opts.qs[0].m;return}if(vrij.length<opts.qs.length)opts={...opts,qs:vrij}}
   S={...opts,items:opts.qs.map(q=>({id:q.id,ord:shuffle([0,1,2,3]),pick:null,flag:false})),i:0,done:false,started:Date.now()};
   S.base=opts.base||opts.qs.map(q=>q.id);
   if(opts.min)S.end=Date.now()+opts.min*60000;
@@ -251,11 +254,13 @@ function render(){
   if(needsWelcome()){swipeAbort();app.dataset.v="welkom";app.innerHTML=viewWelcome();paintNav();enhanceSelects(app);tuneInputs(app);obAfterRender();return}
   let v="home",h;
   if(r==="sessie"&&S){v="sessie";h=S.done?viewResult():viewQuestion()}
+  else if(r==="wv"&&opSlot("phb3")){v="module";h=viewSlot(MODBY.phb3)}
   else if(r==="wv"){v="wv";h=viewWV()}
+  else if(BETAALMUUR&&(r==="plus"||r.indexOf("plus-")===0)){v="plus";h=viewPlus(r.slice(5))}
   else if(r.indexOf("verslag-")===0){v="verslag";h=viewWVResult(r.slice(8))}
   else if(r==="profiel"||r==="profiel-examens"||r==="profiel-phb3"||r==="profiel-fouten"||r==="fouten"){v="profiel";h=viewProfile(r==="profiel-examens"?"examens":r==="profiel-fouten"||r==="fouten"?"fouten":"voortgang")}
   else if(r==="stof"||r.indexOf("stof-")===0){v="stof";h=viewStof()}
-  else if(MODBY[r]){v="module";h=viewModule(MODBY[r])}
+  else if(MODBY[r]){v="module";h=opSlot(r)?viewSlot(MODBY[r]):viewModule(MODBY[r])}
   else h=viewHome();
   tabTransition(app);app.dataset.v=v;app.innerHTML=h;
   if(pageAnim){pageAnim=false;app.classList.remove("enter","swl","swr");void app.offsetWidth;app.classList.add("enter");if(swipeIn)app.classList.add(swipeIn)}swipeIn="";
@@ -283,7 +288,7 @@ function viewStof(){
     <div class="stofgrid"><nav class="toc panel" aria-label="Onderwerpen">${groups.map(g=>`<div class="stack" style="gap:6px"><span class="eyebrow">${esc(g)}</span><ol>${STOF.filter(s=>s.deel===g).map(s=>`<li><a href="#stof-${s.id}">${esc(s.titel)}</a></li>`).join("")}</ol></div>`).join("")}</nav>
     <div class="stack">${groups.map(g=>`<h2 class="deel">${esc(g)}</h2>`+STOF.filter(s=>s.deel===g).map(s=>{const cs=catsFor(s.id);return `<section class="stofsec" id="s-${s.id}">
       <h3>${esc(s.titel)}</h3>
-      <div class="prose">${s.html}</div>
+      ${s.deel==="Ambtsinstructie en RTGB"&&opSlot("rtgb")?slotStof():`<div class="prose">${s.html}</div>`}
       ${cs.length?`<div class="row">${cs.map(c=>`<button class="btn" data-act="oefen" data-cat="${c}">Oefen: ${esc(CATS[c][1])}</button>`).join("")}</div>`:""}
     </section>`}).join("")).join("")}</div></div>
   </div>`;
@@ -299,7 +304,7 @@ function weekStrip(){
 function nextTopic(m){const c=catsOf(m).find(c=>mastery(inCat(c))<.7);return c?CATS[c][1]:null}
 function viewHome(){
   const naam=store.p.naam.trim().split(/\s+/)[0];
-  const wrong=MODS.flatMap(m=>inMod(m.id)).filter(q=>lastWrong(q.id)).length;
+  const wrong=MODSV().flatMap(m=>inMod(m.id)).filter(q=>lastWrong(q.id)).length;
   const nx=nextExam();
   let lastMod=null,lastTs=0;for(const q of ALL){const r=store.s[q.id];if(r&&r[3]>lastTs){lastTs=r[3];lastMod=q.m}}
   if(store.h[0]&&store.h[0].d>lastTs&&MODBY[store.h[0].m])lastMod=store.h[0].m;
@@ -317,7 +322,7 @@ function viewHome(){
     ${weekStrip()}
     <section class="stack" style="gap:8px"><h2 class="secttl">Modules</h2>
     <ul class="hlist" aria-label="Modules">${MODS.map(m=>{const ms=mastery(inMod(m.id));return `
-      <li><a href="#${m.id}"><span class="hcode">${m.id==="rtgb"?ICON.cuffs:m.code.replace("PHB ","")}</span><span class="hname"><b>${esc(m.name)}</b><span class="hmeter" role="img" aria-label="${pct(ms)} beheerst"><i style="width:${pct(ms)}"></i></span></span><span class="hpct mono">${pct(ms)}</span></a></li>`}).join("")}</ul></section>
+      <li><a href="#${m.id}"><span class="hcode">${m.id==="rtgb"?ICON.cuffs:m.code.replace("PHB ","")}</span><span class="hname"><b>${esc(m.name)}</b>${opSlot(m.id)?"":`<span class="hmeter" role="img" aria-label="${pct(ms)} beheerst"><i style="width:${pct(ms)}"></i></span>`}</span>${opSlot(m.id)?plusChip():`<span class="hpct mono">${pct(ms)}</span>`}</a></li>`}).join("")}</ul></section>
     <div class="hlinks"><a href="#stof">Studiestof</a>${Object.keys(store.s).length?`<a href="#profiel-fouten">Foutenanalyse</a>`:""}<a href="#profiel-examens">Mijn examens</a></div>
   </div>${homeSide(wrong)}</div>`;
 }
@@ -494,6 +499,7 @@ function viewProfile(tab){
         <div><button class="btn go" type="submit">Profiel opslaan</button></div>
       </form>
     </div>
+    ${aboSectie()}
     ${licSectie()}
     ${mldSection()}
     ${store.h.length?`<div class="section stack"><h2>Toets- en examenhistorie</h2><div class="panel"><ul class="hist">${store.h.slice(0,12).map(x=>`<li><span>${esc(x.t)}<br><span class="small mono">${fmtDate(x.d)} · ${fmtTime(x.d)}</span></span><span class="row" style="gap:8px;flex-wrap:nowrap"><span class="mono">${x.g}/${x.n}</span><span class="pill ${x.p?"pass":"fail"}">${x.p?"Geslaagd":"Gezakt"}</span></span></li>`).join("")}</ul></div></div>`:""}
@@ -630,8 +636,8 @@ function examCount(mod){return store.h.filter(x=>x.k==="examen"&&x.m===mod).leng
 function poolOf(r){if(!r)return [];const d=r.d;
   if(r.act==="examen")return examPool(MODBY[d.mod]);
   if(r.act==="oefen")return inCat(d.cat);if(r.act==="mix")return d.mod==="phb1"?ALL.filter(inMtx):inMod(d.mod);if(r.act==="mtx"){const g=mtxGroups().find(x=>x[0]===d.g);return g?mtxQs(g):[]}
-  if(r.act==="fouten")return (d.mod?inMod(d.mod):MODS.flatMap(m=>inMod(m.id))).filter(q=>lastWrong(q.id)&&(!d.cat||q.c===d.cat));
-  if(r.act==="herhaal")return MODS.flatMap(m=>inMod(m.id)).filter(q=>ooitFout(q.id)&&lastOk(q.id));return []}
+  if(r.act==="fouten")return (d.mod?inMod(d.mod):MODSV().flatMap(m=>inMod(m.id))).filter(q=>lastWrong(q.id)&&(!d.cat||q.c===d.cat));
+  if(r.act==="herhaal")return MODSV().flatMap(m=>inMod(m.id)).filter(q=>ooitFout(q.id)&&lastOk(q.id));return []}
 function launch(act,d,excl){
   if(act==="oefen"){const c=d.cat;start({mode:"oefen",title:"Oefenen · "+CATS[c][1],qs:shuffle(freshOrder(inCat(c),excl).slice(0,ROUND)),mod:CATS[c][0],redo:{act,d}})}
   else if(act==="mix"){const m=MODBY[d.mod];start({mode:"oefen",title:m.code+" · Gemengd oefenen",qs:m.id==="phb1"?shuffle(freshOrder(ALL.filter(inMtx),excl).slice(0,20)):sample(catsOf(m),20,excl),mod:m.id,redo:{act,d}})}
@@ -652,6 +658,7 @@ document.addEventListener("click",e=>{
   if(act.indexOf("yt-")===0&&ytClick(act,{...d}))return;
   if(["login","sync","logout","logout-no","acc-del","acc-del-no","acc-del-yes"].includes(act)&&cloudAct(act))return;
   if((act.indexOf("lic-")===0||act==="ob-lic")&&licAct(act))return;
+  if((act.indexOf("plus-")===0||act.indexOf("abo-")===0)&&plusAct(act,{...d}))return;
   if(["oefen","mix","fouten","herhaal","toets","examen","mtx"].includes(act)){launch(act,{...d});return}
   if(act==="akte-edit"){const go=()=>{const f=$("#pAkte");if(f){f.scrollIntoView({block:"center"});f.focus()}};if($("#pAkte"))go();else{location.hash="profiel";setTimeout(go,120)}return}
   if(act==="thema"){store.p.thema=d.v;save();applyTheme();render();toast(d.v==="donker"?"Donkere weergave":d.v==="licht"?"Lichte weergave":"Weergave volgt je systeem");return}

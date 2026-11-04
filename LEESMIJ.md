@@ -174,6 +174,35 @@ Vanaf versie 1.9 log je in de app en op de website in met je Google-account. De 
 - **Los HTML-bestand en voorbeeld in claude.ai:** Google kan daar niet inloggen. Daar werkt de app zonder account, alleen op dat apparaat.
 - **Test:** `tests/cloud.js` bootst Supabase na (inloggen, twee apparaten, offline, verlopen sessie, uitloggen, account verwijderen, andere gebruiker op hetzelfde apparaat) en draait bij elke release mee.
 
+## Proefversie: betaalmuur en eenmalige licentiecodes
+
+Op de tak `proef-betaalmuur` staat een proefversie. Gebruikers merken er niets van: de gewone app heeft geen betaalmuur.
+
+**Wat de proefversie doet**
+
+- **Gratis:** PHB 1, PHB 2 en de studiestof.
+- **Boa Paraat Plus (€ 5,99 per maand):** PHB 3 (met de praktijkoefening), PHB 4 en RTGB (met de RTGB-samenvattingen). Op slot staan een slotje in de tabbalk, een slotscherm per module en de Plus-pagina met een bevestigingsstap.
+- **Betalen is nagebootst:** met een account via de databasefunctie `proef_abonnement` (geldt op al je apparaten), zonder account (los bestand) alleen op dat apparaat. Opzeggen kan in Profiel → Abonnement; je houdt toegang tot het einde van de maand.
+- **Eenmalige licentiecodes:** een code werkt één keer. Bij het inwisselen koppelt de database hem aan het Google-account; daarna kan niemand anders hem gebruiken. Op een ander apparaat log je in met hetzelfde account en de licentie gaat vanzelf mee. Hooguit 10 onjuiste codes per uur per gebruiker. Een organisatielicentie (bijvoorbeeld NS) geeft alles, zonder abonnement.
+
+**Codes maken** (alleen de beheerder), in Supabase → SQL Editor:
+
+```sql
+select * from public.licentiecodes_maken('ns', 10, 'NS proef november');
+```
+
+De codes staan alleen in die uitkomst; de database bewaart alleen een controlegetal. Welke codes gebruikt zijn: `select hint, notitie, gebruikt_op from public.licentiecodes order by aangemaakt desc;`
+
+**Bouwen en testen.** `python3 release.py` maakt naast de gewone app ook `uit/Boa-Paraat-proef.html` en `uit/proef-www-index.html` (schakelaar `BETAALMUUR`). `tests/betaalmuur.js` test de slotjes, het nagebootste abonnement, opzeggen en verlopen, en de eenmalige codes over meerdere apparaten en gebruikers, en controleert dat de gewone app er niets van merkt. Een push naar een tak die met `proef-` begint, bouwt op GitHub een **test-APK** (`Boa Paraat Proef`, app-ID `nl.boa.phbtrainer.proef`, naast de gewone app te installeren) en zet die als pre-release op de pagina Releases. Bij het inloggen kan Android vragen welke app moet openen: kies **Boa Paraat Proef**.
+
+**Voordat dit live kan**
+
+1. Kies een betaalaanbieder (bijvoorbeeld Stripe of Mollie) en laat die via een webhook de tabel `abonnementen` bijwerken. Verwijder dan de functie `proef_abonnement`.
+2. In de Google Play Store moeten digitale abonnementen in een app via Google Play Billing (of het alternatieve facturatieprogramma in de EER). Voor de APK buiten de Play Store, de website en de computerversie geldt dat niet.
+3. Bestaande NS-gebruikers hebben hun licentie nog via de oude code (alleen in de app). Maak voor hen codes aan of zet hun licentie in de tabel `licenties`, anders verdwijnt de licentie bij de eerste synchronisatie.
+4. Zet `BETAALMUUR` aan in de gewone bouw en haal het woord 'proef' uit de kopbalk.
+5. De vragen zitten in de app zelf. De betaalmuur is een drempel, geen beveiliging van de inhoud. Echte afscherming kan alleen door de betaalde vragen pas na controle van de server te laden.
+
 ## Licenties (huisstijl per organisatie)
 
 Met een licentiecode van de werkgever krijgt de app de kleuren en het logo van die organisatie, in de rustige opmaak van Boa Paraat, en de inhoud die bij die boa's hoort. De gebruiker vult de code in bij Profiel → Licentie of op het welkomstscherm.
