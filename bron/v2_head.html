@@ -68,6 +68,7 @@ a{color:var(--link)}
 /* inloggen en account */
 .login .panel{max-width:520px}.lgoogle{width:100%;justify-content:center;min-height:52px;font-size:17px}
 .lbezig{display:flex;align-items:center;gap:10px;margin:0;font-weight:600}
+.lhint{margin:0;padding:10px 12px;border-radius:var(--r);background:var(--tint);border:1px solid var(--line);font-size:15px}
 .spin{width:20px;height:20px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--navy);animation:spin .8s linear infinite;flex:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 .acc{display:flex;align-items:center;gap:12px;min-width:0}.accmail{overflow-wrap:anywhere}.accoff{color:var(--bad)}
@@ -165,7 +166,6 @@ p{margin:0}
 /* vraag */
 .qhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center}
 .chip{display:inline-block;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--sunk);border:1px solid var(--line);color:var(--muted)}
-.chip.ref{font-family:var(--f-mono);color:var(--ink)}
 .chip.ov{background:var(--tint);color:var(--navy);border-color:transparent;font-family:var(--f-mono)}
 .progress{height:6px;background:var(--track);border-radius:3px;overflow:hidden}
 .progress i{display:block;height:100%;background:var(--navy)}
@@ -247,14 +247,12 @@ p{margin:0}
 @media (max-width:780px),(pointer:coarse) and (max-width:1099px){body.tabs .toast{bottom:calc(var(--tabh) + 16px + env(safe-area-inset-bottom,0px))}}
 /* studiestof */
 .ref{display:flex;flex-direction:column;gap:3px;margin-top:12px;padding-top:10px;border-top:1px dashed currentColor;border-top-color:var(--line);font-size:14px}
-.ref .where{font-family:var(--f-mono);font-size:13px}
 .ref a{font-weight:600}
 .toc{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media (max-width:560px){.toc{grid-template-columns:1fr}}
 .toc ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:15px}
 .deel{margin-top:16px;padding-bottom:6px;border-bottom:1px solid var(--line)}
 .stofsec{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:12px;scroll-margin-top:calc(80px + env(safe-area-inset-top,0px))}
-.srcs{display:flex;flex-wrap:wrap;gap:6px}
 .prose{max-width:68ch}
 .prose ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
 .prose p{margin:0 0 8px}

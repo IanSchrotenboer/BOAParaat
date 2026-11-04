@@ -1,0 +1,133 @@
+name: Desktop-app bouwen (Windows, Mac, Linux)
+
+# Bouwt bij elke update de computerversie van Boa Paraat met Electron (map desktop/):
+#   Windows: Boa-Paraat-Windows.exe (installatieprogramma)
+#   Mac:     Boa-Paraat-Mac.dmg (Intel en Apple-chip)
+#   Linux:   Boa-Paraat-Linux.AppImage en Boa-Paraat-Linux.deb
+# Eerst draait tests/desktop.js de app echt op Linux. Bij een nieuw versienummer komen de bestanden bij de
+# release op GitHub, naast de APK (de Android-taak maakt de release; deze taak wacht daarop).
+# De installers zijn niet ondertekend: Windows en macOS waarschuwen bij de eerste keer openen (zie LEESMIJ).
+
+on:
+  push:
+    branches: [main, 'desktop-*']
+  workflow_dispatch:
+
+jobs:
+  versie:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.v.outputs.tag }}
+      nieuw: ${{ steps.v.outputs.nieuw }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Versie bepalen
+        id: v
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VN=$(node -p "require('./package.json').version")
+          echo "tag=v$VN" >> "$GITHUB_OUTPUT"
+          # alleen de bestanden in de release zetten als de release er bij de start nog niet was of nog geen
+          # desktopbestanden heeft (de Android-taak maakt hem in dezelfde ronde aan)
+          if gh release view "v$VN" --json assets -q '.assets[].name' 2>/dev/null | grep -q '^Boa-Paraat-Windows'; then echo "nieuw=false" >> "$GITHUB_OUTPUT"
+          elif gh release view "v$VN" > /dev/null 2>&1 && [ "$(gh release view "v$VN" --json targetCommitish -q .targetCommitish)" != "$GITHUB_SHA" ]; then echo "nieuw=false" >> "$GITHUB_OUTPUT"
+          else echo "nieuw=true" >> "$GITHUB_OUTPUT"; fi
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Electron en Playwright installeren
+        run: |
+          npm install --no-save playwright@1.63.0
+          cd desktop && npm install
+      - name: Desktop-app testen (tests/desktop.js)
+        run: xvfb-run -a node tests/desktop.js
+
+  bouw:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Installeren en klaarzetten
+        working-directory: desktop
+        run: |
+          npm install
+          node klaarzetten.js
+      - name: Bouwen
+        working-directory: desktop
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npx electron-builder --publish never
+      - name: Controleren (Mac)
+        if: runner.os == 'macOS'
+        working-directory: desktop
+        run: |
+          hdiutil attach dist/Boa-Paraat-Mac.dmg -mountpoint /tmp/boa -nobrowse -quiet
+          lipo -archs "/tmp/boa/Boa Paraat.app/Contents/MacOS/Boa Paraat"
+          codesign --verify --deep --strict "/tmp/boa/Boa Paraat.app" && echo "ad-hoc ondertekend: in orde"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleURLTypes:0:CFBundleURLSchemes:0" "/tmp/boa/Boa Paraat.app/Contents/Info.plist" | grep -x nl.boa.phbtrainer
+          hdiutil detach /tmp/boa -quiet
+      - name: Controleren (Linux)
+        if: runner.os == 'Linux'
+        working-directory: desktop
+        run: |
+          dpkg-deb -I dist/Boa-Paraat-Linux.deb | grep -E "Package|Version"
+          dpkg-deb -x dist/Boa-Paraat-Linux.deb /tmp/deb && grep -r "x-scheme-handler/nl.boa.phbtrainer" /tmp/deb/usr/share/applications/
+          test -x dist/Boa-Paraat-Linux.AppImage || chmod +x dist/Boa-Paraat-Linux.AppImage
+      - name: Controleren (Windows)
+        if: runner.os == 'Windows'
+        working-directory: desktop
+        shell: bash
+        run: ls -la dist/Boa-Paraat-Windows.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ runner.os }}
+          path: |
+            desktop/dist/Boa-Paraat-Windows.exe
+            desktop/dist/Boa-Paraat-Mac.dmg
+            desktop/dist/Boa-Paraat-Linux.AppImage
+            desktop/dist/Boa-Paraat-Linux.deb
+          if-no-files-found: error
+
+  publiceer:
+    needs: [versie, bouw]
+    if: needs.versie.outputs.nieuw == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Wachten op de release van de Android-taak
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 60); do gh release view "${{ needs.versie.outputs.tag }}" > /dev/null 2>&1 && exit 0; sleep 20; done
+          echo "Release nog niet aanwezig: deze taak maakt hem zelf aan."
+      - name: Bestanden bij de release zetten
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.versie.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: Boa Paraat ${{ needs.versie.outputs.tag }}
+          body_path: release-notities/${{ needs.versie.outputs.tag }}.md
+          files: |
+            dist/Boa-Paraat-Windows.exe
+            dist/Boa-Paraat-Mac.dmg
+            dist/Boa-Paraat-Linux.AppImage
+            dist/Boa-Paraat-Linux.deb

@@ -103,6 +103,12 @@ if not SITE.get('contact') or not SITE.get('beheerder'): let_op('website: vul be
 bron_bytes = len((head + body).encode())
 kb = lambda n: '%.0f kB' % (n / 1024)
 ok('versie %s, %d punten bij Nieuw' % (VERSIE, len(NIEUW)))
+# desktop-app (Electron) krijgt hetzelfde versienummer
+_dp = os.path.join(ROOT, 'desktop', 'package.json')
+if os.path.exists(_dp):
+    _dj = json.load(open(_dp))
+    if _dj.get('version') != VERSIE:
+        _dj['version'] = VERSIE; open(_dp, 'w').write(json.dumps(_dj, indent=2, ensure_ascii=False) + '\n'); ok('desktop/package.json op versie %s gezet' % VERSIE)
 ok('gebouwd: %s (bron %s, gzip %s over internet)' % (kb(len(full.encode())), kb(bron_bytes), kb(len(gzip.compress(web.encode(), 9)))))
 
 # ---------------------------------------------------------------- 2. opschonen
@@ -223,6 +229,8 @@ if not SNEL:
     os.makedirs(env['BOA_SHOTS'], exist_ok=True)
     env['CHAOS_SEED'] = os.environ.get('CHAOS_SEED', str(int(time.time()) % 100000)); ok('chaostest met zaad %s' % env['CHAOS_SEED'])
     for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'rtgb.js', 'matrijs.js', 'tablet.js', 'vouw.js', 'fouten.js', 'licentie.js', 'stress.js', 'cloud.js', 'chaos.js']: draai(t, env)
+    if os.path.exists(os.path.join(ROOT, 'desktop', 'node_modules', 'electron')): draai('desktop.js', env)
+    else: let_op('desktop.js: Electron is hier niet geïnstalleerd; de desktoptest draait op GitHub (Desktop-app bouwen)')
 else:
     let_op('browsertests overgeslagen (--snel)')
 
@@ -254,7 +262,7 @@ SKIP = {'uit', 'node_modules', 'android', 'ios', '.git', '__pycache__'}
 def zip_map(doel, bron, prefix=''):
     with zipfile.ZipFile(doel, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as z:
         for d_, dirs, files in os.walk(bron):
-            dirs[:] = sorted(x for x in dirs if not (x in SKIP and (d_ == bron or x in ('node_modules', '.git', '__pycache__'))))
+            dirs[:] = sorted(x for x in dirs if not (x in SKIP and (d_ == bron or x in ('node_modules', '.git', '__pycache__'))) and not (os.path.basename(d_) == 'desktop' and x in ('app', 'build', 'dist')))
             for f_ in sorted(files):
                 p = os.path.join(d_, f_); z.write(p, os.path.join(prefix, os.path.relpath(p, bron)))
 zip_map(os.path.join(UIT, 'Boa-Paraat-app.zip'), ROOT)

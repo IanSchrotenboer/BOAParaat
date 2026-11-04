@@ -266,24 +266,23 @@ const STOFBY = Object.fromEntries(STOF.map(s=>[s.id,s]));
 const NOREF = new Set(["wijk","cult"]);
 function refFor(q){
   if(NOREF.has(q.c))return null;
-  const rc=CATS[q.c]&&CATS[q.c][0]==="rtgb"?STOF_CAT[q.c]:null;if(rc&&STOFBY[rc])return {sec:rc,kb:STOFBY[rc].kb,dia:STOFBY[rc].dia};
-  for(const [re,sec,kb,dia] of STOF_ART){if(q.r&&re.test(q.r))return {sec,kb,dia}}
-  const sec=STOF_CAT[q.c];if(!sec||!STOFBY[sec])return null;return {sec,kb:STOFBY[sec].kb,dia:STOFBY[sec].dia};
+  const rc=CATS[q.c]&&CATS[q.c][0]==="rtgb"?STOF_CAT[q.c]:null;if(rc&&STOFBY[rc])return {sec:rc};
+  for(const [re,sec] of STOF_ART){if(q.r&&re.test(q.r))return {sec}}
+  const sec=STOF_CAT[q.c];if(!sec||!STOFBY[sec])return null;return {sec};
 }
 function refHtml(q){
   const f=refFor(q);if(!f)return "";const s=STOFBY[f.sec];
-  const parts=[];if(f.kb)parts.push(`${STOF_DOCS.kb.kort} blz. ${esc(f.kb)}`);if(f.dia)parts.push(`${STOF_DOCS.dia.kort} ${f.dia.indexOf(",")>-1||f.dia.indexOf("–")>-1?"dia's":"dia"} ${esc(f.dia)}`);
-  return `<div class="ref"><span class="eyebrow">Studiestof</span>${parts.length?`<span class="where">${parts.join(" · ")}</span>`:""}<a href="#stof-${s.id}">Samenvatting: ${esc(s.titel)} →</a></div>`;
+  return `<div class="ref"><span class="eyebrow">Studiestof</span><a href="#stof-${s.id}">Samenvatting: ${esc(s.titel)} →</a></div>`;
 }
 function viewStof(){
   const groups=[...new Set(STOF.map(s=>s.deel))];
   const catsFor=id=>Object.keys(CATS).filter(c=>STOF_CAT[c]===id&&inCat(c).length&&(!D4.has(c)||dom()==="4"));
   return `<div class="stack">
     <div class="stack" style="gap:8px"><span class="eyebrow">Samenvattingen</span><h1>Studiestof</h1>
-    <p class="lede">Samenvattingen van het ${STOF_DOCS.kb.naam} en de ${STOF_DOCS.dia.naam}. Bij elk onderwerp zie je waar het in beide documenten staat. Bij elke oefenvraag vind je een verwijzing naar het juiste stuk.</p></div>
+    <p class="lede">Korte samenvattingen per onderwerp. Bij elke oefenvraag vind je een verwijzing naar het juiste stuk.</p></div>
     <div class="stofgrid"><nav class="toc panel" aria-label="Onderwerpen">${groups.map(g=>`<div class="stack" style="gap:6px"><span class="eyebrow">${esc(g)}</span><ol>${STOF.filter(s=>s.deel===g).map(s=>`<li><a href="#stof-${s.id}">${esc(s.titel)}</a></li>`).join("")}</ol></div>`).join("")}</nav>
     <div class="stack">${groups.map(g=>`<h2 class="deel">${esc(g)}</h2>`+STOF.filter(s=>s.deel===g).map(s=>{const cs=catsFor(s.id);return `<section class="stofsec" id="s-${s.id}">
-      <div class="stack" style="gap:6px"><h3>${esc(s.titel)}</h3><div class="srcs">${s.kb?`<span class="chip ref">${STOF_DOCS.kb.kort} blz. ${esc(s.kb)}</span>`:""}${s.dia?`<span class="chip ref">${STOF_DOCS.dia.kort} ${esc(s.dia)}</span>`:""}</div></div>
+      <h3>${esc(s.titel)}</h3>
       <div class="prose">${s.html}</div>
       ${cs.length?`<div class="row">${cs.map(c=>`<button class="btn" data-act="oefen" data-cat="${c}">Oefen: ${esc(CATS[c][1])}</button>`).join("")}</div>`:""}
     </section>`}).join("")).join("")}</div></div>

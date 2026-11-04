@@ -1,0 +1,53 @@
+{
+  "name": "boa-paraat-desktop",
+  "productName": "Boa Paraat",
+  "version": "1.9.2",
+  "description": "Boa Paraat, de examentrainer voor boa's (PHB 1-4 en RTGB)",
+  "author": "Boa Paraat <boaparaat@users.noreply.github.com>",
+  "homepage": "https://github.com/IanSchrotenboer/BOAParaat",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "klaarzetten": "node klaarzetten.js",
+    "start": "node klaarzetten.js && electron .",
+    "bouw": "node klaarzetten.js && electron-builder --publish never"
+  },
+  "devDependencies": {
+    "electron": "^44.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "nl.boa.phbtrainer",
+    "productName": "Boa Paraat",
+    "copyright": "Boa Paraat",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.js", "preload.js", "app/**/*", "package.json"],
+    "protocols": [{ "name": "Boa Paraat inloggen", "schemes": ["nl.boa.phbtrainer"] }],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "artifactName": "Boa-Paraat-Windows.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "shortcutName": "Boa Paraat",
+      "artifactName": "Boa-Paraat-Windows.${ext}"
+    },
+    "mac": {
+      "target": [{ "target": "dmg", "arch": ["universal"] }],
+      "category": "public.app-category.education",
+      "identity": "-",
+      "artifactName": "Boa-Paraat-Mac.${ext}"
+    },
+    "dmg": { "title": "Boa Paraat" },
+    "linux": {
+      "target": [{ "target": "AppImage", "arch": ["x64"] }, { "target": "deb", "arch": ["x64"] }],
+      "category": "Education",
+      "synopsis": "Examentrainer voor boa's",
+      "maintainer": "Boa Paraat <boaparaat@users.noreply.github.com>",
+      "executableName": "boa-paraat",
+      "artifactName": "Boa-Paraat-Linux.${ext}"
+    }
+  }
+}
