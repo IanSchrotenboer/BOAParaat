@@ -17,16 +17,18 @@ async function open(){
   const p=await app.firstWindow();p._errs=[];p.on('pageerror',e=>p._errs.push(e.message));
   await p.waitForLoadState('domcontentloaded');await w(700);return {app,p};
 }
+const SHOT=async(p,n)=>{if(process.env.BOA_SHOTS){fs.mkdirSync(process.env.BOA_SHOTS,{recursive:true});await p.screenshot({path:path.join(process.env.BOA_SHOTS,n+'.png')})}};
 const ext=app=>app.evaluate(()=>global.__boa.extern.slice());
 (async()=>{
   // ---------- eerste start: inloggen ----------
   let {app,p}=await open();
   t(/^app:\/\/boa\/index\.html/.test(p.url())&&await p.title()!=='','opent via app://boa ('+p.url()+')');
   t(await p.evaluate(()=>!!window.boaDesktop&&typeof window.boaDesktop.open==='function'&&!window.require&&!window.process),'brug window.boaDesktop aanwezig, geen Node in de pagina');
-  t(await p.locator('[data-act="login"]').count()===1,'eerste start: inlogscherm met Inloggen met Google');
+  t(await p.locator('[data-act="login"]').count()===1,'eerste start: inlogscherm met Inloggen met Google');await SHOT(p,'1-inloggen');
   await p.click('[data-act="login"]');await w(500);
   let e=await ext(app);const au=e.find(u=>/\/auth\/v1\/authorize\?provider=google/.test(u))||'';
   t(/redirect_to=nl\.boa\.phbtrainer%3A%2F%2Flogin/.test(au)&&/code_challenge=[\w-]{20,}/.test(au)&&/code_challenge_method=s256/.test(au),'inloggen opent Google in de standaardbrowser, met terugkeer naar nl.boa.phbtrainer://login (PKCE)');
+  await SHOT(p,'2-inloggen-browser');
   t(await p.locator('.lhint').count()===1&&/browser/.test(await p.textContent('.lhint'))&&await p.locator('[data-act="login"]').count()===1,'hint: verder inloggen in de browser; knop blijft beschikbaar');
   t(await p.evaluate(()=>!!localStorage.getItem('boa-pkce')),'PKCE-sleutel bewaard voor de terugkeer');
   await app.evaluate(()=>global.__boa.bezorg('nl.boa.phbtrainer://login?error=access_denied&error_description=Geannuleerd%20in%20test'));await w(400);
@@ -45,14 +47,16 @@ const ext=app=>app.evaluate(()=>global.__boa.extern.slice());
   await p.evaluate(pr=>{localStorage.setItem('boa-sessie',JSON.stringify({a:'x',r:'y',x:Date.now()+3600e3,u:{id:'00000000-0000-0000-0000-000000000001',email:'test@example.com',naam:'Desk Test'}}));
     localStorage.setItem('phb-trainer-v1',JSON.stringify({s:{},h:[],x:[],eig:'00000000-0000-0000-0000-000000000001',p:pr}))},profiel);
   await p.reload();await w(800);
-  t(await p.locator('#app h1').count()>=1&&!(await p.locator('[data-act="login"]').count()),'na inloggen: de app opent op het overzicht');
+  t(await p.locator('#app h1').count()>=1&&!(await p.locator('[data-act="login"]').count()),'na inloggen: de app opent op het overzicht');await SHOT(p,'3-overzicht');
   await p.evaluate(()=>location.hash='stof');await w(300);
+  await SHOT(p,'4-studiestof');
   t(!/Kennisboekje|Lesdia/.test(await p.textContent('#app')),'studiestof zonder Kennisboekje en Lesdia\'s');
   await p.evaluate(()=>location.hash='phb1');await w(200);await p.click('#app .cat [data-act="oefen"]');await w(400);
   await p.locator('.opt').first().click();await w(200);
   t(await p.locator('.opt.sel, .opt[aria-checked="true"], .fb').count()>=1,'oefenen werkt (antwoord gegeven)');
   // klein venster
   await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(360,560));await w(500);
+  await SHOT(p,'5-smal');
   t(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'smal venster (360 breed): geen horizontale scroll');
   await app.evaluate(({BrowserWindow})=>{const b=BrowserWindow.getAllWindows()[0];b.setSize(980,700);b.setPosition(40,40)});await w(900);
   t(!p._errs.length,'geen JS-fouten'+(p._errs.length?': '+p._errs.join(' | '):''));
