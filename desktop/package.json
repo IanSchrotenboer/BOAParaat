@@ -1,7 +1,7 @@
 {
   "name": "boa-paraat-desktop",
   "productName": "Boa Paraat",
-  "version": "1.9.2",
+  "version": "1.10.0",
   "description": "Boa Paraat, de examentrainer voor boa's (PHB 1-4 en RTGB)",
   "author": "Boa Paraat <boaparaat@users.noreply.github.com>",
   "homepage": "https://github.com/IanSchrotenboer/BOAParaat",
@@ -21,11 +21,33 @@
     "appId": "nl.boa.phbtrainer",
     "productName": "Boa Paraat",
     "copyright": "Boa Paraat",
-    "directories": { "output": "dist", "buildResources": "build" },
-    "files": ["main.js", "preload.js", "app/**/*", "package.json"],
-    "protocols": [{ "name": "Boa Paraat inloggen", "schemes": ["nl.boa.phbtrainer"] }],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "app/**/*",
+      "package.json"
+    ],
+    "protocols": [
+      {
+        "name": "Boa Paraat inloggen",
+        "schemes": [
+          "nl.boa.phbtrainer"
+        ]
+      }
+    ],
     "win": {
-      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "artifactName": "Boa-Paraat-Windows.${ext}"
     },
     "nsis": {
@@ -35,15 +57,37 @@
       "artifactName": "Boa-Paraat-Windows.${ext}"
     },
     "mac": {
-      "target": [{ "target": "dmg", "arch": ["universal"] }],
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
       "category": "public.app-category.education",
       "identity": "-",
       "hardenedRuntime": false,
       "artifactName": "Boa-Paraat-Mac.${ext}"
     },
-    "dmg": { "title": "Boa Paraat" },
+    "dmg": {
+      "title": "Boa Paraat"
+    },
     "linux": {
-      "target": [{ "target": "AppImage", "arch": ["x64"] }, { "target": "deb", "arch": ["x64"] }],
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "category": "Education",
       "synopsis": "Examentrainer voor boa's",
       "maintainer": "Boa Paraat <boaparaat@users.noreply.github.com>",

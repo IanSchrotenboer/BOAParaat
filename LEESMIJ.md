@@ -1,10 +1,11 @@
-# Boa Paraat – app voor Android, iPhone en pc
+# Boa Paraat – app voor Android, iPhone en computer (Windows, Mac, Linux)
 
 Dit pakket bevat Boa Paraat, de examentrainer voor boa's, als app-project en als website. Je kiest hieronder de route die bij je past.
 
 | Wat wil je? | Route | Nodig |
 |---|---|---|
 | Een APK voor Android-telefoons | **A. APK via GitHub** | Gratis GitHub-account |
+| Een programma voor Windows, Mac of Linux | **E. Desktop-app via GitHub** | Gratis GitHub-account |
 | De app op iPhone én Android, zonder installatiebestand | **B. Web-app op het beginscherm** | Gratis GitHub-account |
 | Oefenen op de pc (Windows, Mac, Chromebook) | **D. Webversie** | Gratis GitHub-account, of eigen webruimte |
 | Een echte iPhone-app (App Store of TestFlight) | **C. iOS via Xcode** | Mac, Xcode en Apple Developer-account (€ 99 per jaar) |
@@ -79,6 +80,30 @@ npx cap open android
 ```
 
 Kies in Android Studio **Build → Build App Bundle(s) / APK(s) → Build APK(s)**.
+
+## E. Desktop-app voor Windows, Mac en Linux
+
+De map `desktop/` maakt van dezelfde app een echt programma (met Electron). Bij elke update bouwt GitHub (taak **Desktop-app bouwen**) automatisch:
+
+| Systeem | Bestand bij de release | Installeren |
+|---|---|---|
+| Windows 10 en 11 | `Boa-Paraat-Windows.exe` | Dubbelklikken. Boa Paraat installeert zich voor jou alleen (geen beheerdersrechten) en staat daarna in het startmenu. |
+| macOS (Intel en Apple-chip) | `Boa-Paraat-Mac.dmg` | Openen en Boa Paraat naar **Apps** slepen. |
+| Linux (Ubuntu, Debian, Mint) | `Boa-Paraat-Linux.deb` | Dubbelklikken of `sudo apt install ./Boa-Paraat-Linux.deb`. |
+| Linux (andere) | `Boa-Paraat-Linux.AppImage` | Uitvoerbaar maken (`chmod +x`) en starten. Op Ubuntu 24.04 en nieuwer liever de .deb gebruiken. |
+
+**Inloggen** gaat via je gewone browser: je kiest je Google-account en de browser vraagt of hij Boa Paraat mag openen. Daarna ben je ingelogd in het programma. Dit gebruikt hetzelfde terugkeeradres als de Android-app (`nl.boa.phbtrainer://login`), dus in Supabase en Google hoeft niets te veranderen.
+
+**Niet ondertekend.** De installatiebestanden zijn (nog) niet ondertekend met een betaald certificaat. Daarom waarschuwt het systeem de eerste keer:
+
+- **Windows:** "Windows heeft uw pc beschermd" → **Meer informatie** → **Toch uitvoeren**.
+- **Mac:** "Apple kan niet controleren…" → klik **Gereed**, ga naar **Systeeminstellingen → Privacy en beveiliging** en klik onderaan op **Open toch**. Daarna opent Boa Paraat gewoon.
+
+Wil je die waarschuwingen weg: voor Mac is een Apple Developer-account nodig (€ 99 per jaar, ondertekenen en notariseren), voor Windows een code-signing-certificaat. Beide kunnen later in de taak worden toegevoegd.
+
+**Updates:** bij het opstarten kijkt het programma of er op GitHub een nieuwere versie is en meldt dat met een knop **Downloaden**. Installeer de nieuwe versie over de oude heen; je voortgang blijft bewaard (en staat ook in je account).
+
+Zelf bouwen (Node.js 22 of nieuwer): `python3 release.py`, dan `cd desktop && npm install && npm run bouw`. Uitproberen zonder bouwen: `npm start`. De test `tests/desktop.js` draait het programma echt (inloggen via de browser, terugkeer, externe links, venster en voortgang na herstarten); `tests/desktop-pakket.js` start na het bouwen het echte programma op Windows, Mac en Linux.
 
 ## D. Webversie voor de pc
 
