@@ -29,16 +29,17 @@ const ext=app=>app.evaluate(()=>global.__boa.extern.slice());
   let e=await ext(app);const au=e.find(u=>/\/auth\/v1\/authorize\?provider=google/.test(u))||'';
   const PROEF=await app.evaluate(()=>global.__boa.PROEF);
   if(!PROEF)t(/redirect_to=nl\.boa\.phbtrainer%3A%2F%2Flogin/.test(au)&&/code_challenge=[\w-]{20,}/.test(au)&&/code_challenge_method=s256/.test(au),'inloggen opent Google in de standaardbrowser, met terugkeer naar nl.boa.phbtrainer://login (PKCE)');
-  else{const m=au.match(/redirect_to=(http%3A%2F%2F127\.0\.0\.1%3A\d+%2Flogin)/);
+  let terugLus='';
+  if(PROEF){const m=au.match(/redirect_to=(http%3A%2F%2F127\.0\.0\.1%3A\d+%2Flogin)/);
     t(!!m&&/code_challenge_method=s256/.test(au),'proef: inloggen opent Google met terugkeer naar een eigen adres op deze computer (niet nl.boa.phbtrainer://, dat blijft van de gewone app)');
-    // de browser komt terug op dat adres: het programma moet de terugkeer ontvangen
-    const terug=decodeURIComponent(m?m[1]:'')+'?error=access_denied&error_description=Proef%20terugkeer';
-    const r=await fetch(terug).catch(()=>null);const tx=r?await r.text():'';await w(500);
-    t(r&&r.ok&&/Boa Paraat Proef/.test(tx)&&/Inloggen is niet gelukt \(Proef terugkeer\)/.test(await p.textContent('#app')),'proef: terugkeer van de browser komt aan in het programma; de browser toont "je kunt terug"');
+    terugLus=decodeURIComponent(m?m[1]:'');
     t((await p.textContent('.brand .tag')).includes('proef')&&/proef/.test(await p.title()),'proef: herkenbaar als proefversie (kopbalk en venstertitel)')}
   await SHOT(p,'2-inloggen-browser');
   t(await p.locator('.lhint').count()===1&&/browser/.test(await p.textContent('.lhint'))&&await p.locator('[data-act="login"]').count()===1,'hint: verder inloggen in de browser; knop blijft beschikbaar');
   t(await p.evaluate(()=>!!localStorage.getItem('boa-pkce')),'PKCE-sleutel bewaard voor de terugkeer');
+  if(PROEF){ // de browser komt terug op het eigen adres: het programma moet de terugkeer ontvangen
+    const r=await fetch(terugLus+'?error=access_denied&error_description=Proef%20terugkeer').catch(()=>null);const tx=r?await r.text():'';await w(500);
+    t(r&&r.ok&&/Boa Paraat Proef/.test(tx)&&/Inloggen is niet gelukt \(Proef terugkeer\)/.test(await p.textContent('#app')),'proef: terugkeer van de browser komt aan in het programma; de browser toont "je kunt terug"')}
   await app.evaluate(()=>global.__boa.bezorg('nl.boa.phbtrainer://login?error=access_denied&error_description=Geannuleerd%20in%20test'));await w(400);
   t(/Inloggen is niet gelukt \(Geannuleerd in test\)/.test(await p.textContent('#app')),'terugkeer via nl.boa.phbtrainer://login komt aan in de app (foutmelding getoond)');
   await app.evaluate(()=>global.__boa.bezorg('https://example.org/login?code=x'));await w(200);
