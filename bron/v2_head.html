@@ -627,6 +627,27 @@ footer{font-size:13px;color:var(--muted);padding-block:8px 32px}
 }
 /* tijdens een examen of oefening op een heel smal scherm: alleen het schild, zodat klok en Stoppen passen */
 @media (max-width:359px){body:not(.tabs) .bname{display:none}}
+/* vouwtelefoons: smalle en lage buitenschermen (Galaxy Fold, Z Flip, Razr, Mix Flip, Find N Flip) */
+@media (max-width:359px){.tabbar a{font-size:10px;letter-spacing:-.01em}}
+@media (max-width:309px),(max-height:360px){.tabbar a{font-size:0;gap:0}.tabbar a .ic{width:36px;height:28px}.tabbar svg{width:22px;height:22px}}
+@media (max-height:540px){
+  .bar .wrap{min-height:46px;padding-block:5px;gap:10px}.mark{width:28px;height:28px}.brand{min-height:36px}.brand .tag{display:none}.brand b{font-size:16px}
+  :root{--tabh:52px}.tabbar a{gap:1px}
+  main{padding-block:12px 28px}.section{margin-top:22px}.stack{gap:12px}
+  h1{font-size:24px}.qtext{font-size:18px}.opt{padding:9px 12px;gap:10px}.hero{padding:12px 14px}
+  body.tabs footer{display:none}
+}
+@media (max-height:360px){:root{--tabh:44px}.bar .wrap{min-height:40px;padding-block:3px}.qa,.qa>.stack{gap:6px}.qa .chip{font-size:11px;padding:1px 7px}.qhead .eyebrow{display:none}.qtext{font-size:17px}h1{font-size:21px}.lede{font-size:14px}}
+@media (max-width:200px){.week{padding:10px 8px}.days{gap:2px}.days li{min-width:0}.days .dot{width:16px;height:16px;border-radius:5px}.days .dl{font-size:10px}.tabbar a .ic{width:auto;height:24px}.tabbar svg{width:18px;height:18px}.bar .wrap{gap:6px}.mark{width:24px;height:24px}}
+@media (max-width:240px){.wrap{padding-left:8px;padding-right:8px}.opt{grid-template-columns:22px minmax(0,1fr) 16px;gap:8px;padding:8px}.opt .k{width:22px;height:22px}h1{font-size:20px}.qtext{font-size:16px}.prof{display:none}}
+/* vouwtelefoons half open (scharnier, zie fold.js): boekhouding = scherm links en rechts, tafelhouding = boven en onder */
+:root[data-vouw="boek"] .wrap{max-width:none}
+:root[data-vouw="boek"] .homegrid,:root[data-vouw="boek"] .stofgrid,:root[data-vouw="boek"] #app[data-v="sessie"] .qsplit{display:grid;grid-template-columns:calc(var(--seg0) - 32px) calc(var(--seg1) - 32px);column-gap:calc(var(--gap) + 32px);align-items:start}
+:root[data-vouw="boek"] #app[data-v="sessie"]>*,:root[data-vouw="boek"] #app[data-v="profiel"]>*{max-width:none}
+:root[data-vouw="boek"] #app:not([data-v="sessie"]):not([data-v="home"]):not([data-v="stof"])>*{max-width:calc(var(--seg0) - 32px)}
+:root[data-vouw="boek"] .homeside{display:flex;flex-direction:column;gap:16px}
+:root[data-vouw="tafel"] #app[data-v="sessie"] .qa{min-height:calc(var(--seg0h) - var(--qatop) - 12px);align-content:end}
+:root[data-vouw="tafel"] #app[data-v="sessie"] .qb{margin-top:calc(var(--gap) + 12px)}
 @media print{
   .bar,.tabbar,footer,.toc,.homeside,.btn,.toast,.kdlg{display:none!important}
   body{background:#fff}

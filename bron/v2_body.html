@@ -199,7 +199,7 @@ function paintNav(){
   const items=[["home","Overzicht",ICON.home]].concat(MODS.map(m=>[m.id,m.code,ICON[MODICON[m.id]],m.name])).concat([["stof","Studiestof",ICON.doc]]);
   const cur=id=>r===id||(id==="stof"&&r.indexOf("stof-")===0);
   $("#topnav").innerHTML=items.map(([id,l,ic,full])=>`<a href="#${id}"${cur(id)?' aria-current="page"':""}${full?` title="${esc(full)}"`:""}><span class="ic" aria-hidden="true">${ic}</span>${l}</a>`).join("");
-  const tabs=[["home","Overzicht",ICON.home]].concat(MODS.map(m=>[m.id,m.code,ICON[MODICON[m.id]],m.code+" "+m.name])).concat([["stof","Stof",ICON.doc,"Studiestof"]]);
+  const tabs=[["home","Overzicht",ICON.home,"Overzicht"]].concat(MODS.map(m=>[m.id,m.code,ICON[MODICON[m.id]],m.code+" "+m.name])).concat([["stof","Stof",ICON.doc,"Studiestof"]]);
   $("#tabbar").innerHTML=tabs.map(([id,l,ic,full])=>`<a href="#${id}"${cur(id)?' aria-current="page"':""}${full?` aria-label="${esc(full)}"`:""}><span class="ic" aria-hidden="true">${ic}</span>${esc(l)}</a>`).join("");
   $("#topnav").hidden=inSession;$("#tabbar").hidden=inSession;$("#profBtn").hidden=inSession;
   document.body.classList.toggle("tabs",!inSession);
@@ -259,7 +259,7 @@ function render(){
   else h=viewHome();
   tabTransition(app);app.dataset.v=v;app.innerHTML=h;
   if(pageAnim){pageAnim=false;app.classList.remove("enter","swl","swr");void app.offsetWidth;app.classList.add("enter");if(swipeIn)app.classList.add(swipeIn)}swipeIn="";
-  paintNav();wvAfterRender();enhanceSelects(app);tuneInputs(app);pcAfterRender(v);
+  paintNav();wvAfterRender();enhanceSelects(app);tuneInputs(app);pcAfterRender(v);vouwStand();
 }
 // ---------- studiestof ----------
 const STOFBY = Object.fromEntries(STOF.map(s=>[s.id,s]));
@@ -553,14 +553,14 @@ function viewQuestion(){
       ${confirmSubmit?submitConfirm():""}
       <details class="panel"${n<=20?" open":""}><summary style="cursor:pointer;font-weight:600">Overzicht (${doneCount}/${n} beantwoord)</summary><div class="navgrid" style="margin-top:12px">${S.items.map((x,k)=>`<button class="nav${x.pick!==null?" done":""}${k===S.i?" cur":""}${x.flag?" flag":""}" data-act="go" data-k="${k}" aria-label="Vraag ${k+1}${x.pick!==null?", beantwoord":""}${x.flag?", gemarkeerd":""}">${k+1}</button>`).join("")}</div>
       <div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn" data-act="ask-submit">Inleveren</button></div></details>`}
-  return `<div class="stack">
+  return `<div class="stack qsplit"><div class="stack qa">
     <div class="stack" style="gap:8px"><div class="qhead"><span class="eyebrow">${esc(S.title)}</span><span class="mono small">Vraag ${S.i+1} / ${n}</span></div>
     ${qProgress(practice,answered,doneCount)}</div>
     ${confirmStop?`<div class="confirm row"><span>${S.mode==="oefen"?"Stoppen met oefenen?":"Stoppen zonder in te leveren? Deze poging telt niet mee."}</span><button class="btn danger" data-act="stop-yes">Stoppen</button><button class="btn" data-act="stop-no">Doorgaan</button></div>`:""}
     <div>${D4.has(q.c)?`<span class="chip ov">OV</span> `:""}<span class="chip">${esc(CATS[q.c][1])}</span>${it.rep?` <span class="chip rep">Herhaling</span>`:""}${achter?" "+achter:""}</div>
-    <p class="qtext" id="qtext">${esc(q.q)}</p>
-    <ul class="opts${answered?" done":""}" aria-labelledby="qtext">${opts}</ul>
-    ${fb}${nav}
+    <p class="qtext" id="qtext">${esc(q.q)}</p></div>
+    <div class="stack qb"><ul class="opts${answered?" done":""}" aria-labelledby="qtext">${opts}</ul>
+    ${fb}${nav}</div>
   </div>`;
 }
 // voortgang per vraag: bij oefenen goed (blauw) en fout (gedempt rood); bij toets en examen alleen beantwoord

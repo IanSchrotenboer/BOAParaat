@@ -112,7 +112,7 @@ Dit script doet bij elke update hetzelfde:
 2. zoekt onnodige code: ongebruikte functies, variabelen, CSS-klassen, CSS-variabelen, animaties en pictogrammen, knoppen zonder functie, dubbele functies, achtergebleven testcode (`console.log`, `debugger`, `alert`) en losse bestanden die niet in de app horen;
 3. controleert of de code ook op oudere iPhones en Android-telefoons werkt;
 4. controleert de vragenbank en studiestof (4 verschillende antwoorden, geen dubbele vragen, verwijzingen kloppen, het juiste antwoord is niet steeds het langste);
-5. test de app in een browser op telefoon, tablet en pc, inclusief terugknop en terug-gebaar, vegen, de praktijkoefening, de toetsmatrijzen en de sneltoetsen, en draait een stresstest (`tests/stress.js`: zware gebruiker, trage telefoon, volle opslag, 8 uur open) en een chaostest (`tests/chaos.js`, zie hieronder);
+5. test de app in een browser op telefoon, tablet, vouwtelefoon (`tests/vouw.js`: alle Galaxy Z Fold/Flip, Pixel Fold, Razr, OnePlus Open, Oppo, Honor, Vivo, Xiaomi en Huawei, dicht, open en gedraaid, plus boek- en tafelstand langs het scharnier) en pc, inclusief terugknop en terug-gebaar, vegen, de praktijkoefening, de toetsmatrijzen en de sneltoetsen, en draait een stresstest (`tests/stress.js`: zware gebruiker, trage telefoon, volle opslag, 8 uur open) en een chaostest (`tests/chaos.js`, zie hieronder);
 6. verhoogt bij een gewijzigde app het versienummer in `www/sw.js`, zodat iedereen de update krijgt;
 7. pakt `uit/Boa-Paraat-app.zip` en `uit/Boa-Paraat-web.zip` in.
 

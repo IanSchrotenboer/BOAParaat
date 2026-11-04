@@ -52,6 +52,14 @@ jobs:
               i=s.index('</intent-filter>',s.index('android.intent.action.MAIN'))+len('</intent-filter>')
               s=s[:i]+f+s[i:]
           assert 'singleTask' in s, 'MainActivity moet launchMode singleTask hebben'
+          # vouwtelefoons: bij open- en dichtvouwen niet herstarten (anders verlies je je plek in een sessie)
+          import re
+          m=re.search(r'android:configChanges="([^"]*)"',s)
+          assert m, 'MainActivity mist configChanges'
+          nodig=['orientation','screenSize','smallestScreenSize','screenLayout','density']
+          mist=[k for k in nodig if k not in m.group(1).split('|')]
+          if mist: s=s.replace(m.group(0),'android:configChanges="%s"'%'|'.join(m.group(1).split('|')+mist))
+          print('configChanges:',re.search(r'android:configChanges="([^"]*)"',s).group(1))
           open(p,'w').write(s);print('deeplink toegevoegd')
           PY
           grep -n "nl.boa.phbtrainer\|launchMode" android/app/src/main/AndroidManifest.xml
