@@ -1,6 +1,6 @@
 {
   "name": "boa-paraat",
-  "version": "1.11.0",
+  "version": "1.11.1",
   "private": true,
   "description": "Boa Paraat, examentrainer voor boa's - Android- en iOS-app via Capacitor",
   "scripts": {

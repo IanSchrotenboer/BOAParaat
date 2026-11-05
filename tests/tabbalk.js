@@ -35,8 +35,17 @@ async function open(b,opts){const ctx=await b.newContext(Object.assign({viewport
   await ga(p,'phb1');await p.click('#app .cat [data-act="oefen"]');await w(400);
   t(await p.locator('#tabbar').isHidden(),'tijdens het oefenen geen tabbalk');
   await p.evaluate(()=>{const s=document.getElementById('stopBtn');s&&s.click()});await w(150);await p.evaluate(()=>{const y=document.querySelector('[data-act="stop-yes"],[data-act="finish"]');y&&y.click()});await w(300);
+  // midden: app-naam en modulerij
+  const midden=()=>p.evaluate(()=>{const br=document.querySelector('.brand').getBoundingClientRect();const row=document.querySelector('#app .modrow');const as=row?[...row.querySelectorAll('a')].map(a=>a.getBoundingClientRect()):[];
+    return {brand:Math.abs((br.left+br.right)/2-innerWidth/2),scroll:row?row.scrollWidth>row.clientWidth:null,l:as.length?as[0].left:0,r:as.length?innerWidth-as[as.length-1].right:0}});
+  await ga(p,'home');let m=await midden();t(m.brand<=2,'kopbalk: app-naam in het midden');
+  await ga(p,'stof');m=await midden();t(m.brand<=2,'kopbalk: ook op andere schermen in het midden');
+  await ga(p,'phb1');await p.click('#app .cat [data-act="oefen"]');await w(400);
+  t(await p.evaluate(()=>{const s=document.getElementById('stopBtn').getBoundingClientRect(),b=document.querySelector('.brand').getBoundingClientRect();return s.width>0&&b.left<40&&s.right>innerWidth-40}),'tijdens het oefenen: naam links en Stoppen rechts (zoals voorheen)');
+  await p.evaluate(()=>{const s=document.getElementById('stopBtn');s&&s.click()});await w(150);await p.evaluate(()=>{const y=document.querySelector('[data-act="stop-yes"],[data-act="finish"]');y&&y.click()});await w(300);
   // schermbreedtes
-  for(const [bw,bh] of [[360,780],[320,640],[280,653]]){await p.setViewportSize({width:bw,height:bh});await ga(p,'phb4');t(await pastAlles(p),bw+' breed: tabbalk en knoppen passen, geen horizontale scroll')}
+  for(const [bw,bh] of [[412,900],[390,844],[360,780],[320,640],[280,653]]){await p.setViewportSize({width:bw,height:bh});await ga(p,'phb4');const mm=await midden();
+    t(await pastAlles(p)&&(bw<300||(!mm.scroll&&Math.abs(mm.l-mm.r)<=2&&mm.brand<=2)),bw+' breed: alles past'+(bw<300?' (modulerij schuift)':', naam en PHB 1 t/m RTGB netjes in het midden'))}
   await p.setViewportSize({width:260,height:512});await ga(p,'home');
   t(await p.evaluate(()=>[...document.querySelectorAll('#tabbar a')].every(a=>parseFloat(getComputedStyle(a).fontSize)===0&&a.getAttribute('aria-label'))),'klein buitenscherm (Flip): alleen pictogrammen, met namen voor de schermlezer');
   t(!p._errs.length,'telefoon: geen JS-fouten'+(p._errs.length?': '+p._errs.join(' | '):''));
