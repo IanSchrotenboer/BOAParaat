@@ -50,12 +50,14 @@ jobs:
           node-version: 22
       - name: Electron en Playwright installeren
         run: |
-          npm install --no-save playwright@1.63.0
+          # Playwright apart, zodat de Android-onderdelen uit de hoofdmap (met downloads) niet mee hoeven
+          npm install --no-save --prefix "$RUNNER_TEMP/pw" playwright@1.63.0
           cd desktop && npm install
       - name: Desktop-app testen (tests/desktop.js)
         run: xvfb-run -a node tests/desktop.js
         env:
           BOA_SHOTS: ${{ github.workspace }}/desktop-schermen
+          NODE_PATH: ${{ runner.temp }}/pw/node_modules
       - name: Schermafdrukken bewaren
         if: always()
         uses: actions/upload-artifact@v4
@@ -89,7 +91,8 @@ jobs:
       - name: Gebouwde app starten (rooktest)
         shell: bash
         run: |
-          npm install --no-save playwright@1.63.0
+          npm install --no-save --prefix "$RUNNER_TEMP/pw" playwright@1.63.0
+          export NODE_PATH="$RUNNER_TEMP/pw/node_modules"
           if [ "$RUNNER_OS" = "Linux" ]; then xvfb-run -a node tests/desktop-pakket.js; else node tests/desktop-pakket.js; fi
       - name: Controleren (Mac)
         if: runner.os == 'macOS'
