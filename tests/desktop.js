@@ -57,7 +57,7 @@ const ext=app=>app.evaluate(()=>global.__boa.extern.slice());
     localStorage.setItem('phb-trainer-v1',JSON.stringify({s:{},h:[],x:[],eig:'00000000-0000-0000-0000-000000000001',p:pr}))},profiel);
   await p.reload();await w(800);
   t(await p.locator('#app h1').count()>=1&&!(await p.locator('[data-act="login"]').count()),'na inloggen: de app opent op het overzicht');
-  if(PROEF)t(await p.locator('#tabbar .slotje').count()===3&&await p.locator('.hlist .chip.plus').count()===3,'proef: PHB 3, PHB 4 en RTGB achter de betaalmuur');await SHOT(p,'3-overzicht');
+  if(PROEF)t(await p.locator('#topnav .slotje').count()===3&&await p.locator('.hlist .chip.plus').count()===3,'proef: PHB 3, PHB 4 en RTGB achter de betaalmuur');await SHOT(p,'3-overzicht');
   await p.evaluate(()=>location.hash='stof');await w(300);
   await SHOT(p,'4-studiestof');
   t(!/Kennisboekje|Lesdia/.test(await p.textContent('#app')),'studiestof zonder Kennisboekje en Lesdia\'s');
