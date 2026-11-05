@@ -66,7 +66,8 @@ async function inloggen(p){await p.click('[data-act="login"]');await p.waitForUR
 async function kies(p,id,label){await p.click('#'+id+'-cs');await w(120);await p.locator('.cs-list li',{hasText:label}).first().click();await w(150)}
 async function welkom(p){await p.fill('#obWerk','Gemeente Utrecht');await kies(p,'obRol','Scholier');if(await p.locator('[data-act="ob-dom"][data-v="1"]').count())await p.click('[data-act="ob-dom"][data-v="1"]');await p.click('.wgo');await w(2200);
   await p.evaluate(()=>{const b=document.querySelector('.kdlg [data-act], .kdlg button');if(b)b.click()});await w(200)}
-const slotOp=p=>p.evaluate(()=>['phb3','phb4','rtgb'].map(id=>!!document.querySelector(`#tabbar a[href="#${id}"] .slotje`)));
+// slotjes in de modulenavigatie (bovenbalk; in de proefversie staan de modules niet meer in de tabbalk)
+const slotOp=p=>p.evaluate(()=>['phb3','phb4','rtgb'].map(id=>!!document.querySelector(`#topnav a[href="#${id}"] .slotje`)));
 async function codeInvullen(p,code){await ga(p,'profiel');await p.fill('#licCode',code);await p.click('#licForm button[type=submit]');await w(700)}
 (async()=>{
   SUPA='http://127.0.0.1:'+await listen(supa);APP='http://127.0.0.1:'+await listen(app);
@@ -74,8 +75,11 @@ async function codeInvullen(p,code){await ga(p,'profiel');await p.fill('#licCode
   // ================= A. zonder account (los bestand of voorbeeld) =================
   let p=await apparaat(b,'lokaal.html');
   await p.evaluate(pr=>localStorage.setItem('phb-trainer-v1',JSON.stringify({s:{},h:[],x:[],p:pr})),PROFIEL);await p.reload();await w(400);
-  t((await slotOp(p)).every(Boolean)&&!(await p.locator('#tabbar a[href="#phb1"] .slotje').count()),'tabbalk: slotje op PHB 3, PHB 4 en RTGB, niet op PHB 1');
-  t(/\(Plus\)/.test(await p.getAttribute('#tabbar a[href="#rtgb"]','aria-label')),'schermlezer: tab RTGB meldt dat hij bij Plus hoort');
+  t((await slotOp(p)).every(Boolean)&&!(await p.locator('#topnav a[href="#phb1"] .slotje').count()),'modulenavigatie: slotje op PHB 3, PHB 4 en RTGB, niet op PHB 1');
+  await p.evaluate(()=>location.hash='phb1');await w(300);
+  t(await p.locator('#app .modrow a .slotje').count()===3&&!(await p.locator('#app .modrow a[href="#phb1"] .slotje').count()),'knoppen bovenaan een module: slotje op PHB 3, PHB 4 en RTGB');
+  t(/\(Plus\)/.test(await p.getAttribute('#topnav a[href="#rtgb"]','title')),'RTGB in de navigatie meldt dat hij bij Plus hoort');
+  await p.evaluate(()=>location.hash='home');await w(300);
   t((await p.textContent('.brand .tag')).includes('proef'),'kopbalk: zichtbaar dat dit de proefversie is');
   t(await p.locator('.hlist .chip.plus').count()===3,'overzicht: drie modules met het label Plus in plaats van een percentage');
   for(const id of ['phb3','phb4','rtgb']){await ga(p,id);

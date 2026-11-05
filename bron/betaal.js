@@ -99,7 +99,7 @@ function viewPlus(modId){
     <div class="panel stack"><b>Licentie van je werkgever?</b><p class="small">Heb je een licentiecode gekregen, bijvoorbeeld van de NS? Dan heb je Plus niet nodig. Vul je code in bij <a href="#profiel">Profiel → Licentie</a>.</p></div>
   </div>`}
 function viewSlot(m){const n=inMod(m.id).length;
-  return `<div class="stack"><div class="stack" style="gap:8px"><span class="eyebrow">${esc(m.code)} · ${n} vragen</span><h1>${esc(m.name)}</h1><p class="lede">${esc(m.desc)}</p></div>
+  return `<div class="stack">${modChips(m.id)}<div class="stack" style="gap:8px"><span class="eyebrow">${esc(m.code)} · ${n} vragen</span><h1>${esc(m.name)}</h1><p class="lede">${esc(m.desc)}</p></div>
     <div class="panel stack slotkaart"><div class="slotkop">${SLOT}<div class="stack" style="gap:2px"><b>Deze module hoort bij Boa Paraat Plus</b><span class="small">${PLUS_PRIJS} per maand, maandelijks opzegbaar. Ook PHB 3, PHB 4 en RTGB.</span></div></div>
       <div class="row"><a class="btn hi" href="#plus-${m.id}">Bekijk Plus</a></div></div>
     <div class="section stack"><h2>Wat je hier oefent</h2><ul class="slotlijst">${catsOf(m).map(c=>`<li>${esc(CATS[c][1])} <span class="small">${inCat(c).length} vragen</span></li>`).join("")}</ul></div></div>`}

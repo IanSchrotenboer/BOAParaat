@@ -36,6 +36,7 @@
 // ---------- configuratie ----------
 /*__VERSIE__*/
 const BETAALMUUR=/*__BETAALMUUR__*/false; // proefversie met betaalmuur (zie betaal.js)
+const TABBALK=/*__TABBALK__*/false; // proefversie met rustigere tabbalk B of C (zie balk.js)
 const CATS = {
   sr:["phb1","Staatsrecht"], ro:["phb1","Rechterlijke organisatie en OM"], boa:["phb1","Opsporingsambtenaar, boa en privacy"], pol:["phb1","De politie"],
   str:["phb1","Materieel en formeel strafrecht"], vd:["phb1","Verdachte, verhoor en raadsman"], bev:["phb1","Bevoegdheden algemeen en jeugd"], kl:["phb1","Vervolging en klachtdelicten"],
@@ -202,7 +203,7 @@ function paintNav(){
   const sl=id=>opSlot(id)?SLOT:"",slT=id=>opSlot(id)?" (Plus)":"";
   $("#topnav").innerHTML=items.map(([id,l,ic,full])=>`<a href="#${id}"${cur(id)?' aria-current="page"':""}${full?` title="${esc(full+slT(id))}"`:""}><span class="ic" aria-hidden="true">${ic}${sl(id)}</span>${l}</a>`).join("");
   const tabs=[["home","Overzicht",ICON.home,"Overzicht"]].concat(MODS.map(m=>[m.id,m.code,ICON[MODICON[m.id]],m.code+" "+m.name])).concat([["stof","Stof",ICON.doc,"Studiestof"]]);
-  $("#tabbar").innerHTML=tabs.map(([id,l,ic,full])=>`<a href="#${id}"${cur(id)?' aria-current="page"':""}${full?` aria-label="${esc(full+slT(id))}"`:""}><span class="ic" aria-hidden="true">${ic}${sl(id)}</span>${esc(l)}</a>`).join("");
+  if(TABBALK)balkTeken(r);else $("#tabbar").innerHTML=tabs.map(([id,l,ic,full])=>`<a href="#${id}"${cur(id)?' aria-current="page"':""}${full?` aria-label="${esc(full+slT(id))}"`:""}><span class="ic" aria-hidden="true">${ic}${sl(id)}</span>${esc(l)}</a>`).join("");
   $("#topnav").hidden=inSession;$("#tabbar").hidden=inSession;$("#profBtn").hidden=inSession;
   document.body.classList.toggle("tabs",!inSession);
   const pb=$("#profBtn");if(r.indexOf("profiel")===0||r==="fouten")pb.setAttribute("aria-current","page");else pb.removeAttribute("aria-current");
@@ -260,11 +261,11 @@ function render(){
   else if(r.indexOf("verslag-")===0){v="verslag";h=viewWVResult(r.slice(8))}
   else if(r==="profiel"||r==="profiel-examens"||r==="profiel-phb3"||r==="profiel-fouten"||r==="fouten"){v="profiel";h=viewProfile(r==="profiel-examens"?"examens":r==="profiel-fouten"||r==="fouten"?"fouten":"voortgang")}
   else if(r==="stof"||r.indexOf("stof-")===0){v="stof";h=viewStof()}
-  else if(MODBY[r]){v="module";h=opSlot(r)?viewSlot(MODBY[r]):viewModule(MODBY[r])}
+  else if(MODBY[r]){v="module";if(TABBALK)store.p.lm=r;h=opSlot(r)?viewSlot(MODBY[r]):viewModule(MODBY[r])}
   else h=viewHome();
   tabTransition(app);app.dataset.v=v;app.innerHTML=h;
   if(pageAnim){pageAnim=false;app.classList.remove("enter","swl","swr");void app.offsetWidth;app.classList.add("enter");if(swipeIn)app.classList.add(swipeIn)}swipeIn="";
-  paintNav();wvAfterRender();enhanceSelects(app);tuneInputs(app);pcAfterRender(v);vouwStand();
+  paintNav();wvAfterRender();enhanceSelects(app);tuneInputs(app);pcAfterRender(v);vouwStand();if(TABBALK)modChipsScroll();
 }
 // ---------- studiestof ----------
 const STOFBY = Object.fromEntries(STOF.map(s=>[s.id,s]));
@@ -336,7 +337,7 @@ function domSwitch(){
 }
 function viewModule(m){
   const list=inMod(m.id);const wrong=list.filter(q=>lastWrong(q.id)).length;const cats=catsOf(m);
-  return `<div class="stack">
+  return `<div class="stack">${modChips(m.id)}
     <div class="stack" style="gap:8px"><span class="eyebrow">${m.code} · ${list.length} vragen</span><h1>${esc(m.name)}</h1><p class="lede">${esc(m.desc)}</p></div>
     ${m.id==="phb1"?`<div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}${dom()==="4"?`<p class="note">Je oefent de algemene stof plus de Wet personenvervoer 2000, het Besluit personenvervoer 2000 en toezicht volgens de Awb. Het oefenexamen bevat 12 OV-vragen en 38 algemene vragen.</p>`:""}</div>`:""}
     ${(m.notes&&m.notes[dom()])||m.note?`<p class="note">${esc((m.notes&&m.notes[dom()])||m.note)}</p>`:""}
@@ -495,7 +496,7 @@ function viewProfile(tab){
           <div class="field" id="pAkteF"${p.rol==="scholier"?" hidden":""}><label for="pAkte">Akte van opsporingsbevoegdheid geldig tot</label><input id="pAkte" name="akte" type="date" value="${esc(p.akte)}"></div>
         </div>
         <div class="field"><span style="font-size:13px;font-weight:600;color:var(--muted)">Domein</span>${domSwitch()}</div>
-        <div class="field"><span style="font-size:13px;font-weight:600;color:var(--muted)" id="themaL">Weergave</span>${themeSwitch()}</div>
+        <div class="field"><span style="font-size:13px;font-weight:600;color:var(--muted)" id="themaL">Weergave</span>${themeSwitch()}</div>${balkSwitch()}
         <div><button class="btn go" type="submit">Profiel opslaan</button></div>
       </form>
     </div>
@@ -659,6 +660,7 @@ document.addEventListener("click",e=>{
   if(["login","sync","logout","logout-no","acc-del","acc-del-no","acc-del-yes"].includes(act)&&cloudAct(act))return;
   if((act.indexOf("lic-")===0||act==="ob-lic")&&licAct(act))return;
   if((act.indexOf("plus-")===0||act.indexOf("abo-")===0)&&plusAct(act,{...d}))return;
+  if(act==="balk"){store.p.balk=d.v==="c"?"c":"b";save();render();toast("Tabbalk "+store.p.balk.toUpperCase()+" staat aan");return}
   if(["oefen","mix","fouten","herhaal","toets","examen","mtx"].includes(act)){launch(act,{...d});return}
   if(act==="akte-edit"){const go=()=>{const f=$("#pAkte");if(f){f.scrollIntoView({block:"center"});f.focus()}};if($("#pAkte"))go();else{location.hash="profiel";setTimeout(go,120)}return}
   if(act==="thema"){store.p.thema=d.v;save();applyTheme();render();toast(d.v==="donker"?"Donkere weergave":d.v==="licht"?"Lichte weergave":"Weergave volgt je systeem");return}
