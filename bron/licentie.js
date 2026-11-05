@@ -7,11 +7,13 @@
 // controlegetal in de app bewaard. Let op: dit is geen beveiliging, de echte toegang per gebruiker volgt
 // met de accounts.
 let licFout="",licWeg=false;
+// logo bij de weergave: een organisatie kan een apart logo voor donker aanleveren (<id>_donker-logo.png)
+const licLogo=l=>(isDark()&&LIC[l].logoDk)||LIC[l].logo;
 function applyLic(){const l=lic(),de=document.documentElement;
   if(l)de.setAttribute("data-lic",l);else de.removeAttribute("data-lic");
-  const tag=document.querySelector(".brand .tag");if(tag)tag.textContent=l?"Examentrainer voor "+LIC[l].kort:"De Examentrainer";
+  const tag=document.querySelector(".brand .tag");if(tag)tag.textContent=(l?"Examentrainer voor "+LIC[l].kort:"De Examentrainer")+(PROEF?" · proef":"");
   let lg=document.querySelector(".brand .liclogo");
-  if(l&&LIC[l].logo){if(!lg){lg=document.createElement("img");lg.className="liclogo";const b=document.querySelector(".brand");if(b)b.appendChild(lg)}if(lg.getAttribute("src")!==LIC[l].logo){lg.src=LIC[l].logo;lg.alt=LIC[l].kort}}
+  if(l&&LIC[l].logo){if(!lg){lg=document.createElement("img");lg.className="liclogo";const b=document.querySelector(".brand");if(b)b.appendChild(lg)}const src=licLogo(l);if(lg.getAttribute("src")!==src){lg.src=src;lg.alt=LIC[l].kort}}
   else if(lg)lg.remove();
   const br=document.querySelector(".brand");if(br)br.setAttribute("aria-label","Boa Paraat"+(l?" voor "+LIC[l].kort:"")+", naar overzicht")}
 function licActiveer(code,bron){const l=licVan(code);
@@ -19,7 +21,7 @@ function licActiveer(code,bron){const l=licVan(code);
   store.p.lic=l;if(LIC[l].dom)store.p.dom=LIC[l].dom;licFout="";if(bron!=="welkom")save();applyLic();return true}
 function licSectie(){const l=lic();
   if(l)return `<div class="section stack" id="licentie"><h2>Licentie</h2><div class="panel stack">
-      <div class="lichead">${LIC[l].logo?`<img class="liclogo" src="${LIC[l].logo}" alt="">`:""}<div class="stack" style="gap:2px"><b>${esc(LIC[l].naam)}</b><span class="small">Je gebruikt Boa Paraat met een licentie van je werkgever.${LIC[l].dom==="4"?" De app staat vast op domein IV openbaar vervoer.":""}</span></div></div>
+      <div class="lichead">${LIC[l].logo?`<img class="liclogo" src="${licLogo(l)}" alt="">`:""}<div class="stack" style="gap:2px"><b>${esc(LIC[l].naam)}</b><span class="small">Je gebruikt Boa Paraat met een licentie van je werkgever.${LIC[l].dom==="4"?" De app staat vast op domein IV openbaar vervoer.":""}</span></div></div>
       ${licWeg?`<div class="confirm stack" style="gap:10px"><span><b>Licentie verwijderen?</b> De app krijgt weer de gewone opmaak en je kunt zelf je domein kiezen. Je voortgang blijft bewaard.</span><div class="row"><button class="btn danger" data-act="lic-weg-ja">Ja, verwijderen</button><button class="btn" data-act="lic-weg-nee">Annuleren</button></div></div>`
         :`<div class="row"><button class="btn ghost" data-act="lic-weg">Licentie verwijderen</button></div>`}</div></div>`;
   return `<div class="section stack" id="licentie"><div><h2>Licentie</h2><p class="small">Heb je van je werkgever een licentiecode gekregen? Vul die hier in.</p></div>
@@ -34,3 +36,4 @@ function licAct(act){
   if(act==="ob-lic"){obDraft=obCollect();const c=(document.getElementById("obLic")||{}).value||"";if(licActiveer(c,"welkom")){obDom=LIC[lic()].dom||obDom;delete obErr.dom;toast("Licentie van "+LIC[lic()].naam+" toegepast")}render();const i=document.getElementById("obLic");if(i&&!lic())i.value=c;return true}
   return false}
 applyLic();
+document.addEventListener("boa-theme",()=>applyLic());

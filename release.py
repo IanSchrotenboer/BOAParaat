@@ -92,6 +92,11 @@ pwa = ('<link rel="manifest" href="manifest.webmanifest">\n<link rel="icon" type
 web = full.replace('<meta name="mobile-web-app-capable" content="yes">\n', '<meta name="mobile-web-app-capable" content="yes">\n' + pwa, 1)
 web = web.replace('</body>', '<script>if("serviceWorker" in navigator&&!window.Capacitor&&/^https?:$/.test(location.protocol)){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>\n</body>', 1)
 open(os.path.join(WWW, 'index.html'), 'w', encoding='utf-8').write(web)
+# proefbouw (voor de test-APK, het testprogramma en het losse proefbestand): 'proef' in de kopbalk en de titel
+if full.count('/*__PROEF__*/false') != 1: fout('proefbouw: de schakelaar PROEF staat niet precies één keer in de app')
+PROEFBOUW = lambda t: t.replace('/*__PROEF__*/false', 'true').replace('<title>Boa Paraat', '<title>Boa Paraat (proef)', 1)
+open(os.path.join(UIT, 'Boa-Paraat-proef.html'), 'w', encoding='utf-8').write(PROEFBOUW(full))
+open(os.path.join(UIT, 'proef-www-index.html'), 'w', encoding='utf-8').write(PROEFBOUW(web))
 # website: over.html en privacy.html (nodig voor de merknaam op het inlogscherm van Google)
 SITE = json.load(open(os.path.join(BRON, 'site.json')))
 for naam in ('over.html', 'privacy.html'):
@@ -228,7 +233,7 @@ if not SNEL:
     env = dict(os.environ, BOA_URL='file://' + os.path.join(UIT, 'Boa-Paraat.html'), BOA_SHOTS=os.path.join(UIT, 'schermen'))
     os.makedirs(env['BOA_SHOTS'], exist_ok=True)
     env['CHAOS_SEED'] = os.environ.get('CHAOS_SEED', str(int(time.time()) % 100000)); ok('chaostest met zaad %s' % env['CHAOS_SEED'])
-    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'rtgb.js', 'matrijs.js', 'tablet.js', 'tabbalk.js', 'vouw.js', 'fouten.js', 'licentie.js', 'stress.js', 'cloud.js', 'chaos.js']: draai(t, env)
+    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'rtgb.js', 'matrijs.js', 'tablet.js', 'tabbalk.js', 'vouw.js', 'fouten.js', 'licentie.js', 'kelman.js', 'stress.js', 'cloud.js', 'chaos.js']: draai(t, env)
     if os.path.exists(os.path.join(ROOT, 'desktop', 'node_modules', 'electron')): draai('desktop.js', env)
     else: let_op('desktop.js: Electron is hier niet geïnstalleerd; de desktoptest draait op GitHub (Desktop-app bouwen)')
 else:
