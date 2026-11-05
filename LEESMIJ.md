@@ -107,6 +107,8 @@ Zelf bouwen (Node.js 22 of nieuwer): `python3 release.py`, dan `cd desktop && np
 
 ## D. Webversie voor de pc
 
+Op telefoon en tablet staat onderin een tabbalk met vier tabbladen: Overzicht, Oefenen, Studiestof en Profiel. Oefenen opent de laatst gebruikte module; bovenaan elke module staan alle modules als knoppen (`bron/balk.js`, getest in `tests/tabbalk.js`).
+
 De webversie is dezelfde app als website. Op een scherm vanaf ongeveer 1100 pixels breed krijg je een pc-indeling:
 
 - een bredere pagina met een zijbalk op het overzicht (voortgang, sneltoetsen en installeren);
@@ -184,13 +186,6 @@ Op de tak `proef-betaalmuur` staat een proefversie. Gebruikers merken er niets v
 - **Boa Paraat Plus (€ 5,99 per maand):** PHB 3 (met de praktijkoefening), PHB 4 en RTGB (met de RTGB-samenvattingen). Op slot staan een slotje in de tabbalk, een slotscherm per module en de Plus-pagina met een bevestigingsstap.
 - **Betalen is nagebootst:** met een account via de databasefunctie `proef_abonnement` (geldt op al je apparaten), zonder account (los bestand) alleen op dat apparaat. Opzeggen kan in Profiel → Abonnement; je houdt toegang tot het einde van de maand.
 - **Eenmalige licentiecodes:** een code werkt één keer. Bij het inwisselen koppelt de database hem aan het Google-account; daarna kan niemand anders hem gebruiken. Op een ander apparaat log je in met hetzelfde account en de licentie gaat vanzelf mee. Hooguit 10 onjuiste codes per uur per gebruiker. Een organisatielicentie (bijvoorbeeld NS) geeft alles, zonder abonnement.
-
-**Rustigere tabbalk (proef).** De proefversie heeft op telefoon en tablet een andere tabbalk, te kiezen in Profiel → Tabbalk (proef):
-
-- **B:** Overzicht · Oefenen · Studiestof · Profiel.
-- **C:** Overzicht · Oefenen · Fouten (met het aantal open fouten) · Stof · Profiel.
-
-Oefenen opent de laatst gebruikte module; bovenaan elke module staan de modules als knoppen (PHB 1 t/m RTGB). Op de pc blijft de bovenbalk met alle modules. De schakelaar heet `TABBALK` (net als `BETAALMUUR` alleen aan in de proefbouw); `tests/tabbalk.js` test beide varianten.
 
 **Codes maken** (alleen de beheerder), in Supabase → SQL Editor:
 

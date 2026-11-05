@@ -16,9 +16,11 @@ const store=p=>p.evaluate(()=>JSON.parse(localStorage.getItem('phb-trainer-v1')|
   const b=await chromium.launch();
   let p=await open(b);
   // tabbalk en overzicht
-  const tabs=await p.evaluate(()=>[...document.querySelectorAll('#tabbar a')].map(a=>a.getAttribute('href')));
-  t(tabs.join(' ')==='#home #phb1 #phb2 #phb3 #phb4 #rtgb #stof','tabbalk: Overzicht, PHB 1–4, RTGB, Studiestof ('+tabs.length+' tabbladen)');
-  t((await p.getAttribute('#tabbar a[href="#rtgb"]','aria-label')||'').includes('Ambtsinstructie'),'tabblad RTGB heeft een duidelijke naam voor schermlezers');
+  await ga(p,'phb1');
+  const mods=await p.evaluate(()=>[...document.querySelectorAll('#app .modrow a')].map(a=>a.getAttribute('href')));
+  t(mods.join(' ')==='#phb1 #phb2 #phb3 #phb4 #rtgb','modules bovenaan: PHB 1–4 en RTGB ('+mods.length+' knoppen)');
+  t((await p.getAttribute('#app .modrow a[href="#rtgb"]','title')||'').includes('Ambtsinstructie'),'knop RTGB heeft een duidelijke naam');
+  await ga(p,'home');
   t(await p.locator('.hlist a[href="#rtgb"] .hcode svg').count()===1,'overzicht: RTGB staat bij de modules, met pictogram');
   // het tabblad zelf
   await ga(p,'rtgb');
@@ -65,8 +67,9 @@ const store=p=>p.evaluate(()=>JSON.parse(localStorage.getItem('phb-trainer-v1')|
   await p.context().close();
   // smal scherm: zeven tabbladen passen
   p=await open(b,{viewport:{width:340,height:720}});
+  await ga(p,'rtgb');
   const fit=await p.evaluate(()=>[...document.querySelectorAll('#tabbar a')].every(a=>a.scrollWidth<=a.clientWidth+1)&&document.documentElement.scrollWidth<=340);
-  t(fit,'340 px breed: alle zeven tabbladen passen, niets loopt over');
+  t(fit,'340 px breed: tabbalk en modulerij passen, niets loopt over');
   await p.context().close();
   // pc: sneltoetsen 5 en R
   p=await open(b,{viewport:{width:1280,height:800},isMobile:false,hasTouch:false});

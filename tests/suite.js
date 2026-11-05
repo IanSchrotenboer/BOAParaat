@@ -25,7 +25,9 @@ async function layoutCheck(p,label,touch){
     const vis=e=>{const s=getComputedStyle(e);const r=e.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>0&&r.height>0&&!e.closest('[hidden]')};
     for(const e of document.querySelectorAll('button,a[href],input:not([type=hidden]),.csel,summary')){if(!vis(e)||e.classList.contains('cs-native'))continue;const r=e.getBoundingClientRect();
       if(touch&&(r.height<30||r.width<30)&&!e.closest('.tdecl,.tclose,p,.small,.hlinks,label'))res.small.push((e.textContent||e.getAttribute('aria-label')||e.tagName).trim().slice(0,30)+` ${Math.round(r.width)}x${Math.round(r.height)}`);
-      if(r.right>de.clientWidth+2)res.offscreen.push((e.textContent||e.tagName).trim().slice(0,30))}
+      // knoppen in een rij die zelf opzij scrolt (modules bovenaan) mogen buiten beeld beginnen
+      const scroller=x=>{for(x=x.parentElement;x&&x!==document.body;x=x.parentElement){const o=getComputedStyle(x).overflowX;if((o==='auto'||o==='scroll')&&x.scrollWidth>x.clientWidth)return true}return false};
+      if(r.right>de.clientWidth+2&&!scroller(e))res.offscreen.push((e.textContent||e.tagName).trim().slice(0,30))}
     const bar=document.querySelector('.bar').getBoundingClientRect();const brand=document.querySelector('.bname').getBoundingClientRect();const nav=document.querySelector('.topnav');
     if(nav&&getComputedStyle(nav).display!=='none'){const n=nav.getBoundingClientRect();if(n.left<brand.right-1)res.overlapHeader=true}
     // elementen die buiten hun container lopen (tekst)

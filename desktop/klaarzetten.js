@@ -9,8 +9,7 @@ fs.rmSync(APP,{recursive:true,force:true});fs.mkdirSync(path.join(APP,'icons'),{
 const PROEF=process.env.BOA_PROEF==='1';
 let html=fs.readFileSync(path.join(www,'index.html'),'utf8');
 if(PROEF){if(html.split('/*__BETAALMUUR__*/false').length!==2)throw new Error('schakelaar BETAALMUUR niet gevonden in www/index.html');
-  if(html.split('/*__TABBALK__*/false').length!==2)throw new Error('schakelaar TABBALK niet gevonden in www/index.html');
-  html=html.replace('/*__BETAALMUUR__*/false','true').replace('/*__TABBALK__*/false','true').replace('<title>Boa Paraat','<title>Boa Paraat (proef)')}
+  html=html.replace('/*__BETAALMUUR__*/false','true').replace('<title>Boa Paraat','<title>Boa Paraat (proef)')}
 fs.writeFileSync(path.join(APP,'index.html'),html);
 for(const f of fs.readdirSync(path.join(www,'icons')))fs.copyFileSync(path.join(www,'icons',f),path.join(APP,'icons',f));
 fs.mkdirSync(BUILD,{recursive:true});fs.copyFileSync(path.join(ROOT,'assets','icon-only.png'),path.join(BUILD,'icon.png'));

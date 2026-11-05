@@ -94,8 +94,7 @@ web = web.replace('</body>', '<script>if("serviceWorker" in navigator&&!window.C
 open(os.path.join(WWW, 'index.html'), 'w', encoding='utf-8').write(web)
 # proefversie met betaalmuur (BETAALMUUR = true): los bestand en webversie voor de test-APK, niet voor gebruikers
 if full.count('/*__BETAALMUUR__*/false') != 1: fout('proefversie: de schakelaar BETAALMUUR staat niet precies één keer in de app')
-if full.count('/*__TABBALK__*/false') != 1: fout('proefversie: de schakelaar TABBALK staat niet precies één keer in de app')
-PROEF = lambda t: t.replace('/*__BETAALMUUR__*/false', 'true').replace('/*__TABBALK__*/false', 'true').replace('<title>Boa Paraat', '<title>Boa Paraat (proef)', 1)
+PROEF = lambda t: t.replace('/*__BETAALMUUR__*/false', 'true').replace('<title>Boa Paraat', '<title>Boa Paraat (proef)', 1)
 open(os.path.join(UIT, 'Boa-Paraat-proef.html'), 'w', encoding='utf-8').write(PROEF(full))
 open(os.path.join(UIT, 'proef-www-index.html'), 'w', encoding='utf-8').write(PROEF(web))
 # website: over.html en privacy.html (nodig voor de merknaam op het inlogscherm van Google)
@@ -234,7 +233,7 @@ if not SNEL:
     env = dict(os.environ, BOA_URL='file://' + os.path.join(UIT, 'Boa-Paraat.html'), BOA_SHOTS=os.path.join(UIT, 'schermen'))
     os.makedirs(env['BOA_SHOTS'], exist_ok=True)
     env['CHAOS_SEED'] = os.environ.get('CHAOS_SEED', str(int(time.time()) % 100000)); ok('chaostest met zaad %s' % env['CHAOS_SEED'])
-    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'rtgb.js', 'matrijs.js', 'tablet.js', 'vouw.js', 'fouten.js', 'licentie.js', 'stress.js', 'cloud.js', 'betaalmuur.js', 'tabbalk.js', 'chaos.js']: draai(t, env)
+    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'rtgb.js', 'matrijs.js', 'tablet.js', 'tabbalk.js', 'vouw.js', 'fouten.js', 'licentie.js', 'stress.js', 'cloud.js', 'betaalmuur.js', 'chaos.js']: draai(t, env)
     if os.path.exists(os.path.join(ROOT, 'desktop', 'node_modules', 'electron')): draai('desktop.js', env)
     else: let_op('desktop.js: Electron is hier niet geïnstalleerd; de desktoptest draait op GitHub (Desktop-app bouwen)')
 else:
