@@ -80,7 +80,7 @@ async function stap(p,touch){
   }
   // ---------- gerichte belasting: tabbladen razendsnel wisselen tijdens de overgangen ----------
   {const p=await open(b,{},'1');const tabs=['phb1','rtgb','home','stof','phb3','phb2','phb4'];
-    for(let i=0;i<60;i++){await p.evaluate(h=>document.querySelector(`#tabbar a[href="#${h}"]`).click(),tabs[i%tabs.length]);await w(i%5?15:120)}
+    for(let i=0;i<60;i++){await p.evaluate(h=>(document.querySelector(`#tabbar a[href="#${h}"]`)||document.querySelector(`#app .modrow a[href="#${h}"]`)||document.querySelector(`#topnav a[href="#${h}"]`)).click(),tabs[i%tabs.length]);await w(i%5?15:120)}
     await w(500);const f=await regels(p);
     t(!f.length&&await p.evaluate(()=>location.hash)==='#'+tabs[59%tabs.length],'60 keer razendsnel van tabblad wisselen: juiste eindscherm, niets blijft hangen'+(f.length?': '+f.join(', '):''));
     // vegen tijdens een lopende overgang en tijdens een veeg

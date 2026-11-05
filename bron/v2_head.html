@@ -646,6 +646,15 @@ footer{font-size:13px;color:var(--muted);padding-block:8px 32px}
 :root[data-vouw="boek"] .homeside{display:flex;flex-direction:column;gap:16px}
 :root[data-vouw="tafel"] #app[data-v="sessie"] .qa{min-height:calc(var(--seg0h) - var(--qatop) - 12px);align-content:end}
 :root[data-vouw="tafel"] #app[data-v="sessie"] .qb{margin-top:calc(var(--gap) + 12px)}
+/* tabbalk: modules als knoppen bovenaan een module (alleen waar de tabbalk staat) */
+.modrow{display:none}
+@media (max-width:780px),(pointer:coarse) and (max-width:1099px){
+  .modrow{display:flex;gap:6px;overflow-x:auto;margin:-4px -16px 4px;padding:2px 16px 6px;scrollbar-width:none;scroll-behavior:smooth}
+  .modrow::-webkit-scrollbar{display:none}
+  .modrow a{flex:none;display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:14px;color:var(--ink);text-decoration:none;white-space:nowrap}
+  .modrow a[aria-current="page"]{background:var(--navy);border-color:var(--navy);color:var(--navy-ink)}
+  #profBtn{display:none}
+}
 @media print{
   .bar,.tabbar,footer,.toc,.homeside,.btn,.toast,.kdlg{display:none!important}
   body{background:#fff}

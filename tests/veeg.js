@@ -30,7 +30,7 @@ const rust=p=>p.evaluate(()=>{const a=document.getElementById('app');return !a.s
   let p=await open(b);
   // basis: de volgorde van de menu's
   await links(p);t(await hash(p)==='phb1','Overzicht → naar links vegen → PHB 1');
-  t(await tabNu(p)==='phb1','tabbalk wijst PHB 1 aan na het vegen');
+  t(await tabNu(p)==='phb1'&&await p.locator('#app .modrow a[href="#phb1"][aria-current="page"]').count()===1,'na het vegen: tabblad Oefenen (PHB 1) actief en PHB 1 gemarkeerd bovenaan');
   t(await rust(p),'pagina staat na het vegen weer recht (geen verschuiving of vervaging achtergebleven)');
   await links(p);await links(p);await links(p);t(await hash(p)==='phb4','verder vegen: PHB 2, PHB 3, PHB 4');
   await links(p);t(await hash(p)==='rtgb','PHB 4 → RTGB');
@@ -55,7 +55,7 @@ const rust=p=>p.evaluate(()=>{const a=document.getElementById('app');return !a.s
   t(await hash(p)==='home'&&!(await p.locator('.swghost').count())&&await rust(p),'veeg te kort: alles veert terug, meeschuivend tabblad verdwijnt');
   // tikken op de tabbalk: gedeelde as (oud schuift weg, nieuw schuift in vanaf dezelfde kant)
   await ga(p,'phb1');await w(100);
-  let k=await p.evaluate(async()=>{document.querySelector('#tabbar a[href="#phb3"]').click();await new Promise(r=>setTimeout(r,40));
+  let k=await p.evaluate(async()=>{document.querySelector('#topnav a[href="#phb3"]').click();await new Promise(r=>setTimeout(r,40));
     return {app:document.getElementById('app').className,uit:(document.querySelector('.swghost')||{}).className||'',tb:document.getElementById('tabbar').getBoundingClientRect().width}});
   t(k.tb===390,'tijdens de overgang blijft het scherm even breed (tabbalk '+k.tb+' px)');
   t(/swr/.test(k.app)&&/swoutl/.test(k.uit),'tik op PHB 3 vanaf PHB 1: nieuw scherm schuift in van rechts, oud schuift weg naar links');
@@ -64,7 +64,7 @@ const rust=p=>p.evaluate(()=>{const a=document.getElementById('app');return !a.s
     return {app:document.getElementById('app').className,uit:(document.querySelector('.swghost')||{}).className||''}});
   t(/swl/.test(k.app)&&/swoutr/.test(k.uit),'tik op Overzicht: overgang de andere kant op');
   await w(450);await ga(p,'profiel');
-  k=await p.evaluate(async()=>{document.querySelector('#tabbar a[href="#phb2"]').click();await new Promise(r=>setTimeout(r,40));return document.querySelectorAll('.swghost').length});
+  k=await p.evaluate(async()=>{document.querySelector('#topnav a[href="#phb2"]').click();await new Promise(r=>setTimeout(r,40));return document.querySelectorAll('.swghost').length});
   t(k===0,'vanaf het profiel naar een tabblad: gewone rustige overgang');
   await w(450);await ga(p,'home');
   // geen wissel bij gebaren die geen menuveeg zijn
@@ -80,7 +80,7 @@ const rust=p=>p.evaluate(()=>{const a=document.getElementById('app');return !a.s
   // gevonden met de chaostest (1.6.1): een tik op de tabbalk terwijl de veeg nog uitloopt, en een tweede vinger tijdens het vegen
   {const T0=Date.now()/1000;const cdp=(type,pts,i)=>p._cdp.send('Input.dispatchTouchEvent',{type,touchPoints:pts,timestamp:T0+i*.02});
     await cdp('touchStart',[{x:330,y:420}],0);for(let i=1;i<=6;i++)await cdp('touchMove',[{x:330-40*i,y:420}],i);await cdp('touchEnd',[],7);
-    await w(40);await p.evaluate(()=>document.querySelector('#tabbar a[href="#phb3"]').click());await w(700);
+    await w(40);await p.evaluate(()=>document.querySelector('#topnav a[href="#phb3"]').click());await w(700);
     t(await hash(p)==='phb3'&&!(await p.locator('.swghost').count())&&await rust(p),'tik op PHB 3 terwijl een veeg nog uitloopt: PHB 3 wint, niets blijft verschoven');
     await ga(p,'home');const T1=Date.now()/1000;const c2=(type,pts,i)=>p._cdp.send('Input.dispatchTouchEvent',{type,touchPoints:pts,timestamp:T1+i*.02});
     await c2('touchStart',[{x:330,y:420,id:0}],0);for(let i=1;i<=4;i++)await c2('touchMove',[{x:330-30*i,y:420,id:0}],i);
@@ -126,7 +126,7 @@ const rust=p=>p.evaluate(()=>{const a=document.getElementById('app');return !a.s
   await veeg(p,320,420,70,420,220,async()=>{x=await p.evaluate(()=>document.getElementById('app').style.transform)});
   t(await hash(p)==='phb1'&&x==='','minder beweging aan: wisselt wel, maar zonder meeschuivende pagina');
   t(!(await p.locator('.swghost').count()),'minder beweging: geen meeschuivend tabblad');
-  await p.evaluate(()=>document.querySelector('#tabbar a[href="#phb3"]').click());await w(40);
+  await p.evaluate(()=>document.querySelector('#topnav a[href="#phb3"]').click());await w(40);
   t(!(await p.locator('.swghost').count())&&await p.evaluate(()=>getComputedStyle(document.getElementById('app')).animationName==='none'),'minder beweging: tikken op de tabbalk zonder animatie');
   t(!p._errs.length,'minder beweging: geen JS-fouten');
   await p.context().close();

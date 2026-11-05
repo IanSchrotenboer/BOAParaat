@@ -107,6 +107,8 @@ Zelf bouwen (Node.js 22 of nieuwer): `python3 release.py`, dan `cd desktop && np
 
 ## D. Webversie voor de pc
 
+Op telefoon en tablet staat onderin een tabbalk met vier tabbladen: Overzicht, Oefenen, Studiestof en Profiel. Oefenen opent de laatst gebruikte module; bovenaan elke module staan alle modules als knoppen (`bron/balk.js`, getest in `tests/tabbalk.js`).
+
 De webversie is dezelfde app als website. Op een scherm vanaf ongeveer 1100 pixels breed krijg je een pc-indeling:
 
 - een bredere pagina met een zijbalk op het overzicht (voortgang, sneltoetsen en installeren);

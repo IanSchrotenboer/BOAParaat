@@ -62,7 +62,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-15-intel, ubuntu-latest]  # Mac: Intel-runner (de Apple-chip-runners zitten vaak vol); bouwt toch voor Intel én Apple-chip
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
