@@ -77,7 +77,7 @@ async function codeInvullen(p,code){await ga(p,'profiel');await p.fill('#licCode
   await p.evaluate(pr=>localStorage.setItem('phb-trainer-v1',JSON.stringify({s:{},h:[],x:[],p:pr})),PROFIEL);await p.reload();await w(400);
   t((await slotOp(p)).every(Boolean)&&!(await p.locator('#topnav a[href="#phb1"] .slotje').count()),'modulenavigatie: slotje op PHB 3, PHB 4 en RTGB, niet op PHB 1');
   await p.evaluate(()=>location.hash='phb1');await w(300);
-  t(await p.locator('#app .modrow a .slotje').count()===3&&!(await p.locator('#app .modrow a[href="#phb1"] .slotje').count()),'knoppen bovenaan een module: slotje op PHB 3, PHB 4 en RTGB');
+  t(await p.locator('#app .modrow a.slot').count()===3&&!(await p.locator('#app .modrow a.slot[href="#phb1"]').count())&&/\(Plus\)/.test(await p.getAttribute('#app .modrow a[href="#rtgb"]','title')),'knoppen bovenaan een module: PHB 3, PHB 4 en RTGB gemarkeerd als Plus');
   t(/\(Plus\)/.test(await p.getAttribute('#topnav a[href="#rtgb"]','title')),'RTGB in de navigatie meldt dat hij bij Plus hoort');
   await p.evaluate(()=>location.hash='home');await w(300);
   t((await p.textContent('.brand .tag')).includes('proef'),'kopbalk: zichtbaar dat dit de proefversie is');

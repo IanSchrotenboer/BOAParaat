@@ -203,7 +203,7 @@ function paintNav(){
   $("#topnav").innerHTML=items.map(([id,l,ic,full])=>`<a href="#${id}"${cur(id)?' aria-current="page"':""}${full?` title="${esc(full+slT(id))}"`:""}><span class="ic" aria-hidden="true">${ic}${sl(id)}</span>${l}</a>`).join("");
   balkTeken(r);
   $("#topnav").hidden=inSession;$("#tabbar").hidden=inSession;$("#profBtn").hidden=inSession;
-  document.body.classList.toggle("tabs",!inSession);
+  document.body.classList.toggle("tabs",!inSession);document.body.classList.toggle("inses",inSession&&!welcome);
   const pb=$("#profBtn");if(r.indexOf("profiel")===0||r==="fouten")pb.setAttribute("aria-current","page");else pb.removeAttribute("aria-current");
   $("#profAva").textContent=initials(store.p.naam);
   $("#stopBtn").hidden=!inSession||welcome;paintTimer();

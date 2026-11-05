@@ -18,6 +18,6 @@ function balkTeken(r){
   const tabs=[["home","#home","Overzicht",ICON.home],["oef","#"+oefenRoute(),"Oefenen",BI.oef],["stof","#stof","Studiestof",ICON.doc],["profiel","#profiel","Profiel",BI.prof]];
   $("#tabbar").innerHTML=tabs.map(([id,h,l,ic])=>`<a href="${h}" data-tab="${id}"${cur===id?' aria-current="page"':""} aria-label="${esc(id==="oef"?"Oefenen: "+MODBY[oefenRoute()].code:l)}"><span class="ic" aria-hidden="true">${ic}</span>${esc(l)}</a>`).join("")}
 function modChips(cur){
-  return `<nav class="modrow" aria-label="Modules">${MODS.map(m=>`<a href="#${m.id}"${m.id===cur?' aria-current="page"':""} title="${esc(m.name)}">${opSlot(m.id)?SLOT:""}${esc(m.code)}</a>`).join("")}</nav>`}
+  return `<nav class="modrow" aria-label="Modules">${MODS.map(m=>`<a href="#${m.id}"${m.id===cur?' aria-current="page"':""}${opSlot(m.id)?' class="slot"':""} title="${esc(m.name)}${opSlot(m.id)?" (Plus)":""}">${esc(m.code)}</a>`).join("")}</nav>`}
 // de knop van de huidige module in beeld houden
 function modChipsScroll(){const a=document.querySelector('#app .modrow a[aria-current="page"]');if(a)a.parentElement.scrollLeft=Math.max(0,a.offsetLeft-a.parentElement.clientWidth/2+a.offsetWidth/2)}
