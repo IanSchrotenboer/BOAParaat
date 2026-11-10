@@ -72,7 +72,7 @@ function wvSubmit(auto){
 }
 function viewWVTemplate(sc,W2,ro){
   const h=W2.hdr||{};
-  const inp=(k,ph,w)=>ro?`<b class="tval">${h[k]?esc(h[k]):`<span class="tmiss">[${esc(ph)}]</span>`}</b>`:`<input class="tin" id="wvH-${k}" value="${esc(h[k]||"")}" placeholder="${esc(ph)}" style="width:${w||14}ch" aria-label="${esc(ph)}">`;
+  const inp=(k,ph,w)=>ro?`<b class="tval">${h[k]?esc(h[k]):`<span class="tmiss">[${esc(ph)}]</span>`}</b>`:`<input class="tin" id="wvH-${k}" value="${esc(h[k]||"")}" placeholder="${esc(ph)}" style="width:${Math.max(w||14,ph.length+2)}ch" aria-label="${esc(ph)}">`;
   const dstr=fmtDate(ro?W2.d:Date.now());const st=new Date(W2.t0||Date.now());const naam=(store.p.naam||"").trim();const d4=sc.dom==="4";
   return `<div class="tpl">
     <h3>Examen Waarneming en Verslaglegging${d4?" OV":""}</h3>

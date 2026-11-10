@@ -31,7 +31,7 @@ function viewWelcome(){
         </div><p class="small">Je oproep staat in Mijn ExTH. Na het opslaan kun je het examen in je agenda zetten via Profiel → Examens.</p>`:""}
       </div>
       <button class="btn hi wgo" type="submit">Aan de slag</button>
-      <p class="small">Je gegevens blijven alleen op dit apparaat. Je kunt ze later aanpassen onder Profiel.</p>
+      <p class="small">${typeof sesGet==="function"&&sesGet()?"Je gegevens worden bewaard in je account, zodat je op elk apparaat verder kunt.":"Je gegevens blijven alleen op dit apparaat."} Je kunt ze later aanpassen onder Profiel.</p>
     </form>
     <div class="wimport">${showImport?`<div class="panel stack"><div class="field"><label for="impCode">Plak je voortgangscode</label><textarea id="impCode" placeholder="Begint met PHB1:" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea></div><div class="row"><button class="btn go" data-act="import-go">Voortgang laden</button><button class="btn ghost" data-act="import">Annuleren</button></div></div>`:`<button class="linkbtn" data-act="import">Ik heb al voortgang op een ander apparaat</button>`}</div>
   </div>`;
