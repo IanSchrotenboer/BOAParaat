@@ -96,7 +96,8 @@ process.on('unhandledRejection',e=>{console.log(out.join('\n'));console.log('FAI
   await answerAll(p,'examen',false);
   (await p.locator('.lockbox').count())?ok('examen: slot bij >75% fout'):fail('examen: geen slot');
   // studiestof-link vanuit nakijken
-  const ref=p.locator('.ref a').first();if(await ref.count()){await ref.click();await p.waitForTimeout(150);/^#stof-/.test(await p.evaluate(()=>location.hash))?ok('verwijzing naar studiestof werkt'):fail('verwijzing studiestof')}else fail('geen studiestof-verwijzing in nakijken');
+  const ref=p.locator('.ref a').first();if(await ref.count()){const dt=p.locator('details.review:has(.ref a):not([open]) summary').first();if(await dt.count())await dt.click(); // nakijken staat ingeklapt bij veel fouten
+    await ref.click();await p.waitForTimeout(150);/^#stof-/.test(await p.evaluate(()=>location.hash))?ok('verwijzing naar studiestof werkt'):fail('verwijzing studiestof')}else fail('geen studiestof-verwijzing in nakijken');
   await p.evaluate(()=>location.hash='stof');await p.waitForTimeout(150);
   {const tx=await p.textContent('#app');(!/Kennisboekje|Lesdia/i.test(tx)&&!(await p.locator('#app .chip.ref').count()))?ok('studiestof: geen kopjes of verwijzingen naar Kennisboekje en Lesdia\'s'):fail('studiestof noemt nog Kennisboekje of Lesdia\'s')}
   // profiel opslaan, export/import
