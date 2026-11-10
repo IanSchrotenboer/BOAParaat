@@ -171,7 +171,7 @@ if mi:
     for k in doodi: fout('pictogram wordt nergens gebruikt: ICON.' + k)
     if not doodi: ok('alle %d pictogrammen worden gebruikt' % len(ik))
 # losse bestanden in de hoofdmap die niet in de app of het project horen (schermafdrukken, testbestanden)
-TOEGESTAAN = {'LEESMIJ.md', 'capacitor.config.json', 'package.json', 'package-lock.json', 'release.py', '.gitignore'}
+TOEGESTAAN = {'LEESMIJ.md', 'capacitor.config.json', 'package.json', 'package-lock.json', 'release.py', '.gitignore', '.git'}  # .git is een bestand in een git-worktree
 los = sorted(f_ for f_ in os.listdir(ROOT) if os.path.isfile(os.path.join(ROOT, f_)) and f_ not in TOEGESTAAN)
 for f_ in los: fout('los bestand in de hoofdmap (hoort niet in het project): ' + f_)
 if not los: ok('geen losse bestanden in de hoofdmap')
@@ -233,7 +233,7 @@ if not SNEL:
     env = dict(os.environ, BOA_URL='file://' + os.path.join(UIT, 'Boa-Paraat.html'), BOA_SHOTS=os.path.join(UIT, 'schermen'))
     os.makedirs(env['BOA_SHOTS'], exist_ok=True)
     env['CHAOS_SEED'] = os.environ.get('CHAOS_SEED', str(int(time.time()) % 100000)); ok('chaostest met zaad %s' % env['CHAOS_SEED'])
-    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'rtgb.js', 'matrijs.js', 'tablet.js', 'tabbalk.js', 'vouw.js', 'fouten.js', 'licentie.js', 'kelman.js', 'stress.js', 'cloud.js', 'chaos.js']: draai(t, env)
+    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'rtgb.js', 'matrijs.js', 'tablet.js', 'tabbalk.js', 'vouw.js', 'fouten.js', 'licentie.js', 'verbeter.js', 'kelman.js', 'stress.js', 'cloud.js', 'chaos.js']: draai(t, env)
     if os.path.exists(os.path.join(ROOT, 'desktop', 'node_modules', 'electron')): draai('desktop.js', env)
     else: let_op('desktop.js: Electron is hier niet geïnstalleerd; de desktoptest draait op GitHub (Desktop-app bouwen)')
 else:

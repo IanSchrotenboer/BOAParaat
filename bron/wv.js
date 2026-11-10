@@ -227,14 +227,14 @@ function buildPerron(seed){
         {p:1,t:`Man 2: ${COL[B.koffer].adj} rolkoffer`,m:[/(rolkoffer|koffer|trolley)/]},
         {p:1,t:"Trein: geel met blauw",m:[/(gele|geel) (trein|sprinter)|trein .*geel/]},
         {p:1,t:`Trein: bestemming ${P.dest}`,m:[new RegExp(stRe(P.dest))]},
-        {p:1.5,t:`Aansteker: ${COL[P.lighter].adj.replace(/e$/,"")}`,m:[new RegExp(`(${cre(P.lighter)}) aansteker|aansteker .*(${cre(P.lighter)})`)]}
+        {p:1.5,t:`Aansteker: ${P.lighter}`,m:[new RegExp(`(${cre(P.lighter)}) aansteker|aansteker .*(${cre(P.lighter)})`)]}
       ],
       order:["g1","g2","g3","g4","g5","g6","g7","g8","g9","g10","g12","g13"],
       wrong:[
         {t:`Verkeerd spoor genoemd (het was spoor ${P.spoor})`,f:s=>[...s.matchAll(/spoor\s*(\d+)/g)].some(m=>m[1]!==P.spoor.replace(/[a-z]/g,""))},
         timeWrong(P.start,200),
-        jasWrong([A.jas,Wp.jas,B.jas],[A.jas,Wp.jas,B.jas].map(c=>COL[c].adj.replace(/e$/,"")).join(", ")+" waren de jassen"),
-        {t:`Pet had een andere kleur (${COL[A.pet].adj.replace(/e$/,"")})`,f:s=>new RegExp(`\\b(${Object.keys(COL).filter(c=>c!==A.pet).map(c=>COL[c].adj).join("|")}) pet\\b`).test(s)},
+        jasWrong([A.jas,Wp.jas,B.jas],[A.jas,Wp.jas,B.jas].join(", ")+" waren de jassen"),
+        {t:`Pet had een andere kleur (${A.pet})`,f:s=>new RegExp(`\\b(${Object.keys(COL).filter(c=>c!==A.pet).map(c=>COL[c].adj).join("|")}) pet\\b`).test(s)},
         {t:"Sigaret ging op het spoor, niet op het perron of de grond",f:s=>s.split(/[.!?\n]/).some(z=>/(sigaret|peuk)/.test(z)&&/(op de grond|op het perron|op de vloer|in de prullenbak|uitgetrapt)/.test(z))},
         {t:"De vrouw rookte niet",f:s=>s.split(/[.!?\n]/).some(z=>/vrouw/.test(z)&&/\b(rookte|rookt|stak .*sigaret)/.test(z)&&!/(man|niet)/.test(z))},
         {t:`Station of bestemming klopt niet (${P.station}, trein naar ${P.dest})`,f:s=>STATIONS.filter(x=>x!==P.station&&x!==P.dest).some(x=>new RegExp("\\b"+stRe(x)+"\\b").test(s))}
@@ -329,7 +329,7 @@ function buildPlein(seed){
         {p:1.5,t:`Man: ${COL[D.pet].adj} pet`,m:[new RegExp(`(${cre(D.pet)}) (pet|cap)`)]},
         {p:1.5,t:`Man: ${COL[D.vest].adj} bodywarmer`,m:[new RegExp(`(bodywarmer|(${cre(D.vest)}) (vest|jas|jack|bodywarmer)|mouwloos)`)]},
         {p:1,t:`Man: ${COL[D.broek].adj} broek`,m:[new RegExp(`(${cre(D.broek)}) broek`)]},
-        {p:1.5,t:`Hond: ${dog.t.replace(/e$/,"")}`,m:[new RegExp(`(${dog.re}) hond|hond .*(${dog.re})`)]},
+        {p:1.5,t:`Hond: ${Q.dog}`,m:[new RegExp(`(${dog.re}) hond|hond .*(${dog.re})`)]},
         {p:1,t:`Man: ${COL[D.riem].adj} riem / hondenlijn in de hand`,m:[/(riem|lijn|lijntje)/,new RegExp(`(${cre(D.riem)}|hand|vast|droeg|hield)`)]},
         {p:1,t:`Vrouw: ${HAIR[C.hair].t} krullend haar`,m:[new RegExp(`(${HAIR[C.hair].re}) .*(haar|krul)|krullend|krullen`)]},
         {p:1.5,t:`Vrouw: ${COL[C.jas].adj} jas`,m:[new RegExp(`(${cre(C.jas)}) ${JASW}`)]},
@@ -337,8 +337,8 @@ function buildPlein(seed){
         {p:1.5,t:`Fietser: ${COL[E.hoodie].adj} hoodie met capuchon op`,m:[/(hoodie|capuchon|trui met capuchon|sweater)/]},
         {p:1,t:`Fietser: ${COL[E.broek].adj} joggingbroek`,m:[new RegExp(`(jogging|trainingsbroek|(${cre(E.broek)}) broek)`)]},
         {p:1.5,t:`Fietser: ${COL[E.pack].adj} rugzak`,m:[new RegExp(`(${cre(E.pack)}) (rugzak|tas|bezorg)`)]},
-        {p:1,t:`Fiets: ${COL[E.fiets].adj.replace(/e$/,"")}`,m:[new RegExp(`(${cre(E.fiets)}) fiets`)]},
-        {p:1,t:`Vuilniszak: ${COL[Q.zak].adj.replace(/e$/,"")}`,m:[new RegExp(`(${cre(Q.zak)}) (vuilniszak|zak|afvalzak)`)]},
+        {p:1,t:`Fiets: ${E.fiets}`,m:[new RegExp(`(${cre(E.fiets)}) fiets`)]},
+        {p:1,t:`Vuilniszak: ${Q.zak}`,m:[new RegExp(`(${cre(Q.zak)}) (vuilniszak|zak|afvalzak)`)]},
         {p:2,t:`${fr.t[0].toUpperCase()+fr.t.slice(1)} uit de trolley; één blijft liggen`,m:[new RegExp(fr.re)]}
       ],
       order:["g1","g2","g3","g4","g5","g6","g7","g8","g9","g10","g11","g12"],
@@ -347,7 +347,7 @@ function buildPlein(seed){
         jasWrong([C.jas,D.vest,E.hoodie],`de vrouw droeg een ${COL[C.jas].adj} jas`),
         {t:"De fietser raakte de vrouw niet (bijna-aanrijding)",f:s=>s.split(/[.!?\n]/).some(z=>/(fiets)/.test(z)&&/(raakte|reed .* aan|aangereden|botste|schampte|ramde)/.test(z)&&!/(bijna|niet)/.test(z))},
         {t:"De hond was niet aangelijnd",f:s=>s.split(/[.!?\n]/).some(z=>/hond/.test(z)&&/(was|liep) (aangelijnd|aan de lijn)/.test(z)&&!/niet/.test(z))},
-        {t:`De pet had een andere kleur (${COL[D.pet].adj.replace(/e$/,"")})`,f:s=>new RegExp(`\\b(${Object.keys(COL).filter(c=>c!==D.pet).map(c=>COL[c].adj).join("|")}) pet\\b`).test(s)}
+        {t:`De pet had een andere kleur (${D.pet})`,f:s=>new RegExp(`\\b(${Object.keys(COL).filter(c=>c!==D.pet).map(c=>COL[c].adj).join("|")}) pet\\b`).test(s)}
       ]
     }
   };
