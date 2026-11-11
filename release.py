@@ -33,8 +33,8 @@ def lees(*p): return open(os.path.join(*p), encoding='utf-8').read()
 # ---------------------------------------------------------------- 1. bouwen
 kop('1. Bouwen en compact maken')
 head = lees(BRON, 'v2_head.html'); body_src = lees(BRON, 'v2_body.html')
-data = '\n'.join(lees(BRON, f) for f in ['q1.js', 'q2.js', 'q3.js', 'q4.js', 'q5.js', 'q6.js', 'q7.js', 'stof.js', 'matrijs.js'])
-extra = ''.join(lees(BRON, f) for f in ['wv.js', 'wv_ui.js', 'ui_extra.js', 'fouten.js', 'licentie.js', 'fold.js', 'cloud.js', 'balk.js'])
+data = '\n'.join(lees(BRON, f) for f in ['q1.js', 'q2.js', 'q3.js', 'q4.js', 'q5.js', 'q6.js', 'q7.js', 'q8.js', 'stof.js', 'matrijs.js'])
+extra = ''.join(lees(BRON, f) for f in ['wv.js', 'wv_ui.js', 'ui_extra.js', 'fouten.js', 'licentie.js', 'fold.js', 'cloud.js', 'balk.js', 'casus.js', 'zoek.js'])
 # Supabase: projectadres en publishable key (openbaar; de beveiliging zit in de database-regels, zie supabase/)
 CLOUD = json.load(open(os.path.join(BRON, 'cloud.json'))) if os.path.exists(os.path.join(BRON, 'cloud.json')) else {}
 extra = extra.replace('/*__SITE__*/""', json.dumps(json.load(open(os.path.join(BRON, 'site.json'))).get('adres', '')))
@@ -92,6 +92,11 @@ pwa = ('<link rel="manifest" href="manifest.webmanifest">\n<link rel="icon" type
 web = full.replace('<meta name="mobile-web-app-capable" content="yes">\n', '<meta name="mobile-web-app-capable" content="yes">\n' + pwa, 1)
 web = web.replace('</body>', '<script>if("serviceWorker" in navigator&&!window.Capacitor&&/^https?:$/.test(location.protocol)){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>\n</body>', 1)
 open(os.path.join(WWW, 'index.html'), 'w', encoding='utf-8').write(web)
+# proefbouw (voor de test-APK, het testprogramma en het losse proefbestand): 'proef' in de kopbalk en de titel
+if full.count('/*__PROEF__*/false') != 1: fout('proefbouw: de schakelaar PROEF staat niet precies één keer in de app')
+PROEFBOUW = lambda t: t.replace('/*__PROEF__*/false', 'true').replace('<title>Boa Paraat', '<title>Boa Paraat (proef)', 1)
+open(os.path.join(UIT, 'Boa-Paraat-proef.html'), 'w', encoding='utf-8').write(PROEFBOUW(full))
+open(os.path.join(UIT, 'proef-www-index.html'), 'w', encoding='utf-8').write(PROEFBOUW(web))
 # website: over.html en privacy.html (nodig voor de merknaam op het inlogscherm van Google)
 SITE = json.load(open(os.path.join(BRON, 'site.json')))
 for naam in ('over.html', 'privacy.html'):
@@ -166,7 +171,7 @@ if mi:
     for k in doodi: fout('pictogram wordt nergens gebruikt: ICON.' + k)
     if not doodi: ok('alle %d pictogrammen worden gebruikt' % len(ik))
 # losse bestanden in de hoofdmap die niet in de app of het project horen (schermafdrukken, testbestanden)
-TOEGESTAAN = {'LEESMIJ.md', 'capacitor.config.json', 'package.json', 'package-lock.json', 'release.py', '.gitignore'}
+TOEGESTAAN = {'LEESMIJ.md', 'capacitor.config.json', 'package.json', 'package-lock.json', 'release.py', '.gitignore', '.git'}  # .git is een bestand in een git-worktree
 los = sorted(f_ for f_ in os.listdir(ROOT) if os.path.isfile(os.path.join(ROOT, f_)) and f_ not in TOEGESTAAN)
 for f_ in los: fout('los bestand in de hoofdmap (hoort niet in het project): ' + f_)
 if not los: ok('geen losse bestanden in de hoofdmap')
@@ -228,7 +233,7 @@ if not SNEL:
     env = dict(os.environ, BOA_URL='file://' + os.path.join(UIT, 'Boa-Paraat.html'), BOA_SHOTS=os.path.join(UIT, 'schermen'))
     os.makedirs(env['BOA_SHOTS'], exist_ok=True)
     env['CHAOS_SEED'] = os.environ.get('CHAOS_SEED', str(int(time.time()) % 100000)); ok('chaostest met zaad %s' % env['CHAOS_SEED'])
-    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'rtgb.js', 'matrijs.js', 'tablet.js', 'tabbalk.js', 'vouw.js', 'fouten.js', 'licentie.js', 'verbeter.js', 'stress.js', 'cloud.js', 'chaos.js']: draai(t, env)
+    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'rtgb.js', 'matrijs.js', 'tablet.js', 'tabbalk.js', 'vouw.js', 'fouten.js', 'licentie.js', 'verbeter.js', 'groot.js', 'stress.js', 'cloud.js', 'chaos.js']: draai(t, env)
     if os.path.exists(os.path.join(ROOT, 'desktop', 'node_modules', 'electron')): draai('desktop.js', env)
     else: let_op('desktop.js: Electron is hier niet geïnstalleerd; de desktoptest draait op GitHub (Desktop-app bouwen)')
 else:

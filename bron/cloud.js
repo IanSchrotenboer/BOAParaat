@@ -30,7 +30,8 @@ async function loginStart(){
   cloudFout="";cloudHint="";cloudBezig="Google wordt geopend…";render();
   try{const v=randStr(64);const ch=b64url(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v)));
     try{localStorage.setItem(PKCE,v)}catch(e){}
-    const u=CLOUD.url+"/auth/v1/authorize?provider=google&redirect_to="+encodeURIComponent(redirectUrl())+"&code_challenge="+ch+"&code_challenge_method=s256&prompt=select_account";
+    const red=DESK()&&DESK().loginRedirect?await DESK().loginRedirect():redirectUrl();
+    const u=CLOUD.url+"/auth/v1/authorize?provider=google&redirect_to="+encodeURIComponent(red)+"&code_challenge="+ch+"&code_challenge_method=s256&prompt=select_account";
     const B=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.Browser;
     if(DESK()){await DESK().open(u);cloudBezig="";cloudHint="Log in via het venster van je browser. Daarna kom je vanzelf terug in Boa Paraat.";render()}
     else if(isNative()&&B){await B.open({url:u,presentationStyle:"popover"});cloudBezig="";render()}else location.assign(u);
@@ -74,7 +75,7 @@ async function rest(method,pad,body,extra,opnieuw){const t=await token(opnieuw);
   if(!r.ok){const e=new Error("HTTP "+r.status);e.status=r.status;throw e}
   const tx=await r.text();return tx?JSON.parse(tx):null}
 // ----- samenvoegen: voortgang van dit apparaat en uit de cloud -----
-// Oefenresultaten (s), dagen (d), geschiedenis (h), verslagen (w), examens (x) en eigen video's (yt) worden
+// Oefenresultaten (s), dagen (d), geschiedenis (h), verslagen (w), examens (x), eigen video's (yt) en gesprekken (k) worden
 // samengevoegd; profiel en instellingen volgen de laatst gewijzigde kant. Verwijderde onderdelen staan in
 // 'weg' zodat ze niet terugkomen; 'r' is het moment van 'Alles wissen': ouder dan dat telt niet meer mee.
 function mergeStore(a,b){
@@ -88,8 +89,8 @@ function mergeStore(a,b){
   const hk=x=>x.d+"|"+x.t+"|"+x.m+"|"+x.k;const hs=new Map();
   for(const x of [].concat(o.h||[],od.h||[]))if(x.d>=R&&!hs.has(hk(x)))hs.set(hk(x),x);
   o.h=[...hs.values()].sort((x,y)=>y.d-x.d).slice(0,50);
-  const lijst=(soort,max)=>{const m=new Map();for(const x of [].concat(o[soort]||[],od[soort]||[]))if(!m.has(x.id)&&!weg.has(soort+":"+x.id))m.set(x.id,x);let l=[...m.values()];if(soort==="w")l.sort((x,y)=>(y.d||0)-(x.d||0));return max?l.slice(0,max):l};
-  o.w=lijst("w",40);o.x=lijst("x");o.yt=lijst("yt");
+  const lijst=(soort,max)=>{const m=new Map();for(const x of [].concat(o[soort]||[],od[soort]||[]))if(!m.has(x.id)&&!weg.has(soort+":"+x.id))m.set(x.id,x);let l=[...m.values()];if(soort==="w"||soort==="k")l.sort((x,y)=>(y.d||0)-(x.d||0));return max?l.slice(0,max):l};
+  o.w=lijst("w",40);o.x=lijst("x");o.yt=lijst("yt");o.k=lijst("k",60);
   if(!o.p.ob&&od.p&&od.p.ob){o.p=JSON.parse(JSON.stringify(od.p))}
   return o}
 function wegZet(soort,id){store.weg=(store.weg||[]).filter(x=>x!==soort+":"+id).concat(soort+":"+id).slice(-300)}
@@ -173,7 +174,7 @@ setTimeout(function(){
   if(!cloudKan())return;
   const ot=document.getElementById("opslagTekst");if(ot)ot.textContent="Je profiel en voortgang worden bewaard in je account, beveiligd in een database in de EU.";
   if(!isNative()&&/[?&](code|error)=/.test(location.search))loginTerug(location.href);
-  if(DESK()&&DESK().onLoginUrl)DESK().onLoginUrl(u=>{if(typeof u==="string"&&u.indexOf(REDIR_APP)===0)loginTerug(u)});
+  if(DESK()&&DESK().onLoginUrl)DESK().onLoginUrl(u=>{if(typeof u==="string"&&(u.indexOf(REDIR_APP)===0||/^http:\/\/127\.0\.0\.1:\d+\/login(\?|$)/.test(u)))loginTerug(u)});
   const A=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.App;
   if(isNative()&&A){try{A.addListener("appUrlOpen",e=>{if(e&&e.url&&e.url.indexOf(REDIR_APP)===0)loginTerug(e.url)});
       if(A.getLaunchUrl)A.getLaunchUrl().then(r=>{if(r&&r.url&&r.url.indexOf(REDIR_APP)===0)loginTerug(r.url)}).catch(()=>{});

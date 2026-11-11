@@ -55,7 +55,7 @@ process.on('unhandledRejection',e=>{console.log(out.join('\n'));console.log('FAI
   // ---------- A: routes op alle apparaten ----------
   for(const d of DEV){
     const p=await newPage(b,d);
-    const routes=['home','phb1','phb2','phb3','phb4','stof','stof-boa','profiel','profiel-examens','profiel-phb3'];
+    const routes=['home','phb1','phb2','phb3','phb4','stof','stof-boa','profiel','profiel-examens','profiel-phb3','casus','casus-aanw-fiets','gesprek-g-markt'];
     for(const r of routes){await p.evaluate(r=>location.hash=r,r);await p.waitForTimeout(380); // na de overgang (300 ms)
      await layoutCheck(p,`${d.n} #${r}`,d.touch);
       if(d.n==='phone-320'||d.n==='desktop-1280')await p.screenshot({path:`${SHOTS}/${d.n}_${r}.png`,fullPage:false})}

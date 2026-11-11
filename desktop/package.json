@@ -68,7 +68,10 @@
       "category": "public.app-category.education",
       "identity": "-",
       "hardenedRuntime": false,
-      "artifactName": "Boa-Paraat-Mac.${ext}"
+      "artifactName": "Boa-Paraat-Mac.${ext}",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "Boa Paraat gebruikt de microfoon alleen als je jezelf opneemt bij Gesprekken oefenen. De opname blijft op deze computer."
+      }
     },
     "dmg": {
       "title": "Boa Paraat"

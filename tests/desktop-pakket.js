@@ -4,7 +4,8 @@
 const fs=require('fs'),path=require('path'),os=require('os');
 const {_electron}=require('playwright');
 const DIST=path.resolve(__dirname,'../desktop/dist');
-const exe={win32:path.join(DIST,'win-unpacked','Boa Paraat.exe'),darwin:path.join(DIST,'mac-universal','Boa Paraat.app','Contents','MacOS','Boa Paraat'),linux:path.join(DIST,'linux-unpacked','boa-paraat')}[process.platform];
+const PK=require('../desktop/package.json'),NAAM=PK.build.productName,PROEF=!!PK.boaProef;
+const exe={win32:path.join(DIST,'win-unpacked',NAAM+'.exe'),darwin:path.join(DIST,'mac-universal',NAAM+'.app','Contents','MacOS',NAAM),linux:path.join(DIST,'linux-unpacked',PK.build.linux.executableName)}[process.platform];
 const out=[];const t=(c,m)=>out.push((c?'ok   ':'FAIL ')+m);
 const w=ms=>new Promise(r=>setTimeout(r,ms));
 process.on('unhandledRejection',e=>{console.log(out.join('\n'));console.log('FAIL test liep vast: '+String(e&&e.message||e).split('\n')[0]);process.exit(1)});
@@ -16,6 +17,7 @@ process.on('unhandledRejection',e=>{console.log(out.join('\n'));console.log('FAI
   await p.waitForLoadState('domcontentloaded');await w(1500);
   t(/^app:\/\/boa\/index\.html/.test(p.url()),'laadt de app via app://boa');
   t(await p.evaluate(()=>!!window.boaDesktop),'brug naar de computer aanwezig');
+  if(PROEF)t((await p.textContent('.brand .tag')).includes('proef')&&/proef/.test(await p.title()),'proefversie: herkenbaar in de kopbalk en de venstertitel');
   t(await p.locator('[data-act="login"]').count()===1,'inlogscherm met Inloggen met Google');
   const v=await app.evaluate(({app})=>app.getVersion());const pv=require('../package.json').version;
   t(v===pv,'versie '+v+' (verwacht '+pv+')');

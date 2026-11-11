@@ -11,7 +11,7 @@ process.on('unhandledRejection',e=>{console.log(out.join('\n'));console.log('FAI
 
 // ---------- vragen-id's zoals de app ze maakt ----------
 const B=f=>fs.readFileSync(path.resolve(__dirname,'../bron',f),'utf8');
-const Q=new Function(['q1.js','q2.js','q3.js','q4.js','q5.js','q6.js','q7.js'].map(B).join('\n')+';return [].concat(Q1,Q2,Q3,Q4,Q5,Q6,Q7)')();
+const Q=new Function(['q1.js','q2.js','q3.js','q4.js','q5.js','q6.js','q7.js','q8.js'].map(B).join('\n')+';return [].concat(Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8)')();
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return "q"+(h>>>0).toString(36)}
 const IDS=Q.map(r=>r[5]||hash(r[1]));
 const iso=d=>{const x=new Date();x.setDate(x.getDate()+d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};

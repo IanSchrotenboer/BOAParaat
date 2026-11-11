@@ -151,7 +151,7 @@ Elke ronde gebruikt een ander zaad (het staat bovenaan de uitvoer). Vindt de tes
 
 ### Vragen toevoegen of aanpassen
 
-Vragen staan in `bron/q1.js` tot en met `bron/q7.js`; welke vraag bij welke toetsterm van ExTH hoort, staat in `bron/matrijs.js`. Schrijf ze volgens `bron/SCHRIJFWIJZER.md` (examentaal, vier aannemelijke antwoorden, uitleg en bron). Het releasescript controleert de regels die automatisch te controleren zijn. Laat bij een herschreven vraag het zesde veld (de vaste code) staan, dan blijft de voortgang van gebruikers bewaard.
+Vragen staan in `bron/q1.js` tot en met `bron/q8.js`; welke vraag bij welke toetsterm van ExTH hoort, staat in `bron/matrijs.js`. Schrijf ze volgens `bron/SCHRIJFWIJZER.md` (examentaal, vier aannemelijke antwoorden, uitleg en bron). Het releasescript controleert de regels die automatisch te controleren zijn. Laat bij een herschreven vraag het zesde veld (de vaste code) staan, dan blijft de voortgang van gebruikers bewaard.
 
 ### Een nieuwe versie uitbrengen
 
@@ -184,6 +184,16 @@ Met een licentiecode van de werkgever krijgt de app de kleuren en het logo van d
 - **Logo:** zet het officiële logo dat de organisatie aanlevert in `bron/licenties/ns-logo.svg` (of `.png`). Het releasescript voegt het in de kopbalk en bij Profiel → Licentie in. Zonder dat bestand staat alleen "Examentrainer voor NS" in de kopbalk.
 - **Codes:** in `bron/v2_body.html` (`LIC`) staan alleen controlegetallen van geldige codes, niet de codes zelf. Een nieuwe code voeg je toe met het controlegetal van `hash("boa-lic:" + CODE)`, met CODE in hoofdletters zonder streepjes of spaties. Dit is geen echte beveiliging; toegang per gebruiker volgt met de accounts.
 - **Test:** `tests/licentie.js`.
+
+### Proefversies
+
+Een push naar een tak die met `proef-` begint, bouwt een proefversie die naast de gewone app staat: een test-APK (**Boa Paraat Proef**, app-ID `nl.boa.phbtrainer.proef`), het proefprogramma voor Windows, Mac en Linux en een los proefbestand. Ze komen als pre-release `proef-<commit>` op GitHub en tellen niet als nieuwste versie, dus gebruikers en de updatemelding merken er niets van. In de proefbouw staat "proef" in de kopbalk (schakelaar `PROEF`).
+
+### Gesprekken oefenen (PHB 2) en zoeken
+
+- `bron/casus.js`: de casustrainer voor het examen Bejegening. Criteria (`KZC`) en soorten casussen (`KZT`, met maximum en cesuur) zijn in eigen woorden samengevat uit de rubrics Bejegening Domein I v1.5 en Domein IV v1.1 van ExTH. Casussen (`KZ`) en gesprekken als keuzeboom (`GESPREK`) zijn eigen voorbeelden. Resultaten staan in `store.k` en gaan mee met de cloudopslag.
+- `bron/zoek.js`: zoeken in studiestof en vragen, in de app zelf (ook offline).
+- Test: `tests/groot.js`.
 
 ## Goed om te weten
 

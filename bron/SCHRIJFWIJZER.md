@@ -19,14 +19,14 @@ Vragen volgen de schrijftaal van de officiële examens (ExTH). Kwaliteit en uitl
 ## Antwoorden (eigen kwaliteit)
 
 1. **Vier antwoorden**, één juist, het juiste staat in de bron altijd eerst (de app schudt).
-2. **Elk antwoord is aannemelijk.** Geen afleiders die je zonder kennis wegstreept (zoals "mag altijd alles").
+2. **Elk antwoord is aannemelijk.** Geen afleiders die je zonder kennis wegstreept (zoals "mag altijd alles"). Woorden als *altijd*, *nooit* en *elke* alleen in foute antwoorden verraden het juiste antwoord (controle: maximaal 18% van de vragen).
 3. **Gelijke lengte.** Het juiste antwoord is niet vaker het langste dan de andere (controle: maximaal 35%).
 4. **Volzin of begrip met een hoofdletter, eindigend met een punt**: *Vanaf 14 jaar.* · *Ambtsdwang (artikel 179 Sr).*
 
 ## Uitleg en bron
 
 - Bij elke vraag een uitleg in gewone taal: waarom het juiste antwoord klopt.
-- Bron: het wetsartikel (`art. 128 Sv`) of het document. In de uitleg en de bron mag de korte notatie `art.`.
+- Bron: het wetsartikel (`art. 128 Sv`) of het document, bij elke vraag verplicht. In de uitleg en de bron mag de korte notatie `art.`.
 
 ## Voortgang
 

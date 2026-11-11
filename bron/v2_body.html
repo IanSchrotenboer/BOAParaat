@@ -35,6 +35,7 @@
 "use strict";
 // ---------- configuratie ----------
 /*__VERSIE__*/
+const PROEF=/*__PROEF__*/false; // proefbouw (uit/Boa-Paraat-proef.html, test-APK en -programma): 'proef' in de kopbalk
 const CATS = {
   sr:["phb1","Staatsrecht"], ro:["phb1","Rechterlijke organisatie en OM"], boa:["phb1","Opsporingsambtenaar, boa en privacy"], pol:["phb1","De politie"],
   str:["phb1","Materieel en formeel strafrecht"], vd:["phb1","Verdachte, verhoor en raadsman"], bev:["phb1","Bevoegdheden algemeen en jeugd"], kl:["phb1","Vervolging en klachtdelicten"],
@@ -71,7 +72,7 @@ const MODS = [
 const MODBY = Object.fromEntries(MODS.map(m=>[m.id,m]));
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return "q"+(h>>>0).toString(36)}
 // vaste code per vraag (6e veld): blijft gelijk als de vraagtekst wordt herschreven, zodat de voortgang bewaard blijft
-const ALL = [].concat(Q1,Q2,Q3,Q4,Q5,Q6,Q7).map(r=>({id:r[5]||hash(r[1]),c:r[0],m:CATS[r[0]][0],q:r[1],o:r[2],e:r[3],r:r[4]||""}));
+const ALL = [].concat(Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8).map(r=>({id:r[5]||hash(r[1]),c:r[0],m:CATS[r[0]][0],q:r[1],o:r[2],e:r[3],r:r[4]||""}));
 const BYID = Object.fromEntries(ALL.map(q=>[q.id,q]));
 
 // ---------- opslag ----------
@@ -79,7 +80,7 @@ const KEY="phb-trainer-v1";
 // licenties per organisatie (zie licentie.js); h = controlegetallen van geldige codes
 const LIC={ns:{naam:"Nederlandse Spoorwegen",kort:"NS",dom:"4",h:["q7psou2"],logo:/*__LOGO_ns__*/""}};
 const licVan=c=>{const h=hash("boa-lic:"+String(c||"").toUpperCase().replace(/[^A-Z0-9]/g,""));return Object.keys(LIC).find(k=>LIC[k].h.includes(h))||""};
-const blank = () => ({s:{},h:[],x:[],e:{},w:[],wd:null,yt:[],d:{},p:{naam:"",dom:"1",werk:"",datum:"",akte:"",rol:"",thema:"systeem",mld:{oefen:false,examen:false,tijd:"19:00"}}});
+const blank = () => ({s:{},h:[],x:[],e:{},w:[],wd:null,yt:[],k:[],d:{},p:{naam:"",dom:"1",werk:"",datum:"",akte:"",rol:"",thema:"systeem",mld:{oefen:false,examen:false,tijd:"19:00"}}});
 let store=blank();
 // opgeslagen gegevens controleren: verkeerde soorten waarden (bijv. door een oude of beschadigde versie) worden hersteld
 const isObj=v=>!!v&&typeof v==="object"&&!Array.isArray(v);
@@ -92,6 +93,7 @@ function normalize(p){const b=blank();if(!isObj(p))return b;
   if(isObj(p.e))for(const [k,v] of Object.entries(p.e))if(Array.isArray(v))b.e[k]=v.filter(x=>typeof x==="string");
   b.w=(Array.isArray(p.w)?p.w:[]).filter(x=>isObj(x)&&typeof x.id==="string").slice(0,40);
   b.yt=(Array.isArray(p.yt)?p.yt:[]).filter(x=>isObj(x)&&typeof x.id==="string");
+  b.k=(Array.isArray(p.k)?p.k:[]).filter(x=>isObj(x)&&typeof x.id==="string"&&typeof x.cs==="string"&&typeof x.p==="number"&&typeof x.m==="number").map(x=>({id:str(x.id,30),cs:str(x.cs,40),d:typeof x.d==="number"?x.d:0,p:x.p,m:x.m,o:["Goed","Voldoende","Onvoldoende"].includes(x.o)?x.o:"Onvoldoende",...(Array.isArray(x.v)?{v:x.v.filter(n=>typeof n==="number").slice(0,20)}:{})})).slice(0,60);
   b.wd=isObj(p.wd)&&p.wd.sc?p.wd:null;
   if(isObj(p.d))for(const [k,v] of Object.entries(p.d))if(ISO.test(k)&&typeof v==="number")b.d[k]=v;
   const q=isObj(p.p)?p.p:{},P=b.p;
@@ -197,7 +199,7 @@ function route(){return (location.hash||"#home").slice(1)||"home"}
 function paintNav(){
   const r=route();const welcome=needsWelcome();const inSession=welcome||(r==="sessie"&&S&&!S.done)||(r==="wv"&&!!W);
   const items=[["home","Overzicht",ICON.home]].concat(MODS.map(m=>[m.id,m.code,ICON[MODICON[m.id]],m.name])).concat([["stof","Studiestof",ICON.doc]]);
-  const cur=id=>r===id||(id==="stof"&&r.indexOf("stof-")===0);
+  const cur=id=>r===id||(id==="stof"&&r.indexOf("stof-")===0)||(id==="phb2"&&/^(casus|gesprek)/.test(r));
   $("#topnav").innerHTML=items.map(([id,l,ic,full])=>`<a href="#${id}"${cur(id)?' aria-current="page"':""}${full?` title="${esc(full)}"`:""}><span class="ic" aria-hidden="true">${ic}</span>${l}</a>`).join("");
   balkTeken(r);
   $("#topnav").hidden=inSession;$("#tabbar").hidden=inSession;$("#profBtn").hidden=inSession;
@@ -254,6 +256,7 @@ function render(){
   else if(r.indexOf("verslag-")===0){v="verslag";h=viewWVResult(r.slice(8))}
   else if(r==="profiel"||r==="profiel-examens"||r==="profiel-phb3"||r==="profiel-fouten"||r==="fouten"){v="profiel";h=viewProfile(r==="profiel-examens"?"examens":r==="profiel-fouten"||r==="fouten"?"fouten":"voortgang")}
   else if(r==="stof"||r.indexOf("stof-")===0){v="stof";h=viewStof()}
+  else if(r==="casus"||r.indexOf("casus-")===0||r.indexOf("gesprek-")===0){v="casus";store.p.lm="phb2";h=viewKz(r)}
   else if(MODBY[r]){v="module";store.p.lm=r;h=viewModule(MODBY[r])}
   else h=viewHome();
   tabTransition(app);app.dataset.v=v;app.innerHTML=h;
@@ -262,9 +265,7 @@ function render(){
 }
 // ---------- studiestof ----------
 const STOFBY = Object.fromEntries(STOF.map(s=>[s.id,s]));
-const NOREF = new Set(["wijk","cult"]);
 function refFor(q){
-  if(NOREF.has(q.c))return null;
   const rc=CATS[q.c]&&CATS[q.c][0]==="rtgb"?STOF_CAT[q.c]:null;if(rc&&STOFBY[rc])return {sec:rc};
   for(const [re,sec] of STOF_ART){if(q.r&&re.test(q.r))return {sec}}
   const sec=STOF_CAT[q.c];if(!sec||!STOFBY[sec])return null;return {sec};
@@ -279,7 +280,8 @@ function viewStof(){
   return `<div class="stack">
     <div class="stack" style="gap:8px"><span class="eyebrow">Samenvattingen</span><h1>Studiestof</h1>
     <p class="lede">Korte samenvattingen per onderwerp. Bij elke oefenvraag vind je een verwijzing naar het juiste stuk.</p></div>
-    <div class="stofgrid"><nav class="toc panel" aria-label="Onderwerpen">${groups.map(g=>`<div class="stack" style="gap:6px"><span class="eyebrow">${esc(g)}</span><ol>${STOF.filter(s=>s.deel===g).map(s=>`<li><a href="#stof-${s.id}">${esc(s.titel)}</a></li>`).join("")}</ol></div>`).join("")}</nav>
+    ${zoekVeld()}
+    <div class="stofgrid"${zoekWoorden(zoekQ).length?" hidden":""}><nav class="toc panel" aria-label="Onderwerpen">${groups.map(g=>`<div class="stack" style="gap:6px"><span class="eyebrow">${esc(g)}</span><ol>${STOF.filter(s=>s.deel===g).map(s=>`<li><a href="#stof-${s.id}">${esc(s.titel)}</a></li>`).join("")}</ol></div>`).join("")}</nav>
     <div class="stack">${groups.map(g=>`<h2 class="deel">${esc(g)}</h2>`+STOF.filter(s=>s.deel===g).map(s=>{const cs=catsFor(s.id);return `<section class="stofsec" id="s-${s.id}">
       <h3>${esc(s.titel)}</h3>
       <div class="prose">${s.html}</div>
@@ -335,6 +337,7 @@ function viewModule(m){
     ${m.id==="phb1"?`<div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}${dom()==="4"?`<p class="note">Je oefent de algemene stof plus de Wet personenvervoer 2000, het Besluit personenvervoer 2000 en toezicht volgens de Awb. Het oefenexamen bevat 12 OV-vragen en 38 algemene vragen.</p>`:""}</div>`:""}
     ${(m.notes&&m.notes[dom()])||m.note?`<p class="note">${esc((m.notes&&m.notes[dom()])||m.note)}</p>`:""}
     ${m.id==="phb3"?`<div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}<p class="note">${dom()==="4"?"Domein IV: je oefent met camerabeelden uit het openbaar vervoer (perron en station) en schrijft je verslag in het sjabloon 'Examen Waarneming en Verslaglegging OV'.":"Domein I–III: je oefent met camerabeelden uit de openbare ruimte (plein en winkelgebied) en schrijft je verslag in het sjabloon 'Examen Waarneming en Verslaglegging'."} Je domein geldt ook voor PHB 1.</p></div>`+wvCard():""}
+    ${m.id==="phb2"?`<div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}</div>`+kzKaart():""}
     ${m.exam?`<div class="exam"><div class="big">${m.exam.n}</div><div class="stack" style="gap:10px"><div><h2>${m.exam.naam||"Oefenexamen"}${m.id==="phb1"&&dom()==="4"?" domein IV":""}</h2><p class="small">${m.exam.n} vragen uit alle onderwerpen · ${m.exam.min} minuten · geslaagd bij maximaal ${m.exam.maxWrong} fout. Je ziet de uitslag en uitleg pas na inleveren.</p></div><div class="row"><button class="btn hi" data-act="examen" data-mod="${m.id}">Start ${examCount(m.id)?"nieuwe ":""}${m.exam.naam?"oefentoets":"oefenexamen"}</button>${examCount(m.id)?`<span class="small">${m.exam.naam?"Oefentoets":"Oefenexamen"} ${examCount(m.id)+1} · andere vragen dan je vorige examen</span>`:""}</div></div></div>`:""}
     ${m.id==="phb1"?viewMtx():""}
     <div class="section stack"><div><h2>Oefenen per onderwerp</h2><p class="small">Na elke vraag zie je direct het juiste antwoord, de uitleg en het wetsartikel.</p></div>
@@ -602,10 +605,11 @@ function viewResult(){
   const rows=Object.entries(byCat).sort((a,b)=>a[1][0]/a[1][1]-b[1][0]/b[1][1]).map(([c,v])=>`<tr><td>${esc(CATS[c][1])}</td><td style="width:35%"><div class="meter"><i style="width:${pct(v[0]/v[1])};background:${v[0]/v[1]>=.7?"var(--ok)":"var(--bad)"}"></i></div></td><td class="n">${v[0]}/${v[1]}</td></tr>`).join("");
   const rev=wrongs.map(it=>{const q=BYID[it.id];const k=S.items.indexOf(it)+1;return `<details class="review"${wrongs.length<=3?" open":""}><summary><span class="qhead"><span class="chip">${esc(CATS[q.c][1])}</span><span class="mono small">Vraag ${k}</span></span><b>${esc(q.q)}</b></summary><div class="rbody"><p class="yours">Jouw antwoord: ${it.pick===null?"niet beantwoord":esc(q.o[it.pick])}</p><p class="corr">Juist: ${esc(q.o[0])}</p><p class="small">${esc(q.e)}</p>${q.r?`<div><span class="chip ref">${esc(q.r)}</span></div>`:""}${refHtml(q)}</div></details>`}).join("");
   return `<div class="stack"><span class="eyebrow">${esc(S.title)}</span>${head}
-    ${S.locked?`<div class="lockbox stack" style="gap:10px"><div><b>${isEx?"Eerst de vragen uit dit examen oefenen":"Eerst deze vragen nog een keer"}</b><p class="small">Je had ${r.wrong} van de ${r.n} vragen fout (${pct(r.wrong/r.n)}). Bij meer dan 75% fout ${fromEx?"maakt de app nog geen nieuw oefenexamen":"staat Nieuwe ronde uit"}. Oefen eerst de vragen die je net hebt gehad${isEx?", met uitleg na elke vraag":""}; heb je daarvan minimaal een kwart goed, dan ${fromEx?"kun je een nieuw oefenexamen maken":"komen er weer nieuwe vragen"}.</p></div>
-      <div class="row"><button class="btn hi" data-act="redo-same">${isEx?"Oefen de vragen uit dit examen":"Dezelfde vragen opnieuw"} (${r.n})</button>${wrongs.length&&wrongs.length<r.n?`<button class="btn go" data-act="redo-wrong">Alleen de fouten (${wrongs.length})</button>`:""}</div></div>`:""}
+    ${S.locked?`<div class="lockbox stack" style="gap:10px"><div><b>${isEx?"Eerst de vragen uit dit examen oefenen":"Eerst deze vragen nog een keer"}</b><p class="small">Je had ${r.wrong} van de ${r.n} vragen fout (${pct(r.wrong/r.n)}). Bij meer dan 75% fout raden we aan eerst te oefenen. Oefen de vragen die je net hebt gehad${isEx?", met uitleg na elke vraag":""}; heb je daarvan minimaal een kwart goed, dan ${fromEx?"staat het nieuwe oefenexamen weer klaar":"komen er weer nieuwe vragen"}.</p></div>
+      <div class="row"><button class="btn hi" data-act="redo-same">${isEx?"Oefen de vragen uit dit examen":"Dezelfde vragen opnieuw"} (${r.n})</button>${wrongs.length&&wrongs.length<r.n?`<button class="btn go" data-act="redo-wrong">Alleen de fouten (${wrongs.length})</button>`:""}</div>
+      ${S.redo?`<p class="small toch">Liever meteen verder? <button class="linkbtn" data-act="again-toch">${fromEx?"Toch een nieuw oefenexamen":"Toch een nieuwe ronde"}</button></p>`:""}</div>`:""}
     ${(()=>{const lbl=fromEx?"Nieuw oefenexamen":S.redo&&S.redo.act==="toets"?"Nieuwe toets met andere vragen":"Nieuwe ronde met nieuwe vragen";
-      const again=S.redo?(S.locked?`<button class="btn go" disabled aria-disabled="true" title="Eerst deze vragen opnieuw oefenen">${fromEx?"Nieuw oefenexamen":"Nieuwe ronde"}</button>`:`<button class="btn hi" data-act="again">${lbl}</button>`):"";
+      const again=S.redo?(S.locked?"":`<button class="btn hi" data-act="again">${lbl}</button>`):"";
       const fix=!S.locked&&wrongs.length?`<button class="btn ${S.redo?"go":"hi"}" data-act="redo-wrong">Fouten opnieuw oefenen (${wrongs.length})</button>`:"";
       return `<div class="row ractions">${again+fix}`})()}<a class="btn" href="#${S.mod||"home"}">Terug naar ${S.mod?MODBY[S.mod].code:"overzicht"}</a><a class="btn ghost" href="${S.herh?"#profiel-fouten":"#profiel"}">${S.herh?"Foutenanalyse":"Mijn voortgang"}</a></div>
     ${fromEx&&!S.locked?(()=>{const m=MODBY[S.redo.d.mod];const pool=poolOf(S.redo);const bs=new Set(S.base);const fresh=pool.filter(q=>!bs.has(q.id)).length;
@@ -648,6 +652,8 @@ document.addEventListener("click",e=>{
   const b=e.target.closest("[data-act]");if(!b)return;const act=b.dataset.act;const d=b.dataset;
   if(act==="ob-dom"){obDraft=obCollect();obDom=d.v;delete obErr.dom;render();return}
   if(act.indexOf("wv-")===0&&wvClick(act,{...d}))return;
+  if(act.indexOf("kz-")===0&&casusClick(act,{...d}))return;
+  if(act.indexOf("zoek-")===0&&zoekClick(act))return;
   if(act.indexOf("yt-")===0&&ytClick(act,{...d}))return;
   if(["login","sync","logout","logout-no","acc-del","acc-del-no","acc-del-yes"].includes(act)&&cloudAct(act))return;
   if((act.indexOf("lic-")===0||act==="ob-lic")&&licAct(act))return;
@@ -683,7 +689,7 @@ document.addEventListener("click",e=>{
   if(act==="submit"){confirmSubmit=false;submit(false);return}
   if(act==="redo-wrong"){const qs=[...new Set(S.items.filter(it=>it.pick!==0&&!(S.herh&&lastOk(it.id))).map(it=>it.id))].map(id=>BYID[id]);if(!qs.length){toast("Alle fouten uit deze ronde zijn opgelost");return}start({mode:"oefen",herh:!!S.herh,title:"Fouten opnieuw",qs:shuffle(qs),mod:S.mod,redo:S.redo,base:S.base});return}
   if(act==="redo-same"){const qs=[...new Set(S.items.map(it=>it.id))].map(id=>BYID[id]);start({mode:"oefen",title:"Dezelfde vragen opnieuw",qs:shuffle(qs),mod:S.mod,redo:S.redo,base:S.base});return}
-  if(act==="again"){if(S.locked)return;const r=S.redo;if(r)launch(r.act,r.d,new Set(S.base));return}
+  if(act==="again"||act==="again-toch"){if(S.locked&&act==="again")return;const r=S.redo;if(r)launch(r.act,r.d,new Set(S.base));return}
   if(act==="stop-yes"){const m=S.mod;clearInterval(tick);S=null;confirmStop=false;location.hash=m||"home";return}
   if(act==="stop-no"){confirmStop=false;render();return}
 });
@@ -718,6 +724,7 @@ document.addEventListener("keydown",e=>{
 });
 window.addEventListener("hashchange",()=>{
   if(W&&route()!=="wv"){wvCollect();wvSaveDraft();wvAskStop=true;location.hash="wv";return}
+  if(!/^casus-/.test(route()))kzRecStop(true);
   if(route()!=="wv")wvAskStop=false;wvAskSubmit=false;wvDel=null;ytDel=null;if(route()!=="phb3")ytForm=null;
   if(S&&!S.done&&route()!=="sessie"&&S.mode!=="oefen"){location.hash="sessie";confirmStop=true;return}
   confirmReset=false;showExport=false;showImport=false;exEdit=null;exDel=null;exOpen=false;calFor=null;lastAdded=null;exAlles=false;pageAnim=true;render();
