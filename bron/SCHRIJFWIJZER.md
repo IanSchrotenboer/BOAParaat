@@ -41,3 +41,9 @@ Het theorie-examen van ExTH bestaat uit 50 gesloten vragen. De cesuur is 70%, of
 - Drie antwoorden. Vaak klinken er twee redelijk (bijvoorbeeld de algemene en de specifieke bepaling); het juiste is het beste antwoord.
 - De vaste code begint met `qx9`; de controle staat dan drie antwoorden toe.
 - Koppel elke vraag in `bron/matrijs.js` aan de toetsterm, zodat het oefenexamen haar meeneemt.
+
+## Welke bronnen wel en niet
+
+- Wel: wetteksten (wetten.overheid.nl, lokaleregelgeving.overheid.nl), documenten van ExTH (examenprogramma's, toetsmatrijzen, rubrics) en officiële overheidsinformatie (zoals IPLO).
+- Niet: oefenvragen of uitleg van oefen- en examensites, zoals ToetsJeKennis, boa-examen.nl en Quizlet. Neem daar ook geen vragen, antwoorden of formuleringen van over.
+- Alle vragen schrijven we zelf.

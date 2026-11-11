@@ -1,8 +1,8 @@
 // Vragen in examenstijl van ExTH (november 2026): per toetsterm uit de toetsmatrijzen Wet- en regelgeving
 // Domein I (v1.3) en Domein IV (v1.1), vooral de toetstermen op niveau T (toepassen: 'bij een gegeven situatie').
 // Net als op het examen: een korte praktijksituatie en drie antwoorden, waarvan er vaak twee redelijk klinken.
-// (De cesuur van 70% is 55% met gokkanscorrectie; dat past bij drie antwoordmogelijkheden.)
-// Eigen vragen, niet overgenomen van examen- of oefensites.
+// (Volgens de examenprogramma's van ExTH is de cesuur 70%, of 55% met gokkanscorrectie; dat past bij drie
+// antwoordmogelijkheden.) Eigen vragen; niets overgenomen van oefen- of examensites (zie de schrijfwijzer).
 const Q9 = [
 // ---------- DOMEIN I: STRAFRECHT EN BEVOEGDHEDEN ----------
 ["vrij", "Een vrouw wijst boa De Groot een man aan die haar fiets bij zich heeft. Volgens haar is de fiets twee dagen geleden gestolen. Is er sprake van ontdekking op heterdaad?", ["Nee, het feit is niet ontdekt tijdens of direct na het begaan.", "Ja, de verdachte heeft het gestolen goed op dat moment nog bij zich.", "Ja, de eigenares herkent haar eigen fiets en wijst de dader aan."], "Heterdaad (art. 128 lid 1 Sv) betekent dat het feit wordt ontdekt terwijl het wordt begaan of terstond daarna. Twee dagen later is dat niet meer zo, ook al heeft de verdachte de fiets nog.", "art. 128 Sv", "qx9a01"],
