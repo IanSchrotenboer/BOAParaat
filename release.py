@@ -33,7 +33,7 @@ def lees(*p): return open(os.path.join(*p), encoding='utf-8').read()
 # ---------------------------------------------------------------- 1. bouwen
 kop('1. Bouwen en compact maken')
 head = lees(BRON, 'v2_head.html'); body_src = lees(BRON, 'v2_body.html')
-data = '\n'.join(lees(BRON, f) for f in ['q1.js', 'q2.js', 'q3.js', 'q4.js', 'q5.js', 'q6.js', 'q7.js', 'q8.js', 'stof.js', 'matrijs.js'])
+data = '\n'.join(lees(BRON, f) for f in ['q1.js', 'q2.js', 'q3.js', 'q4.js', 'q5.js', 'q6.js', 'q7.js', 'q8.js', 'q9.js', 'stof.js', 'matrijs.js'])
 extra = ''.join(lees(BRON, f) for f in ['wv.js', 'wv_ui.js', 'ui_extra.js', 'fouten.js', 'licentie.js', 'fold.js', 'cloud.js', 'balk.js', 'casus.js', 'zoek.js'])
 # Supabase: projectadres en publishable key (openbaar; de beveiliging zit in de database-regels, zie supabase/)
 CLOUD = json.load(open(os.path.join(BRON, 'cloud.json'))) if os.path.exists(os.path.join(BRON, 'cloud.json')) else {}

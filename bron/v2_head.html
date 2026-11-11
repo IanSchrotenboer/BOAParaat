@@ -264,7 +264,23 @@ details.review .rbody{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .prose p{margin:0 0 8px}
 .prose h4{font-family:var(--f-display);font-size:15px;margin:12px 0 6px;font-stretch:90%}
 /* telefoon en tablet: onderwerpen buiten beeld pas opbouwen bij het scrollen (studiestof opent sneller) */
-@media (max-width:999px){.stofsec{content-visibility:auto;contain-intrinsic-size:auto 640px}}
+@media (max-width:999px){.stofsec[open]{content-visibility:auto;contain-intrinsic-size:auto 640px}}
+details.stofsec{display:block}details.stofsec:not([open]){padding:12px 18px}details.stofsec>*+*{margin-top:12px}
+details.stofsec>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:32px}
+details.stofsec>summary::-webkit-details-marker{display:none}
+details.stofsec>summary h3{margin:0}
+details.stofsec>summary::after,details.info>summary::after{content:"";flex:none;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin:0 4px 4px;transition:transform .15s}
+details.stofsec[open]>summary::after,details.info[open]>summary::after{transform:rotate(-135deg);margin-top:6px;margin-bottom:0}
+@media (min-width:1000px){details.stofsec>summary{cursor:default;pointer-events:none}details.stofsec>summary::after{display:none}}
+@media (max-width:999px){.stofgrid .toc{display:none}}
+/* uitklapblok met steekwoorden */
+details.info{border:1px solid var(--line);border-radius:var(--rb);background:var(--surface);padding:6px 14px}
+details.info>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:600;min-height:36px}
+details.info>summary::-webkit-details-marker{display:none}
+details.info ul{margin:8px 0 2px;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:15px}
+details.info.mini{border:0;padding:0;background:none}
+details.info.mini>summary{font-weight:500;font-size:14px;color:var(--muted);justify-content:flex-start;min-height:36px}
+details.info.mini p{margin:4px 0 0}
 .chip.bg{background:transparent;border-style:dashed;color:var(--muted);font-weight:500}
 .mtx{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:0}
 .mtx>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;cursor:pointer;list-style:none}

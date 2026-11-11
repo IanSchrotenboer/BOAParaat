@@ -31,3 +31,13 @@ Vragen volgen de schrijftaal van de officiële examens (ExTH). Kwaliteit en uitl
 ## Voortgang
 
 Elke vraag heeft een vaste code (het zesde veld). Herschrijf je een vraag, laat die code dan staan: zo blijft de voortgang van gebruikers bewaard.
+
+## Vragen in examenstijl (bron/q9.js)
+
+Het theorie-examen van ExTH bestaat uit 50 gesloten vragen. De cesuur is 70%, of 55% met correctie voor de gokkans; dat past bij drie antwoordmogelijkheden. Vragen in `bron/q9.js` volgen die stijl:
+
+- Per toetsterm uit de toetsmatrijs Wet- en regelgeving (Domein I v1.3, Domein IV v1.1), vooral de termen op niveau T (toepassen: "bij een gegeven situatie").
+- Een korte praktijksituatie met een boa, daarna één vraag. Bijvoorbeeld: "Welk artikel past het best?", "Mag de boa …?", "Is er sprake van …?"
+- Drie antwoorden. Vaak klinken er twee redelijk (bijvoorbeeld de algemene en de specifieke bepaling); het juiste is het beste antwoord.
+- De vaste code begint met `qx9`; de controle staat dan drie antwoorden toe.
+- Koppel elke vraag in `bron/matrijs.js` aan de toetsterm, zodat het oefenexamen haar meeneemt.

@@ -18,7 +18,7 @@ function foutVolgorde(list){const per={};list.forEach(q=>{per[q.c]=(per[q.c]||0)
   return list.slice().sort((a,b)=>per[b.c]-per[a.c]||(store.s[b.id][0]-store.s[b.id][1])-(store.s[a.id][0]-store.s[a.id][1])||store.s[a.id][3]-store.s[b.id][3])}
 // tijdens een ronde: fout beantwoorde vraag komt drie vragen later terug
 function foutTerug(it){if(!S||!S.herh||it.pick===0||(it.rep||0)>=2)return;
-  S.items.splice(Math.min(S.items.length,S.i+4),0,{id:it.id,ord:shuffle([0,1,2,3]),pick:null,flag:false,rep:(it.rep||0)+1})}
+  S.items.splice(Math.min(S.items.length,S.i+4),0,{id:it.id,ord:shuffle(BYID[it.id].o.map((_,k)=>k)),pick:null,flag:false,rep:(it.rep||0)+1})}
 function foutUitslag(){const ids=[...new Set(S.items.map(x=>x.id))];const weg=ids.filter(id=>lastOk(id)).length;
   const open=MODS.flatMap(m=>inMod(m.id)).filter(q=>lastWrong(q.id)).length;return {n:ids.length,weg,open}}
 const stofVan=c=>STOF_CAT[c]&&STOFBY[STOF_CAT[c]]?STOF_CAT[c]:null;

@@ -182,16 +182,16 @@ function viewCasusLijst(){
   const ts=kzTypes();const D4=dom()==="4";
   return `<div class="stack">${modChips("phb2")}
     <div class="stack" style="gap:8px"><a class="small" href="#phb2">← PHB 2 Bejegening</a><span class="eyebrow">Praktijk · domein ${D4?"IV":"I–III"}</span><h1>Gesprekken oefenen</h1>
-    <p class="lede">Het examen Bejegening is een gesprek met een acteur: ${D4?"twee casussen (aanwijzing en strafbaar feit)":"drie casussen (calamiteit, aanwijzing en balie dienstverlening)"} in 30 minuten. Elke casus moet minimaal voldoende zijn.</p></div>
+    <p class="lede">Gesprek met een acteur · ${D4?"aanwijzing en strafbaar feit":"calamiteit, aanwijzing en balie"} · 30 min</p></div>
     <div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}</div>
-    <div class="section stack"><div><h2>Kies je antwoord</h2><p class="small">Een gesprek als keuzeboom: per beurt kies je wat je zegt en zie je hoe de persoon reageert en waarom.</p></div>
+    <div class="section stack"><div><h2>Kies je antwoord</h2><p class="small">Jij kiest wat je zegt, de persoon reageert</p></div>
       <div class="kzlist">${GESPREK.filter(g=>KZT[g.t].dom===dom()).map(g=>{const best=(store.k||[]).filter(r=>r.cs===g.id).reduce((a,r)=>Math.max(a,Math.round(100*r.p/r.m)),-1);
         return `<div class="kzitem"><div><span class="eyebrow">${esc(KZT[g.t].naam)}</span><b>${esc(g.titel)}</b><span class="small">${g.stappen.length} beurten${best>=0?` · beste score ${best}%`:""}</span></div><a class="btn hi" href="#gesprek-${g.id}">${best>=0?"Opnieuw":"Start"}</a></div>`}).join("")}</div></div>
-    <div class="section stack"><div><h2>Casussen met de rubric</h2><p class="small">Oefen hardop, alleen of met een collega die de rol speelt. Daarna beoordeel je jezelf met de criteria uit de rubric van ExTH.</p></div>
-      ${ts.map(t=>`<div class="stack" style="gap:8px"><h3>${esc(KZT[t].naam)} <span class="small" style="font-weight:400">· ${KZT[t].max} punten · voldoende vanaf ${KZT[t].ces[0]}</span></h3><div class="kzlist">${KZ.filter(c=>c.t===t).map(c=>{const rs=kzResults(c.id);const l=rs[0];
+    <div class="section stack"><div><h2>Casussen met de rubric</h2><p class="small">Hardop oefenen, daarna jezelf beoordelen</p></div>
+      ${ts.map(t=>`<div class="stack" style="gap:8px"><h3>${esc(KZT[t].naam)} <span class="small" style="font-weight:400">· voldoende vanaf ${KZT[t].ces[0]}/${KZT[t].max}</span></h3><div class="kzlist">${KZ.filter(c=>c.t===t).map(c=>{const rs=kzResults(c.id);const l=rs[0];
         return `<div class="kzitem"><div><b>${esc(c.titel)}</b><span class="small">${l?`Laatst: ${l.p}/${l.m} · <span class="pill ${kzKlasse(l.o)}">${esc(l.o)}</span>`:"Nog niet geoefend"}</span></div><a class="btn" href="#casus-${c.id}">${l?"Opnieuw":"Oefen"}</a></div>`}).join("")}</div></div>`).join("")}
     </div>
-    <p class="small"><a href="#stof-${D4?"praktijk":"bejeg1"}">Studiestof: ${D4?"het gesprek bij een aanwijzing en een strafbaar feit":"de drie casussen van domein I"} →</a></p>
+    <p class="small"><a href="#stof-${D4?"praktijk":"bejeg1"}">Studiestof bij deze casussen →</a></p>
   </div>`;
 }
 // ----- casuskaart (#casus-<id>) -----
@@ -202,13 +202,13 @@ function viewCasus(id){
   if(kzBeoord===id)return viewKzBeoordeel(c);
   return `<div class="stack kzkaart">
     <div class="stack" style="gap:8px"><a class="small" href="#casus">← Alle gesprekken</a><span class="eyebrow">Casus ${esc(T.naam.toLowerCase())} · domein ${T.dom==="4"?"IV":"I–III"}</span><h1>${esc(c.titel)}</h1></div>
-    <div class="panel stack"><h2>De situatie</h2><p>${esc(c.s)}</p><h3>Wat moet je bereiken?</h3><p>${esc(c.d)}</p><h3>Let op</h3><p class="small">${esc(c.l)}</p></div>
-    <details class="panel kzrol"><summary><b>Rolkaart voor je oefenpartner</b> <span class="small">(niet zelf lezen als je alleen oefent)</span></summary><p>${esc(c.r)}</p></details>
-    <div class="panel stack"><div class="row" style="justify-content:space-between;align-items:center"><div><h2>Oefenen</h2><p class="small">Richttijd ${T.min} minuten. Voer het gesprek hardop, alsof de acteur voor je staat.</p></div>
+    <div class="panel stack"><h2>De situatie</h2><p>${esc(c.s)}</p><h3>Doel</h3><p>${esc(c.d)}</p><details class="info mini"><summary>Tips</summary><p class="small">${esc(c.l)}</p></details></div>
+    <details class="panel kzrol"><summary><b>Rolkaart oefenpartner</b></summary><p>${esc(c.r)}</p></details>
+    <div class="panel stack"><div class="row" style="justify-content:space-between;align-items:center"><div><h2>Oefenen</h2><p class="small">Richttijd ${T.min} min · hardop</p></div>
       <div class="kztimer mono" id="kzTimer" aria-live="off">${loopt?kzKlok():T.min+":00"}</div></div>
       <div class="row">${loopt?`<button class="btn" data-act="kz-stop">Timer stoppen</button>`:`<button class="btn hi" data-act="kz-start" data-min="${T.min}">Start timer</button>`}
       ${recKan?(rec?`<button class="btn danger" data-act="kz-rec-stop">● Opname stoppen</button>`:`<button class="btn" data-act="kz-rec">Opnemen</button>`):""}</div>
-      ${recKan?`<p class="small">Neem jezelf op en luister terug hoe je klinkt. De opname blijft alleen op dit apparaat en verdwijnt als je deze pagina verlaat.</p>`:`<p class="small">Opnemen kan niet in deze browser. Gebruik eventueel de spraakrecorder van je telefoon.</p>`}
+      ${recKan?`<p class="small">Opname blijft op dit apparaat en verdwijnt bij weggaan.</p>`:`<p class="small">Opnemen kan niet in deze browser.</p>`}
       ${kzRecFout?`<p class="small err">${esc(kzRecFout)}</p>`:""}
       ${kzRecUrl?`<audio controls src="${kzRecUrl}" class="kzaudio"></audio>`:""}</div>
     <div class="row"><button class="btn hi" data-act="kz-beoordeel">Klaar: beoordeel jezelf</button></div>
@@ -217,7 +217,7 @@ function viewCasus(id){
 function kzKlok(){const T=KZT[(KZBY[route().slice(6)]||{}).t];const rest=Math.max(0,(T?T.min*60:600)-Math.floor((Date.now()-KZ_T)/1000));return String(Math.floor(rest/60))+":"+String(rest%60).padStart(2,"0")}
 function viewKzBeoordeel(c){const T=KZT[c.t];
   return `<div class="stack kzkaart"><div class="stack" style="gap:8px"><button class="linkbtn small" data-act="kz-terug">← Terug naar de casus</button><span class="eyebrow">Zelfbeoordeling · ${esc(T.naam)}</span><h1>${esc(c.titel)}</h1>
-    <p class="lede">Kies per criterium wat het best past bij hoe jouw gesprek ging. Wees eerlijk: zo zie je waar je punten laat liggen.</p></div>
+    <p class="lede">Kies per criterium wat het best past.</p></div>
     <form id="kzForm" class="stack">${T.crit.map((k,i)=>{const C=KZC[k];return `<fieldset class="kzcrit"><legend><span class="mono small">${i+1}</span> ${esc(C[0])}</legend>${C[1].map((t,p)=>`<label class="kzlvl"><input type="radio" name="kz${i}" value="${p+1}"><span><b>${p+1} ${p?"punten":"punt"}</b> ${esc(t)}</span></label>`).join("")}</fieldset>`}).join("")}
     <p class="small err" id="kzErr" hidden>Kies bij elk criterium een niveau.</p>
     <div class="row"><button class="btn hi" type="button" data-act="kz-score" data-id="${c.id}">Bereken mijn score</button></div></form></div>`}
@@ -277,7 +277,7 @@ function viewKz(r){
 // kaart op de pagina van PHB 2
 function kzKaart(){const n=GESPREK.filter(g=>KZT[g.t].dom===dom()).length,c=KZ.filter(x=>KZT[x.t].dom===dom()).length;const l=(store.k||[])[0];
   return `<div class="exam wvcard"><div class="big" aria-hidden="true"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-4-3h-3"/></svg></div><div class="stack" style="gap:10px">
-    <div><h2>Gesprekken oefenen</h2><p class="small">Het examen is een gesprek met een acteur. Oefen ${n} gesprekken als keuzeboom en ${c} casussen met timer, opname en een zelfbeoordeling volgens de rubric van ExTH.${l?` Laatst geoefend: ${esc((KZBY[l.cs]||GBY[l.cs]||{}).titel||"")}, ${l.p}/${l.m}.`:""}</p></div>
+    <div><h2>Gesprekken oefenen</h2><p class="small">${n} keuzegesprekken · ${c} casussen met de rubric${l?` · laatst: ${l.p}/${l.m}`:""}</p></div>
     <div class="row"><a class="btn hi" href="#casus">Gesprekken oefenen</a></div></div></div>`}
 // alleen voor tests (tests/groot.js)
 try{if(localStorage.getItem("wv-debug"))window.__kz={GESPREK,KZT,KZC,kzVolgorde,kzOordeel,refFor,ALL,sessie:()=>S}}catch(e){}

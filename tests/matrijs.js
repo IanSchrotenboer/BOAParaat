@@ -72,8 +72,8 @@ async function stop(p){await p.evaluate(()=>{const s=document.getElementById('st
     t(await p.locator('.chip.bg').count()===0,`${L}: gemengd oefenen begint met een vraag uit de matrijs`);
     await stop(p);
     // PHB 2, 3 en 4 per domein
-    await ga(p,'phb2');const n2=await p.textContent('#app .note');
-    t(d==='4'?/twee casussen/.test(n2):/drie casussen/.test(n2),`${L}: PHB 2 noemt de juiste casussen`);
+    await ga(p,'phb2');const n2=await p.textContent('#app details.info');
+    t(d==='4'?/Twee casussen/.test(n2):/Drie casussen/.test(n2),`${L}: PHB 2 noemt de juiste casussen (uitklapblok Over het examen)`);
     await ga(p,'phb4');
     const blokken=await p.evaluate(()=>[...document.querySelectorAll('#app .block h3')].map(x=>x.textContent));
     const p4cats=await p.evaluate(()=>[...document.querySelectorAll('#app .cat [data-act="oefen"]')].map(x=>x.dataset.cat));

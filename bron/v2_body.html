@@ -54,25 +54,25 @@ const D1 = new Set(["gem","bst","apv","wvw","bijz"]);
 // functiegerichte trainingen (PHB 4) die ExTH in domein IV niet accrediteert
 const NOT4 = new Set(["wijk","cult"]);
 const MODS = [
-  {id:"phb1",code:"PHB 1",short:"Wet & regels",name:"Wet- en regelgeving",desc:"Strafrecht, strafvordering, bevoegdheden en de wetgeving van jouw domein. Hierover gaat het theorie-examen: 50 meerkeuzevragen in 90 minuten, geslaagd bij 70% goed.",
+  {id:"phb1",code:"PHB 1",short:"Wet & regels",name:"Wet- en regelgeving",desc:"Strafrecht, bevoegdheden en de wetten van jouw domein.",info:{all:["Theorie-examen: 50 gesloten vragen, 90 minuten","Geslaagd bij 70% goed (55% met gokkanscorrectie)","Vragen in examenstijl hebben drie antwoorden, zoals bij ExTH"],"4":["Theorie-examen: 50 gesloten vragen, 90 minuten","Geslaagd bij 70% goed (55% met gokkanscorrectie)","Algemene stof plus Wp2000, Bp2000 en toezicht volgens de Awb","Oefenexamen: 12 OV-vragen en 38 algemene vragen"]},
    blocks:[["A","Staat en organisatie",["sr","ro","boa","pol"]],["B","Strafproces en verdachte",["str","vd","bev","kl"]],["C","Dwangmiddelen",["vrij","fou","bes","pl"]],["D","Strafbaarheid en de ambtenaar",["sch","amb"]]],
    exam:{n:50,maxWrong:15,min:90}},
-  {id:"phb2",code:"PHB 2",short:"Bejegening",name:"Bejegening",desc:"Communicatie, de-escalatie en beroepshouding.",note:"Het ExTH-examen Bejegening is een vaardigheidsexamen met een acteur. Hier oefen je de theorie die je daarbij gebruikt.",notes:{"1":"Het ExTH-examen Bejegening in domein I is een vaardigheidsexamen met een acteur: drie casussen (calamiteit, aanwijzing en balie dienstverlening) in 30 minuten. Elke casus moet minimaal voldoende zijn. De vragen hieronder volgen de criteria uit de rubric.","4":"Het ExTH-examen Bejegening in domein IV is een vaardigheidsexamen met een acteur: twee casussen (een aanwijzing en een strafbaar feit) in 30 minuten, beoordeeld met een rubric. Beide casussen moeten minimaal voldoende zijn. De vragen hieronder volgen de criteria uit de rubric."},
+  {id:"phb2",code:"PHB 2",short:"Bejegening",name:"Bejegening",desc:"Communicatie, de-escalatie en beroepshouding.",info:{"1":["Praktijkexamen met een acteur, 30 minuten","Drie casussen: calamiteit, aanwijzing, balie","Elke casus minimaal voldoende","De vragen volgen de rubric"],"4":["Praktijkexamen met een acteur, 30 minuten","Twee casussen: aanwijzing en strafbaar feit","Beide casussen minimaal voldoende","De vragen volgen de rubric"]},
    blocks:[["A","Bejegening compleet",["com","agr","prof"]]]},
-  {id:"phb3",code:"PHB 3",short:"Waarneming",name:"Waarneming en verslaglegging",desc:"Objectief waarnemen en een bruikbaar proces-verbaal schrijven.",note:"Bij ExTH maak je dit examen digitaal in een examencentrum: je bekijkt twee keer een film en legt je waarnemingen vast in het examensjabloon. Hieronder oefen je dat met een praktijkoefening, en daaronder de theorie met losse vragen.",notes:{"4":"Bij ExTH maak je dit examen (open werk, 80 minuten) digitaal: je bekijkt een film en legt je waarnemingen vast in het sjabloon Waarneming en verslaglegging OV. De praktijkoefening hieronder beoordeelt je verslag met de rubric Domein IV: algemeen 35 punten, waarnemingen 65 punten, geslaagd vanaf 70 en goed vanaf 85; aanvangssituatie, gebeurtenissen en specificaties moeten elk minimaal de helft halen."},
+  {id:"phb3",code:"PHB 3",short:"Waarneming",name:"Waarneming en verslaglegging",desc:"Objectief waarnemen en een bruikbaar proces-verbaal schrijven.",info:{"1":["Digitaal examen in een examencentrum","Film twee keer bekijken, verslag in het examensjabloon","Beelden uit de openbare ruimte (plein, winkelgebied)"],"4":["Open werk, 80 minuten, digitaal","Film bekijken, verslag in het sjabloon WaVe OV","Beelden uit het OV (perron, station)","Rubric: algemeen 35 en waarnemingen 65 punten","Geslaagd vanaf 70, goed vanaf 85","Aanvangssituatie, gebeurtenissen en specificaties: elk minstens de helft"]},
    blocks:[["A","Waarneming en verslag compleet",["waa","pv"]]]},
-  {id:"phb4",code:"PHB 4",short:"Keuze",name:"Keuzemodule",desc:"De functiegerichte training: 24 studiebelastingsuren bij een door ExTH geaccrediteerde opleider, zonder examen.",note:"Module 4 is een functiegerichte training. Kies het onderwerp dat bij jou past.",notes:{"1":"Module 4 is een functiegerichte training van 24 studiebelastingsuren, zonder examen. In domein I accrediteert ExTH: AVG en Wpg, Opmaken proces-verbaal, Wijkgericht werken, Jeugdboa en Cultureel vakmanschap. Kies het onderwerp van jouw training.","4":"Module 4 is een functiegerichte training van 24 studiebelastingsuren, zonder examen. In domein IV accrediteert ExTH: AVG en Wpg, Opmaken proces-verbaal en Communicatie met jeugdigen. Kies het onderwerp van jouw training."},
+  {id:"phb4",code:"PHB 4",short:"Keuze",name:"Keuzemodule",desc:"Functiegerichte training, zonder examen.",info:{"1":["24 studiebelastingsuren bij een geaccrediteerde opleider","Onderwerpen: AVG en Wpg, proces-verbaal, wijkgericht werken, jeugd, cultureel vakmanschap","Kies hieronder het onderwerp van jouw training"],"4":["24 studiebelastingsuren bij een geaccrediteerde opleider","Onderwerpen: AVG en Wpg, proces-verbaal, communicatie met jeugdigen","Kies hieronder het onderwerp van jouw training"]},
    blocks:[["A","AVG en Wpg",["avg"]],["B","Opmaken proces-verbaal",["pv","waa"]],["C","Wijkgericht werken",["wijk"]],["D","Jeugd",["jgd"]],["E","Cultureel vakmanschap",["cult"]]],
    blocks4:[["A","AVG en Wpg",["avg"]],["B","Opmaken proces-verbaal",["pv","waa"]],["C","Communicatie met jeugdigen",["jgd"]]]},
-  {id:"rtgb",code:"RTGB",short:"Ambtsinstructie",name:"Ambtsinstructie en geweldsbeheersing",desc:"Geweld, melden, geweldmiddelen, handboeien en fouilleren volgens de Ambtsinstructie. Voor boa's met geweldsbevoegdheid, die dit elk jaar opnieuw laten toetsen (RTGB).",
-   note:"Met geweldsbevoegdheid moet je elk kalenderjaar de toets geweldsbeheersing (ambtsinstructietoets) en de toets aanhoudings- en zelfverdedigingsvaardigheden halen. De ambtsinstructietoets heeft 10 vragen in 30 minuten (tot en met de wapenstok) of 20 vragen in 45 minuten (met pepperspray of vuurwapen). Deze oefentoets volgt de lange vorm; de grens van 14 goed is een oefennorm, de echte norm bepaalt de Politieacademie.",
+  {id:"rtgb",code:"RTGB",short:"Ambtsinstructie",name:"Ambtsinstructie en geweldsbeheersing",desc:"Geweld, melden, geweldmiddelen en fouilleren volgens de Ambtsinstructie.",
+   info:{all:["Voor boa's met geweldsbevoegdheid, elk kalenderjaar","Twee toetsen: ambtsinstructie en aanhouden en zelfverdediging","Kort: 10 vragen, 30 minuten (tot en met wapenstok)","Lang: 20 vragen, 45 minuten (met pepperspray of vuurwapen)","Deze oefentoets volgt de lange vorm; 14 goed is een oefennorm"]},
    blocks:[["A","Geweld, recht en melden",["aig","ais","aim"]],["B","Middelen, fouilleren en de toetsen",["aiw","aif","air"]]],
    exam:{n:20,maxWrong:6,min:45,naam:"Oefentoets ambtsinstructie"}}
 ];
 const MODBY = Object.fromEntries(MODS.map(m=>[m.id,m]));
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return "q"+(h>>>0).toString(36)}
 // vaste code per vraag (6e veld): blijft gelijk als de vraagtekst wordt herschreven, zodat de voortgang bewaard blijft
-const ALL = [].concat(Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8).map(r=>({id:r[5]||hash(r[1]),c:r[0],m:CATS[r[0]][0],q:r[1],o:r[2],e:r[3],r:r[4]||""}));
+const ALL = [].concat(Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9).map(r=>({id:r[5]||hash(r[1]),c:r[0],m:CATS[r[0]][0],q:r[1],o:r[2],e:r[3],r:r[4]||""}));
 const BYID = Object.fromEntries(ALL.map(q=>[q.id,q]));
 
 // ---------- opslag ----------
@@ -136,6 +136,8 @@ const seen = id => !!store.s[id];
 const lastOk = id => store.s[id] && store.s[id][2]===1;
 const lastWrong = id => store.s[id] && store.s[id][2]===0;
 const inCat = c => ALL.filter(q=>q.c===c);
+// uitklapblok met steekwoorden (minder tekst op het scherm)
+const info=(t,l)=>`<details class="info"><summary>${esc(t)}</summary><ul>${(l||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul></details>`;
 const inMod = m => ALL.filter(q=>q.m===m&&(m!=="phb1"||(dom()==="4"?!D1.has(q.c):!D4.has(q.c)))&&(m!=="phb4"||dom()!=="4"||!NOT4.has(q.c)));
 function catsOf(m){let cats=[...new Set(inMod(m.id).map(q=>q.c))];if(m.id==="phb1"&&dom()==="4")cats=["wp","bp","ovt","spw"].concat(cats.filter(c=>!D4.has(c)));return cats}
 // toetsmatrijs van het eigen domein (domein I–III volgt de matrijs van domein I); per toetsterm de vragen
@@ -212,7 +214,7 @@ function paintNav(){
 // ---------- sessie ----------
 let S=null,tick=null,confirmStop=false,confirmSubmit=false,confirmReset=false,showExport=false,showImport=false;
 function start(opts){
-  S={...opts,items:opts.qs.map(q=>({id:q.id,ord:shuffle([0,1,2,3]),pick:null,flag:false})),i:0,done:false,started:Date.now()};
+  S={...opts,items:opts.qs.map(q=>({id:q.id,ord:shuffle(q.o.map((_,k)=>k)),pick:null,flag:false})),i:0,done:false,started:Date.now()};
   S.base=opts.base||opts.qs.map(q=>q.id);
   if(opts.min)S.end=Date.now()+opts.min*60000;
   confirmStop=false;confirmSubmit=false;
@@ -274,19 +276,21 @@ function refHtml(q){
   const f=refFor(q);if(!f)return "";const s=STOFBY[f.sec];
   return `<div class="ref"><span class="eyebrow">Studiestof</span><a href="#stof-${s.id}">Samenvatting: ${esc(s.titel)} →</a></div>`;
 }
+// op een telefoon staat elk onderwerp ingeklapt; op een breed scherm (met inhoudsopgave ernaast) open
+const stofSmal=()=>{try{return matchMedia("(max-width:999px)").matches}catch(e){return false}};
 function viewStof(){
   const groups=[...new Set(STOF.map(s=>s.deel))];
   const catsFor=id=>Object.keys(CATS).filter(c=>STOF_CAT[c]===id&&inCat(c).length&&(!D4.has(c)||dom()==="4"));
   return `<div class="stack">
     <div class="stack" style="gap:8px"><span class="eyebrow">Samenvattingen</span><h1>Studiestof</h1>
-    <p class="lede">Korte samenvattingen per onderwerp. Bij elke oefenvraag vind je een verwijzing naar het juiste stuk.</p></div>
+    <p class="lede">Samenvattingen per onderwerp.</p></div>
     ${zoekVeld()}
     <div class="stofgrid"${zoekWoorden(zoekQ).length?" hidden":""}><nav class="toc panel" aria-label="Onderwerpen">${groups.map(g=>`<div class="stack" style="gap:6px"><span class="eyebrow">${esc(g)}</span><ol>${STOF.filter(s=>s.deel===g).map(s=>`<li><a href="#stof-${s.id}">${esc(s.titel)}</a></li>`).join("")}</ol></div>`).join("")}</nav>
-    <div class="stack">${groups.map(g=>`<h2 class="deel">${esc(g)}</h2>`+STOF.filter(s=>s.deel===g).map(s=>{const cs=catsFor(s.id);return `<section class="stofsec" id="s-${s.id}">
-      <h3>${esc(s.titel)}</h3>
+    <div class="stack">${groups.map(g=>`<h2 class="deel">${esc(g)}</h2>`+STOF.filter(s=>s.deel===g).map(s=>{const cs=catsFor(s.id);const open=!stofSmal()||route()==="stof-"+s.id;return `<details class="stofsec" id="s-${s.id}"${open?" open":""}>
+      <summary><h3>${esc(s.titel)}</h3></summary>
       <div class="prose">${s.html}</div>
       ${cs.length?`<div class="row">${cs.map(c=>`<button class="btn" data-act="oefen" data-cat="${c}">Oefen: ${esc(CATS[c][1])}</button>`).join("")}</div>`:""}
-    </section>`}).join("")).join("")}</div></div>
+    </details>`}).join("")).join("")}</div></div>
   </div>`;
 }
 const CHECK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 L10 17 L19 7.5"/></svg>';
@@ -307,7 +311,7 @@ function viewHome(){
   const tgt=nx&&nx.mod&&MODBY[nx.mod]?nx.mod:(lastMod&&MODBY[lastMod]?lastMod:"phb1");const tm=MODBY[tgt];
   const started=!!lastMod;const topic=nextTopic(tm);
   const sub=nx?`${countdownText(nx.datum)} tot je examen ${esc(exLabel(nx))}.`.replace(/^Vandaag tot je examen/,"Vandaag is je examen").replace(/^Morgen tot je examen/,"Morgen is je examen")
-    :store.p.naam?"Kies een module of ga verder waar je gebleven was.":`Oefen per onderwerp en doe oefenexamens. <a href="#profiel">Vul je profiel in</a> voor je domein en voortgang.`;
+    :store.p.naam?"Kies een module of ga verder.":`Oefen per onderwerp en doe oefenexamens. <a href="#profiel">Vul je profiel in</a> voor je domein en voortgang.`;
   const hero=`<div class="hero"><div class="stack" style="gap:4px"><span class="eyebrow">${nx?"Oefenen voor je examen":started?"Verder waar je was":"Begin hier"}</span><h2>${esc(tm.code)} · ${esc(tm.name)}</h2>${topic?`<span class="small">${started?"Volgend onderwerp":"Eerste onderwerp"}: ${esc(topic.charAt(0).toLowerCase()+topic.slice(1))}</span>`:""}</div><a class="btn hi" href="#${tgt}">${started?"Verder oefenen":"Start met oefenen"}</a></div>`;
   return `<div class="homegrid"><div class="stack home">
     <div class="stack" style="gap:6px"><h1>${naam?`Hoi ${esc(naam)}`:"Klaar voor je PHB?"}</h1>
@@ -334,17 +338,16 @@ function viewModule(m){
   const list=inMod(m.id);const wrong=list.filter(q=>lastWrong(q.id)).length;const cats=catsOf(m);
   return `<div class="stack">${modChips(m.id)}
     <div class="stack" style="gap:8px"><span class="eyebrow">${m.code} · ${list.length} vragen</span><h1>${esc(m.name)}</h1><p class="lede">${esc(m.desc)}</p></div>
-    ${m.id==="phb1"?`<div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}${dom()==="4"?`<p class="note">Je oefent de algemene stof plus de Wet personenvervoer 2000, het Besluit personenvervoer 2000 en toezicht volgens de Awb. Het oefenexamen bevat 12 OV-vragen en 38 algemene vragen.</p>`:""}</div>`:""}
-    ${(m.notes&&m.notes[dom()])||m.note?`<p class="note">${esc((m.notes&&m.notes[dom()])||m.note)}</p>`:""}
-    ${m.id==="phb3"?`<div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}<p class="note">${dom()==="4"?"Domein IV: je oefent met camerabeelden uit het openbaar vervoer (perron en station) en schrijft je verslag in het sjabloon 'Examen Waarneming en Verslaglegging OV'.":"Domein I–III: je oefent met camerabeelden uit de openbare ruimte (plein en winkelgebied) en schrijft je verslag in het sjabloon 'Examen Waarneming en Verslaglegging'."} Je domein geldt ook voor PHB 1.</p></div>`+wvCard():""}
-    ${m.id==="phb2"?`<div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}</div>`+kzKaart():""}
-    ${m.exam?`<div class="exam"><div class="big">${m.exam.n}</div><div class="stack" style="gap:10px"><div><h2>${m.exam.naam||"Oefenexamen"}${m.id==="phb1"&&dom()==="4"?" domein IV":""}</h2><p class="small">${m.exam.n} vragen uit alle onderwerpen · ${m.exam.min} minuten · geslaagd bij maximaal ${m.exam.maxWrong} fout. Je ziet de uitslag en uitleg pas na inleveren.</p></div><div class="row"><button class="btn hi" data-act="examen" data-mod="${m.id}">Start ${examCount(m.id)?"nieuwe ":""}${m.exam.naam?"oefentoets":"oefenexamen"}</button>${examCount(m.id)?`<span class="small">${m.exam.naam?"Oefentoets":"Oefenexamen"} ${examCount(m.id)+1} · andere vragen dan je vorige examen</span>`:""}</div></div></div>`:""}
+    ${["phb1","phb2","phb3"].includes(m.id)?`<div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}</div>`:""}
+    ${m.info?info("Over het examen",m.info[dom()]||m.info.all||m.info["1"]):""}
+    ${m.id==="phb3"?wvCard():""}${m.id==="phb2"?kzKaart():""}
+    ${m.exam?`<div class="exam"><div class="big">${m.exam.n}</div><div class="stack" style="gap:10px"><div><h2>${m.exam.naam||"Oefenexamen"}${m.id==="phb1"&&dom()==="4"?" domein IV":""}</h2><p class="small">${m.exam.n} vragen · ${m.exam.min} min · max. ${m.exam.maxWrong} fout · uitleg na inleveren</p></div><div class="row"><button class="btn hi" data-act="examen" data-mod="${m.id}">Start ${examCount(m.id)?"nieuwe ":""}${m.exam.naam?"oefentoets":"oefenexamen"}</button>${examCount(m.id)?`<span class="small">Nr. ${examCount(m.id)+1} · nieuwe vragen</span>`:""}</div></div></div>`:""}
     ${m.id==="phb1"?viewMtx():""}
-    <div class="section stack"><div><h2>Oefenen per onderwerp</h2><p class="small">Na elke vraag zie je direct het juiste antwoord, de uitleg en het wetsartikel.</p></div>
+    <div class="section stack"><div><h2>Oefenen per onderwerp</h2><p class="small">Direct uitleg na elke vraag</p></div>
     <div class="cats">${cats.map(c=>{const l=inCat(c);const ms=mastery(l);return `<div class="cat"><span class="t">${D4.has(c)?`<span class="chip ov">OV</span> `:""}${esc(CATS[c][1])}${m.id==="phb1"&&!l.some(inMtx)?` <span class="chip bg" title="Komt niet voor in de toetsmatrijs van jouw domein">achtergrond</span>`:""}</span><button class="btn" data-act="oefen" data-cat="${c}" aria-label="Oefenronde ${esc(CATS[c][1])}, ${Math.min(ROUND,l.length)} van ${l.length} vragen">Oefen ${Math.min(ROUND,l.length)}<span class="small" style="font-weight:400"> / ${l.length}</span></button><div class="row" style="gap:10px;flex-wrap:nowrap"><div class="meter" style="flex:1" role="img" aria-label="${pct(ms)} beheerst"><i style="width:${pct(ms)}"></i></div><span class="small mono">${pct(ms)}</span></div></div>`}).join("")}</div>
     <div class="row"><button class="btn go" data-act="mix" data-mod="${m.id}">Gemengd oefenen (20 vragen)</button>${wrong?`<button class="btn hi" data-act="fouten" data-mod="${m.id}">Fouten wegwerken (${wrong})</button>`:""}</div>${wrong?`<p class="small"><a href="#profiel-fouten">Bekijk in de foutenanalyse</a> waar je fouten zitten.</p>`:""}</div>
-    <div class="section stack"><div><h2>Tussentijdse toetsen</h2><p class="small">Toets zonder tussentijdse feedback. Geslaagd bij 70% goed, net als bij het examen.</p></div>
-    <div class="blocks">${blocksOf(m).map((b,bi)=>{const n=b[2].reduce((a,c)=>a+inCat(c).length,0);const k=Math.min(20,n);return `<div class="block"><span class="eyebrow">Toets ${b[0]}</span><h3>${esc(b[1])}</h3><p class="small">${b[2].map(c=>esc(CATS[c][1])).join(" · ")}</p><div><button class="btn" data-act="toets" data-mod="${m.id}" data-b="${bi}">Start toets (${k} vragen)</button></div></div>`}).join("")}</div></div>
+    <div class="section stack"><div><h2>Tussentijdse toetsen</h2><p class="small">Uitleg na afloop · geslaagd bij 70%</p></div>
+    <div class="blocks">${blocksOf(m).map((b,bi)=>{const n=b[2].reduce((a,c)=>a+inCat(c).length,0);const k=Math.min(20,n);return `<div class="block"><span class="eyebrow">Toets ${b[0]}</span><h3>${esc(b[1])}</h3>${b[2].length>1?`<details class="info mini"><summary>Onderwerpen</summary><p class="small">${b[2].map(c=>esc(CATS[c][1])).join(" · ")}</p></details>`:""}<div><button class="btn" data-act="toets" data-mod="${m.id}" data-b="${bi}">Start toets (${k} vragen)</button></div></div>`}).join("")}</div></div>
   </div>`;
 }
 // ---------- examens (ExTH) ----------
@@ -437,7 +440,7 @@ function viewExams(){
       </form>`;
   return `
     <div class="exhead" id="exFormWrap">
-      <div class="stack" style="gap:2px"><h2>Mijn examens</h2><p class="small">Houd je geplande examens en uitslagen bij en zet ze in je agenda.</p></div>
+      <div class="stack" style="gap:2px"><h2>Mijn examens</h2><p class="small">Planning, uitslagen en agenda</p></div>
       ${exOpen||exEdit?"":`<button class="btn hi addbtn" data-act="ex-new"><span aria-hidden="true">+</span> Examen toevoegen</button>`}
     </div>
     ${exOpen||exEdit?form:""}
@@ -446,7 +449,7 @@ function viewExams(){
     ${nx?`<div class="exam"><div class="big">${daysTo(nx.datum)}</div><div class="stack" style="gap:6px"><span class="eyebrow">Volgend examen · ${daysTo(nx.datum)===1?"dag":"dagen"} te gaan</span><h2>${esc(exLabel(nx))}</h2><p class="small">${fmtDate(nx.datum+"T00:00")}${nx.tijd?" om "+esc(nx.tijd):""}${nx.loc?" · "+esc(nx.loc):""}</p><div class="row">${nx.mod&&MODBY[nx.mod]?`<a class="btn hi sm" href="#${nx.mod}">Oefenen voor ${MODBY[nx.mod].code}</a>`:""}<button class="btn sm" data-act="ex-cal" data-id="${nx.id}">In agenda zetten</button></div></div></div>`:""}
     <div class="section stack"><h2>Gepland</h2>${planned.length?`<ul class="exlist">${exLijst(planned)}</ul>`:`<p class="small">Nog geen geplande examens. Voeg je examen toe zodra je de bevestiging van ExTH hebt.</p>`}</div>
     <div class="section stack"><h2>Uitslagen</h2>${done.length?`<ul class="exlist">${exLijst(done)}</ul>`:`<p class="small">Nog geen uitslagen ingevuld. Neem je uitslag over uit Mijn ExTH.</p>`}</div>
-    <div class="section stack"><div><h2>PHB-cyclus</h2><p class="small">Binnen de looptijd van je akte rond je vier modules af. ${nOk} van 4 gehaald.${p.rol==="scholier"?" Als scholier begint je PHB-cyclus na je beëdiging; tot die tijd oefen je alvast met alle modules.":akte?" "+akte+".":" Vul bij Voortgang de geldigheid van je akte in."}</p></div>
+    <div class="section stack"><div><h2>PHB-cyclus</h2><p class="small">${nOk} van 4 modules gehaald${p.rol==="scholier"?" · je cyclus start na je beëdiging":akte?" · "+akte:" · vul bij Voortgang je akte in"}</p></div>
       <div class="meter" role="img" aria-label="${nOk} van 4 modules gehaald"><i style="width:${nOk*25}%"></i></div>
       <ul class="exlist">${cyc.map(c=>c.html).join("")}</ul></div>`;
 }
@@ -472,7 +475,7 @@ function viewProfile(tab){
   const head=`<div class="idcard"><span class="ava lg">${esc(initials(p.naam))}</span><div class="stack" style="gap:4px;min-width:0"><span class="eyebrow">Mijn profiel</span><h2>${p.naam?esc(p.naam):"Naam nog niet ingevuld"}</h2><p class="small">${p.rol==="scholier"?"Boa in opleiding, ":"Boa "}${dom()==="4"?"domein IV · openbaar vervoer":"domein I–III"}${p.werk?" · "+esc(p.werk):""}</p>${countdown?`<p class="small mono">${countdown}</p>`:""}</div>${akteStatus(p)}</div>
     <nav class="ptabs" aria-label="Profiel"><a href="#profiel"${tab==="voortgang"?' aria-current="page"':""}>Voortgang</a><a href="#profiel-fouten"${tab==="fouten"?' aria-current="page"':""}>Fouten${wrong?` <span class="pbadge">${wrong}</span>`:""}</a><a href="#profiel-examens"${tab==="examens"?' aria-current="page"':""}>Examens <span class="small">ExTH</span></a></nav>`;
   if(tab==="examens")return `<div class="stack">${head}${viewExams()}</div>`;
-  if(tab==="fouten")return `<div class="stack">${head}<div class="stack" style="gap:6px"><h2>Foutenanalyse</h2><p class="small">Waar gaat het nog mis? Per module, onderwerp en toetsterm zie je waar je fouten zitten, en je werkt ze hier gericht weg.</p></div>${foutInhoud()}</div>`;
+  if(tab==="fouten")return `<div class="stack">${head}<div class="stack" style="gap:6px"><h2>Foutenanalyse</h2><p class="small">Waar je fouten zitten, per module, onderwerp en toetsterm</p></div>${foutInhoud()}</div>`;
   return `<div class="stack">${head}
     <div class="stats">
       <div class="stat"><div class="v">${ans}<span class="small"> / ${pool.length}</span></div><div class="l">vragen geoefend</div></div>
@@ -481,7 +484,7 @@ function viewProfile(tab){
       <a class="stat statlink" href="#profiel-fouten"><div class="v">${wrong}</div><div class="l">fouten open</div></a>
     </div>
     ${foutKaart("profiel")}
-    <div class="section stack"><div><h2>Voortgang per module</h2><p class="small">Beheerst betekent: de laatste keer goed beantwoord. Tik op een module voor de details per onderwerp.${wrong?` Waar je fouten zitten, zie je in de <a href="#profiel-fouten">foutenanalyse</a>.`:""}</p></div>${modCards}</div>
+    <div class="section stack"><div><h2>Voortgang per module</h2><p class="small">Beheerst = de laatste keer goed. Tik op een module voor details.${wrong?` Waar je fouten zitten, zie je in de <a href="#profiel-fouten">foutenanalyse</a>.`:""}</p></div>${modCards}</div>
     ${viewAccount()}
     <div class="section stack"><h2>Gegevens</h2>
       <form class="panel stack" id="profForm" autocomplete="off">
@@ -499,7 +502,7 @@ function viewProfile(tab){
     ${licSectie()}
     ${mldSection()}
     ${store.h.length?`<div class="section stack"><h2>Toets- en examenhistorie</h2><div class="panel"><ul class="hist">${store.h.slice(0,12).map(x=>`<li><span>${esc(x.t)}<br><span class="small mono">${fmtDate(x.d)} · ${fmtTime(x.d)}</span></span><span class="row" style="gap:8px;flex-wrap:nowrap"><span class="mono">${x.g}/${x.n}</span><span class="pill ${x.p?"pass":"fail"}">${x.p?"Geslaagd":"Gezakt"}</span></span></li>`).join("")}</ul></div></div>`:""}
-    <div class="section stack"><div><h2>Voortgang overzetten</h2><p class="small">Je voortgang staat alleen in deze browser. Wil je verder op een ander apparaat? Kopieer je code hier en plak die daar.</p></div>
+    <div class="section stack"><div><h2>Voortgang overzetten</h2><p class="small">Kopieer je code en plak die op je andere apparaat.</p></div>
       <div class="row"><button class="btn" data-act="export">${showExport?"Code verbergen":"Code kopiëren"}</button><button class="btn" data-act="import">${showImport?"Annuleren":"Code plakken"}</button></div>
       ${showExport?`<div class="field"><label for="expCode">Jouw voortgangscode</label><textarea id="expCode" readonly>${esc(exportCode())}</textarea></div>`:""}
       ${showImport?`<div class="field"><label for="impCode">Plak hier je voortgangscode</label><textarea id="impCode" placeholder="Begint met PHB1:"></textarea><div><button class="btn go" data-act="import-go">Voortgang laden</button></div><p class="small">Let op: dit vervangt de voortgang op dit apparaat.</p></div>`:""}
@@ -528,13 +531,13 @@ function importCode(txt){
 // de lijst met toetstermen pas opbouwen als je hem openklapt (scheelt de helft van de elementen op PHB 1)
 function viewMtx(){
   const M=MTX(),tot=M.delen.reduce((a,d)=>a+d[2].reduce((b,g)=>b+g[2],0),0);
-  return `<details class="section mtx"><summary><span class="stack" style="gap:2px"><b>${esc(M.titel)}</b><span class="small">ExTH, ${esc(M.versie)} · ${tot} vragen · 90 minuten · geslaagd bij 70% goed${dom()==="1"?" · voor domein II en III gelden eigen matrijzen":""}</span></span></summary><div class="mbody"></div></details>`;
+  return `<details class="section mtx"><summary><span class="stack" style="gap:2px"><b>${esc(M.titel)}</b><span class="small">ExTH ${esc(M.versie.replace(/^versie /,"v"))} · ${tot} vragen per toetsterm</span></span></summary><div class="mbody"></div></details>`;
 }
 function mtxBody(){
   const delen=MTX().delen.map(([nr,t,gs])=>{const n=gs.reduce((a,g)=>a+g[2],0);
     return `<li class="mdeel"><div class="mkop"><b>${esc(nr)}. ${esc(t)}</b><span class="small mono">${n} ${n===1?"vraag":"vragen"}</span></div><ul class="mlist">${gs.map(g=>{const qs=mtxQs(g);const ms=mastery(qs);
       return `<li><span class="mcode mono">${esc(g[0])}</span><span class="mt">${esc(g[1])}<span class="small">${g[2]} op het examen · ${qs.length} oefenvragen · ${pct(ms)} beheerst</span></span><button class="btn sm" data-act="mtx" data-g="${esc(g[0])}" aria-label="Oefen toetsterm ${esc(g[0])}, ${esc(g[1])}">Oefen</button></li>`}).join("")}</ul></li>`}).join("");
-  return `<p class="small">Het oefenexamen volgt deze verdeling precies. Per toetsterm kun je ook los oefenen.</p><ol class="mdelen">${delen}</ol>`;
+  return `<p class="small">Het oefenexamen volgt deze verdeling${dom()==="1"?" · domein II en III hebben eigen matrijzen":""}</p><ol class="mdelen">${delen}</ol>`;
 }
 document.addEventListener("toggle",e=>{const d=e.target;if(d.open&&d.classList&&d.classList.contains("mtx")){const b=d.querySelector(".mbody");if(b&&!b.firstChild)b.innerHTML=mtxBody()}},true);
 function viewQuestion(){

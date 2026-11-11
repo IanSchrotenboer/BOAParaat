@@ -11,7 +11,7 @@ process.on('unhandledRejection',e=>{console.log(out.join('\n'));console.log('FAI
 
 // ---------- vragen-id's zoals de app ze maakt ----------
 const B=f=>fs.readFileSync(path.resolve(__dirname,'../bron',f),'utf8');
-const Q=new Function(['q1.js','q2.js','q3.js','q4.js','q5.js','q6.js','q7.js','q8.js'].map(B).join('\n')+';return [].concat(Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8)')();
+const Q=new Function(['q1.js','q2.js','q3.js','q4.js','q5.js','q6.js','q7.js','q8.js','q9.js'].map(B).join('\n')+';return [].concat(Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9)')();
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return "q"+(h>>>0).toString(36)}
 const IDS=Q.map(r=>r[5]||hash(r[1]));
 const iso=d=>{const x=new Date();x.setDate(x.getDate()+d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
@@ -108,7 +108,7 @@ async function routes(p,label,lim){
     for(let e=0;e<25;e++){await new Promise(res=>{addEventListener('hashchange',()=>res(),{once:true});location.hash=location.hash==='#phb1'?'home':'phb1'});
       if(location.hash!=='#phb1')await new Promise(res=>{addEventListener('hashchange',()=>res(),{once:true});location.hash='phb1'});
       q('[data-act="examen"]').click();await new Promise(r=>setTimeout(r,0));
-      for(let i=0;i<50;i++){const o=document.querySelectorAll('[data-act="pick"]')[i%4];o.click();const nx=q('[data-act="next"]');if(nx)nx.click()}
+      for(let i=0;i<50;i++){const os=document.querySelectorAll('[data-act="pick"]');const o=os[i%os.length];o.click();const nx=q('[data-act="next"]');if(nx)nx.click()}
       q('[data-act="ask-submit"]').click();q('[data-act="submit"]').click();if(q('.verdict'))klaar++}
     return klaar});
   t(ex===25,`25 oefenexamens van 50 vragen gemaakt en nagekeken (${ex})`);

@@ -19,12 +19,12 @@ const ga=async(p,h)=>{await p.evaluate(h=>location.hash=h,h);await w(300)};
   // antwoorden geven via de app: eerste ronde Staatsrecht met alles fout, Rechterlijke organisatie half fout
   async function ronde(cat,goed){await ga(p,'phb1');await p.click(`#app .cat [data-act="oefen"][data-cat="${cat}"]`);await w(250);
     for(let i=0;i<10;i++){const it=await p.evaluate(()=>[...document.querySelectorAll('.opt')].map(o=>o.dataset.o));const juist=it.indexOf('0');
-      await p.locator('.opt').nth(goed(i)?juist:(juist+1)%4).click();await w(60);const nx=p.locator('[data-act="next"]');if(await nx.count())await nx.first().click();else break;await w(60)}
+      await p.locator('.opt').nth(goed(i)?juist:(juist+1)%it.length).click();await w(60);const nx=p.locator('[data-act="next"]');if(await nx.count())await nx.first().click();else break;await w(60)}
     await p.evaluate(()=>{const f=document.querySelector('[data-act="finish"]');f&&f.click()});await w(250)}
   await ronde('sr',()=>false);await ronde('ro',i=>i%2===0);
   let s=await store(p);const fout=Object.values(s.s).filter(v=>v[2]===0).length;
   await ga(p,'fouten');const txt=await p.textContent('#app');
-  t(new RegExp('\\b'+fout+'\\s*open fouten').test(txt.replace(/\s+/g,' ')),`analyse: ${fout} open fouten geteld`);
+  t(new RegExp('(^|\\D)'+fout+'\\s*open fouten').test(txt.replace(/\s+/g,' ')),`analyse: ${fout} open fouten geteld`);
   const zw=await p.evaluate(()=>[...document.querySelectorAll('ol.zwak li b')].map(x=>x.textContent));
   t(zw[0]==='Staatsrecht'&&zw.includes('Rechterlijke organisatie en OM'),'zwakke plekken: onderwerp met de meeste fouten bovenaan ('+zw.join(', ')+')');
   t(await p.locator('ol.zwak li a[href^="#stof-"]').count()>=1,'zwakke plek verwijst naar de juiste samenvatting');
@@ -46,7 +46,7 @@ const ga=async(p,h)=>{await p.evaluate(h=>location.hash=h,h);await w(300)};
   const n0=await p.evaluate(()=>document.querySelector('.qnav, #app').textContent.match(/\/\s*(\d+)/));
   const eerste=await p.evaluate(()=>document.getElementById('qtext').textContent);
   const ord=await p.evaluate(()=>[...document.querySelectorAll('.opt')].map(o=>o.dataset.o));
-  await p.locator('.opt').nth((ord.indexOf('0')+1)%4).click();await w(80);
+  await p.locator('.opt').nth((ord.indexOf('0')+1)%ord.length).click();await w(80);
   let terug=false;for(let i=0;i<6;i++){await p.click('[data-act="next"]');await w(80);
     const q=await p.evaluate(()=>document.getElementById('qtext').textContent);
     if(q===eerste){terug=await p.locator('.chip.rep').count()===1;break}

@@ -17,7 +17,7 @@ const W=ms=>new Promise(r=>setTimeout(r,ms));
   await p.click('a.btn[href="#casus"]');await W(200);
   const g1=await p.locator('a[href^="#gesprek-"]').count(),c1=await p.locator('a[href^="#casus-"]').count();
   t(g1===3&&c1===9,`domein I: 3 gesprekken en 9 casussen (${g1}/${c1})`);
-  t(/calamiteit, aanwijzing en balie dienstverlening/.test(await p.textContent('#app')),'domein I: drie examencasussen genoemd');
+  t(/calamiteit, aanwijzing en balie/.test(await p.textContent('#app')),'domein I: drie examencasussen genoemd');
   t(await p.locator('#tabbar a[data-tab="oef"][aria-current="page"]').count()===1,'tabbalk: Oefenen actief op gesprekken');
   await p.click('[data-act="dom"][data-v="4"]');await W(200);
   const g4=await p.locator('a[href^="#gesprek-"]').count(),c4=await p.locator('a[href^="#casus-"]').count();

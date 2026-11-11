@@ -144,7 +144,7 @@ function viewLogin(){
       <p class="small">We bewaren alleen je e-mailadres, je naam en je oefenvoortgang, in een beveiligde database in de EU. Niemand anders kan ze zien. Je kunt je account en al je gegevens altijd verwijderen via Profiel.${SITE?` <a href="${SITE}privacy.html" target="_blank" rel="noopener" data-ext>Privacyverklaring</a>`:""}</p>
     </div></div>`}
 function viewAccount(){
-  if(!cloudKan())return `<div class="section stack"><h2>Account</h2><p class="small">In deze versie blijft je voortgang op dit apparaat. Inloggen met je Google-account kan in de Boa Paraat-app (telefoon en computer) en op de website.</p></div>`;
+  if(!cloudKan())return `<div class="section stack"><h2>Account</h2><p class="small">Voortgang staat op dit apparaat. Inloggen kan in de app en op de website.</p></div>`;
   const s=sesGet();if(!s)return "";
   const st=cloudSync.bezig?"Bezig met bijwerken…":!cloudSync.t?"Nog niet bijgewerkt":cloudSync.ok?"Bewaard in je account, laatst bijgewerkt om "+fmtTime(new Date(cloudSync.t)):"Offline: je voortgang wordt bewaard zodra je weer verbinding hebt";
   return `<div class="section stack" id="account"><h2>Account</h2>

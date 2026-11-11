@@ -4,8 +4,8 @@ const fs=require('fs'),path=require('path');
 const B=f=>fs.readFileSync(path.resolve(__dirname,'../bron',f),'utf8');
 const body=B('v2_body.html');
 const cfg=body.slice(body.indexOf('const CATS ='),body.indexOf('const MODBY'));
-const src=['q1.js','q2.js','q3.js','q4.js','q5.js','q6.js','q7.js','q8.js','stof.js','matrijs.js'].map(B).join('\n')+'\n'+cfg+
-  ';return {Q:[].concat(Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8),CATS,MODS,D4,STOF,STOF_CAT,STOF_ART,MATRIJS}';
+const src=['q1.js','q2.js','q3.js','q4.js','q5.js','q6.js','q7.js','q8.js','q9.js','stof.js','matrijs.js'].map(B).join('\n')+'\n'+cfg+
+  ';return {Q:[].concat(Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9),CATS,MODS,D4,STOF,STOF_CAT,STOF_ART,MATRIJS}';
 const {Q,CATS,MODS,STOF,STOF_CAT,STOF_ART,MATRIJS}=new Function(src)();
 const bad=[],warn=[];
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return "q"+(h>>>0).toString(36)}
@@ -18,8 +18,9 @@ Q.forEach((r,i)=>{
   if(!CATS[c])bad.push(at+': onbekende categorie '+c);
   if(!q||!q.trim())bad.push(at+': lege vraag');
   if(!e||e.trim().length<10)bad.push(at+': uitleg ontbreekt');
-  if(!Array.isArray(o)||o.length!==4)bad.push(at+': niet precies 4 antwoorden');
-  else{const n=o.map(x=>String(x).trim().toLowerCase());if(n.some(x=>!x))bad.push(at+': leeg antwoord');if(new Set(n).size!==4)bad.push(at+': dubbel antwoord')}
+  // 4 antwoorden, of 3 bij vragen in examenstijl van ExTH (bron/q9.js)
+  if(!Array.isArray(o)||!(o.length===4||(o.length===3&&String(r[5]).startsWith('qx9'))))bad.push(at+': niet precies 4 antwoorden (of 3 in examenstijl)');
+  else{const n=o.map(x=>String(x).trim().toLowerCase());if(n.some(x=>!x))bad.push(at+': leeg antwoord');if(new Set(n).size!==o.length)bad.push(at+': dubbel antwoord')}
   if(!r[5])bad.push(at+': vaste vraagcode (6e veld) ontbreekt; voortgang zou verloren gaan bij herschrijven');
   const h=r[5]||hash(q);if(ids.has(h))bad.push(at+': zelfde vraagcode als #'+ids.get(h));ids.set(h,i);
   if(teksten.has(q))bad.push(at+': zelfde vraagtekst als #'+teksten.get(q));teksten.set(q,i);
