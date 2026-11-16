@@ -118,7 +118,7 @@ De webversie is dezelfde app als website. Op een scherm vanaf ongeveer 1100 pixe
 
 Publiceren kan op twee manieren:
 
-1. **GitHub Pages (aanbevolen).** Doe route B. De link (bijvoorbeeld `https://jouwnaam.github.io/boa-paraat/`) werkt op de pc in Chrome, Edge, Firefox en Safari.
+1. **GitHub Pages (aanbevolen).** Doe route B. De link (bijvoorbeeld `https://jouwnaam.github.io/boa-paraat/`; Boa Paraat zelf staat via een eigen subdomein op `https://app.boaparaat.nl`) werkt op de pc in Chrome, Edge, Firefox en Safari.
 2. **Eigen webruimte.** Pak `Boa-Paraat-web.zip` uit en zet de inhoud in een map op je website (bijvoorbeeld via FTP). Er is geen server-software of database nodig. Gebruik https, anders werkt offline gebruik en installeren niet.
 
 **Installeren op de pc:** in Chrome en Edge verschijnt op het overzicht de knop **Installeren** (of klik in de adresbalk op het installeer-icoon). Boa Paraat opent dan in een eigen venster, met een icoon in het startmenu of dock, en werkt ook zonder internet. In Safari op de Mac: **Archief → Voeg toe aan Dock**.
