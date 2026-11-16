@@ -27,3 +27,12 @@ De knop "Inloggen met Apple" verschijnt pas als in `bron/cloud.json` `"apple": t
 4. **Elke 6 maanden** verloopt het geheim: maak dan met hetzelfde `.p8`-bestand een nieuw geheim en vul dat in bij stap 3. Anders werkt inloggen met Apple niet meer.
 
 Apple geeft geen naam mee; die vult de gebruiker zelf in op het welkomstscherm. Kiest iemand "Verberg mijn e-mailadres", dan staat er een doorstuuradres van Apple (`…@privaterelay.appleid.com`) in het account.
+
+## Inloggen met e-mail (code per mail)
+
+De knop "Inloggen met e-mail" verschijnt pas als in `bron/cloud.json` `"email": true` staat. De gebruiker krijgt een code van 6 cijfers en typt die in de app (een link zou op de iPhone in Safari openen in plaats van in de app op het beginscherm).
+
+1. Resend: domein `boaparaat.nl` toevoegen (regio EU), de DNS-records bij STRATO zetten en een API-sleutel maken (alleen verzenden).
+2. Supabase → Authentication → Emails → SMTP Settings: host `smtp.resend.com`, poort `465`, gebruikersnaam `resend`, wachtwoord de API-sleutel van Resend, afzender `inloggen@boaparaat.nl`, naam `Boa Paraat`.
+3. Supabase → Authentication → Sign In / Providers → Email: aan, Email OTP Length `6`.
+4. Supabase → Authentication → Emails → Templates: in **Magic Link** én **Confirm signup** de code tonen met `{{ .Token }}` (geen link).

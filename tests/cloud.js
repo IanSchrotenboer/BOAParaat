@@ -26,6 +26,13 @@ const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);r
     if(!['google','apple'].includes(prov)||u.searchParams.get('code_challenge_method')!=='s256'||!ch)return json(res,400,{error:'bad'});
     const code='c-'+crypto.randomBytes(6).toString('hex');db.codes[code]={ch,u:{...db.als}};db.users[db.als.id]={...db.als};
     res.writeHead(302,{Location:red+(red.includes('?')?'&':'?')+'code='+code});return res.end()}
+  if(u.pathname==='/auth/v1/otp'&&req.method==='POST'){const b=JSON.parse(body||'{}');
+    if(req.headers.apikey!=='pk-test'||!b.email)return json(res,400,{error:'bad'});
+    if(db.otpTe429)return json(res,429,{error:'over_email_send_rate_limit'});
+    db.otp=db.otp||{};db.otp[b.email]='482916';db.otpMails=(db.otpMails||0)+1;return json(res,200,{})}
+  if(u.pathname==='/auth/v1/verify'&&req.method==='POST'){const b=JSON.parse(body||'{}');
+    if(b.type!=='email'||!db.otp||db.otp[b.email]!==b.token)return json(res,403,{error:'otp_expired',error_description:'Token has expired or is invalid'});
+    delete db.otp[b.email];const usr={id:'u-mail-'+b.email.length,email:b.email,naam:''};db.users[usr.id]=usr;return json(res,200,tokensVoor(usr))}
   if(u.pathname==='/auth/v1/token'){const b=JSON.parse(body||'{}');
     if(u.searchParams.get('grant_type')==='pkce'){const c=db.codes[b.auth_code];delete db.codes[b.auth_code];
       if(!c||b64url(crypto.createHash('sha256').update(b.code_verifier||'').digest())!==c.ch)return json(res,400,{error:'invalid_grant',error_description:'PKCE klopt niet'});
@@ -49,7 +56,7 @@ const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);r
   json(res,404,{message:'?'})})});
 const app=http.createServer((req,res)=>{const u=new URL(req.url,'http://x');
   if(u.pathname==='/frame.html'){res.writeHead(200,{'Content-Type':'text/html'});return res.end(`<iframe src="${APP}/app.html#home" style="width:390px;height:800px"></iframe>`)}
-  res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(html.replace(/const CLOUD=(null|\{[^;]*\});/,'const CLOUD='+JSON.stringify(Object.assign({url:SUPA,key:'pk-test'},u.pathname==='/apple.html'?{apple:true}:{}))+';'))});
+  res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(html.replace(/const CLOUD=(null|\{[^;]*\});/,'const CLOUD='+JSON.stringify(Object.assign({url:SUPA,key:'pk-test'},u.pathname==='/apple.html'?{apple:true}:u.pathname==='/mail.html'?{email:true}:{}))+';'))});
 const listen=s=>new Promise(r=>s.listen(0,'127.0.0.1',()=>r(s.address().port)));
 // ---------------- hulpjes ----------------
 const store=p=>p.evaluate(()=>JSON.parse(localStorage.getItem('phb-trainer-v1')||'{}'));
@@ -191,7 +198,7 @@ const nS=s=>Object.keys((s&&s.s)||{}).length;
     db.als={id:'u-eva',email:'abc123@privaterelay.appleid.com',naam:''};
     const ctx=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const pa=await ctx.newPage();pa._errs=[];pa.on('pageerror',e=>pa._errs.push(e.message));
     await pa.goto(APP+'/apple.html#home');await w(300);
-    t(await pa.locator('[data-act="login"]').count()===1&&await pa.locator('[data-act="login-apple"]').count()===1&&/Apple ID/.test(await pa.textContent('.login .lede')),'Apple: inlogscherm met Google en Apple');
+    t(await pa.locator('[data-act="login"]').count()===1&&await pa.locator('[data-act="login-apple"]').count()===1,'Apple: inlogscherm met Google en Apple');
     const kn=await pa.locator('[data-act="login-apple"]').boundingBox();t(kn&&kn.height>=44,'Apple: knop groot genoeg om op te tikken');
     await pa.click('[data-act="login-apple"]');await pa.waitForURL(/apple\.html(#.*)?$/,{timeout:5000}).catch(()=>{});await w(900);
     t(db.prov==='apple'&&!db.prompt,'Apple: inloggen gaat via Apple (zonder Google-accountkeuze)');
@@ -199,6 +206,29 @@ const nS=s=>Object.keys((s&&s.s)||{}).length;
     const s=await pa.evaluate(()=>JSON.parse(localStorage.getItem('boa-sessie')||'null'));
     t(s&&s.u&&s.u.id==='u-eva'&&s.u.email.endsWith('privaterelay.appleid.com'),'Apple: sessie met het doorstuuradres van Apple');
     t(!pa._errs.length,'Apple: geen JS-fouten'+(pa._errs.length?': '+pa._errs.join(' | '):''));
+    await ctx.close()}
+  // ---------- 15. Inloggen met een code per e-mail (voor wie geen Google-account heeft) ----------
+  {const pg=await apparaat(b);
+    t(await pg.locator('[data-act="login-mail"]').count()===0,'e-mail: zonder e-mail in de instellingen geen knop');
+    await pg.context().close();
+    const ctx=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const pm=await ctx.newPage();pm._errs=[];pm.on('pageerror',e=>pm._errs.push(e.message));
+    await pm.goto(APP+'/mail.html#home');await w(300);
+    t(await pm.locator('[data-act="login"]').count()===1&&await pm.locator('[data-act="login-mail"]').count()===1,'e-mail: inlogscherm met Google en e-mail');
+    await pm.click('[data-act="login-mail"]');await w(200);
+    t(await pm.evaluate(()=>document.activeElement&&document.activeElement.id==='mailIn')&&await pm.locator('[data-act="login"]').count()===0,'e-mail: invulveld voor je e-mailadres, met focus');
+    await pm.fill('#mailIn','geen-adres');await pm.click('#mailForm button[type="submit"]');await w(200);
+    t(/geldig e-mailadres/.test(await pm.textContent('.login'))&&!db.otpMails,'e-mail: ongeldig adres wordt niet verstuurd');
+    db.otpTe429=true;await pm.fill('#mailIn','Eva@Voorbeeld.nl');await pm.click('#mailForm button[type="submit"]');await w(400);
+    t(/Wacht een minuut/.test(await pm.textContent('.login'))&&await pm.locator('#mailIn').count()===1,'e-mail: te vaak gevraagd geeft een duidelijke melding');
+    db.otpTe429=false;await pm.click('#mailForm button[type="submit"]');await w(400);
+    t(db.otp&&db.otp['eva@voorbeeld.nl']&&/eva@voorbeeld\.nl/.test(await pm.textContent('.lhint'))&&await pm.evaluate(()=>document.activeElement&&document.activeElement.id==='mailCode'),'e-mail: code verstuurd naar het adres (kleine letters), invulveld voor de code met focus');
+    t(await pm.locator('[data-act="mail-opnieuw"][disabled]').count()===1,'e-mail: nieuwe code pas na een minuut');
+    await pm.fill('#mailCode','111111');await w(500);
+    t(/klopt niet of is verlopen/.test(await pm.textContent('.login'))&&!(await pm.evaluate(()=>localStorage.getItem('boa-sessie'))),'e-mail: verkeerde code wordt geweigerd');
+    await pm.fill('#mailCode','48 29 16');await w(1300);
+    const s=await pm.evaluate(()=>JSON.parse(localStorage.getItem('boa-sessie')||'null'));
+    t(s&&s.u&&s.u.email==='eva@voorbeeld.nl'&&await pm.locator('#obForm').count()===1,'e-mail: juiste code (ook met spaties geplakt) logt in, daarna het welkomstscherm');
+    t(!pm._errs.length,'e-mail: geen JS-fouten'+(pm._errs.length?': '+pm._errs.join(' | '):''));
     await ctx.close()}
   // ---------- 13. ingesloten (zoals in claude.ai) en los bestand: geen inloggen mogelijk ----------
   const p4=await (await b.newContext()).newPage();await p4.goto(APP+'/frame.html');await w(800);

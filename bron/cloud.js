@@ -55,15 +55,56 @@ async function loginTerug(url){
   cloudBezig="Bezig met inloggen…";cloudFout="";render();
   try{const j=await authFetch("token?grant_type=pkce",{auth_code:code,code_verifier:v});
     try{localStorage.removeItem(PKCE)}catch(e){}
+    await loginKlaar(j);
+  }catch(e){cloudBezig="";cloudFout=e.status>=500||!navigator.onLine?"Geen verbinding met de server. Probeer het zo opnieuw.":"Inloggen is niet gelukt. Probeer het opnieuw.";render()}}
+async function loginKlaar(j){
     const s=sesVan(j);
     // andere gebruiker dan de vorige op dit apparaat: diens gegevens niet meenemen naar dit account
     if(store.eig&&store.eig!==s.u.id){store=blank()}
     store.eig=s.u.id;if(!store.p.naam&&s.u.naam&&!store.p.ob)obNaamVoor=s.u.naam;
     sesSet(s);cloudBezig="Je voortgang wordt opgehaald…";render();
     await cloudSyncNu(true);
-    cloudBezig="";applyTheme();if(!needsWelcome())toast("Ingelogd als "+s.u.email);render();
-  }catch(e){cloudBezig="";cloudFout=e.status>=500||!navigator.onLine?"Geen verbinding met de server. Probeer het zo opnieuw.":"Inloggen is niet gelukt. Probeer het opnieuw.";render()}}
+    cloudBezig="";mail={stap:0,adres:"",t:0};applyTheme();if(!needsWelcome())toast("Ingelogd als "+s.u.email);render()}
 let obNaamVoor="";
+// ----- inloggen met een code per e-mail (voor wie geen Google-account heeft) -----
+// Supabase stuurt een code van 6 cijfers (mailsjabloon 'Magic Link' en 'Confirm signup' met {{ .Token }}).
+// Een code werkt ook in de app op het beginscherm van de iPhone; een link in de mail zou in Safari openen.
+let mail={stap:0,adres:"",t:0};
+const mailGeldig=a=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(a);
+async function mailStuur(adres){adres=String(adres||"").trim().toLowerCase();
+  if(!mailGeldig(adres)){cloudFout="Vul een geldig e-mailadres in.";render();const i=document.getElementById("mailIn");if(i){i.value=adres;i.focus()}return}
+  if(!navigator.onLine){cloudFout="Je bent offline. Om in te loggen heb je internet nodig.";render();return}
+  cloudFout="";cloudHint="";cloudBezig="De code wordt verstuurd…";render();
+  try{await authFetch("otp",{email:adres,create_user:true});mail={stap:2,adres,t:Date.now()};cloudBezig="";render();
+    const i=document.getElementById("mailCode");if(i)i.focus()}
+  catch(e){cloudBezig="";cloudFout=e.status===429?"Je hebt net al een code gekregen. Wacht een minuut en probeer het opnieuw.":e.status>=500||!navigator.onLine?"Geen verbinding met de server. Probeer het zo opnieuw.":"De code kon niet worden verstuurd. Controleer je e-mailadres.";
+    mail.stap=mail.stap||1;mail.adres=adres;render()}}
+async function mailCheck(code){code=String(code||"").replace(/\D/g,"");
+  if(code.length<6){cloudFout="Vul de code uit de mail in.";render();const i=document.getElementById("mailCode");if(i)i.focus();return}
+  cloudFout="";cloudBezig="Bezig met inloggen…";render();
+  try{const j=await authFetch("verify",{type:"email",email:mail.adres,token:code});await loginKlaar(j)}
+  catch(e){cloudBezig="";cloudFout=e.status>=500||!navigator.onLine?"Geen verbinding met de server. Probeer het zo opnieuw.":"Deze code klopt niet of is verlopen. Controleer de code of vraag een nieuwe aan.";render();
+    const i=document.getElementById("mailCode");if(i)i.focus()}}
+function mailBlok(){
+  if(mail.stap===1)return `<form class="stack lmail" id="mailForm" novalidate><div class="field"><label for="mailIn">E-mailadres</label>
+      <input id="mailIn" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" value="${esc(mail.adres)}" placeholder="naam@voorbeeld.nl"${cloudFout?' aria-invalid="true" aria-describedby="mailErr"':""}></div>
+      <button class="btn hi lgoogle" type="submit">Stuur mij een code</button><button class="linkbtn" type="button" data-act="mail-terug">Terug</button></form>`;
+  if(mail.stap===2){const wacht=Math.max(0,60-Math.round((Date.now()-mail.t)/1000));
+    return `<form class="stack lmail" id="mailCodeForm" novalidate><p class="lhint" role="status">We hebben een code gestuurd naar <b>${esc(mail.adres)}</b>. Zie je niets? Kijk ook bij ongewenste mail.</p>
+      <div class="field"><label for="mailCode">Code uit de mail</label>
+      <input id="mailCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="10" placeholder="123456"${cloudFout?' aria-invalid="true" aria-describedby="mailErr"':""}></div>
+      <button class="btn hi lgoogle" type="submit">Inloggen</button>
+      <div class="row"><button class="linkbtn" type="button" data-act="mail-opnieuw"${wacht?" disabled":""}>${wacht?"Nieuwe code over "+wacht+" s":"Stuur een nieuwe code"}</button><button class="linkbtn" type="button" data-act="mail-ander">Ander e-mailadres</button></div></form>`}
+  return `<button class="btn lmailbtn" data-act="login-mail">Inloggen met e-mail</button>`}
+document.addEventListener("submit",e=>{
+  if(e.target.id==="mailForm"){e.preventDefault();mailStuur((document.getElementById("mailIn")||{}).value)}
+  if(e.target.id==="mailCodeForm"){e.preventDefault();mailCheck((document.getElementById("mailCode")||{}).value)}});
+// aftellen tot je een nieuwe code mag vragen, zonder het scherm opnieuw op te bouwen (dan blijft je invoer staan)
+setInterval(()=>{if(mail.stap!==2)return;const b=document.querySelector('[data-act="mail-opnieuw"]');if(!b)return;
+  const w=Math.max(0,60-Math.round((Date.now()-mail.t)/1000));b.disabled=!!w;b.textContent=w?"Nieuwe code over "+w+" s":"Stuur een nieuwe code"},1000);
+// code automatisch versturen als hij volledig is ingevuld of geplakt
+document.addEventListener("input",e=>{if(e.target&&e.target.id==="mailCode"){const v=e.target.value.replace(/\D/g,"");if(v!==e.target.value)e.target.value=v;
+  if(v.length===6&&!cloudBezig)mailCheck(v)}});
 // geldig toegangsbewijs; vernieuwt het zo nodig. Verlopen of ingetrokken: opnieuw inloggen
 async function token(nieuw){let s=sesGet();if(!s)throw new Error("niet ingelogd");
   if(!nieuw&&s.x-Date.now()>60000)return s.a;
@@ -135,11 +176,11 @@ function wisLokaal(){sesSet(null);clearTimeout(syncT);store=blank();try{localSto
 function viewLogin(){
   return `<div class="welcome login">
     <div class="whead"><span class="wmark" aria-hidden="true">${WMARK}</span>
-      <div><h1>Welkom bij Boa Paraat</h1><p class="lede">De Examentrainer voor je PHB. Log in met je ${CLOUD&&CLOUD.apple?"Google-account of Apple ID":"Google-account"}, dan blijft je voortgang bewaard, ook als je van telefoon wisselt of op de computer verder oefent.</p></div></div>
+      <div><h1>Welkom bij Boa Paraat</h1><p class="lede">De Examentrainer voor je PHB. Log in, dan blijft je voortgang bewaard op al je apparaten.</p></div></div>
     <div class="panel stack">
-      ${cloudBezig?`<p class="lbezig" role="status"><span class="spin" aria-hidden="true"></span>${esc(cloudBezig)}</p>`:`<button class="btn hi lgoogle" data-act="login">Inloggen met Google</button>${CLOUD&&CLOUD.apple?`<button class="btn lapple" data-act="login-apple">Inloggen met Apple</button>`:""}`}
+      ${cloudBezig?`<p class="lbezig" role="status"><span class="spin" aria-hidden="true"></span>${esc(cloudBezig)}</p>`:mail.stap?mailBlok():`<button class="btn hi lgoogle" data-act="login">Inloggen met Google</button>${CLOUD&&CLOUD.apple?`<button class="btn lapple" data-act="login-apple">Inloggen met Apple</button>`:""}${CLOUD&&CLOUD.email?mailBlok():""}`}
       ${cloudHint&&!cloudBezig&&!cloudFout?`<p class="lhint" role="status">${esc(cloudHint)}</p>`:""}
-      ${cloudFout?`<p class="ferr" role="alert">${esc(cloudFout)}</p>`:""}
+      ${cloudFout?`<p class="ferr" role="alert"${mail.stap?' id="mailErr"':""}>${esc(cloudFout)}</p>`:""}
       ${!navigator.onLine&&!cloudBezig?`<p class="small">Je bent nu offline. De eerste keer inloggen kan alleen met internet; daarna werkt de app ook offline.</p>`:""}
       <p class="small">We bewaren alleen je e-mailadres, je naam en je oefenvoortgang, in een beveiligde database in de EU. Niemand anders kan ze zien. Je kunt je account en al je gegevens altijd verwijderen via Profiel.${SITE?` <a href="${SITE}privacy.html" target="_blank" rel="noopener" data-ext>Privacyverklaring</a>`:""}</p>
     </div></div>`}
@@ -159,6 +200,10 @@ function viewAccount(){
 function cloudAct(act){
   if(act==="login"){loginStart("google");return true}
   if(act==="login-apple"){loginStart("apple");return true}
+  if(act==="login-mail"){mail={stap:1,adres:"",t:0};cloudFout="";render();const i=document.getElementById("mailIn");if(i)i.focus();return true}
+  if(act==="mail-terug"){mail={stap:0,adres:"",t:0};cloudFout="";render();return true}
+  if(act==="mail-ander"){mail={stap:1,adres:mail.adres,t:0};cloudFout="";render();const i=document.getElementById("mailIn");if(i)i.focus();return true}
+  if(act==="mail-opnieuw"){mailStuur(mail.adres);return true}
   if(act==="sync"){cloudFout="";cloudSyncNu().then(ok=>{if(!ok)toast("Bijwerken lukt nu niet. Controleer je internetverbinding.")});render();return true}
   if(act==="logout"){if(confirmUitOffline){const s=sesGet();if(s)fetch(CLOUD.url+"/auth/v1/logout",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+s.a}}).catch(()=>{});wisLokaal();location.hash="home";render();toast("Je bent uitgelogd");return true}uitloggen();return true}
   if(act==="logout-no"){confirmUitOffline=false;render();return true}
