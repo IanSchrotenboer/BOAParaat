@@ -8,10 +8,17 @@ name: Desktop-app bouwen (Windows, Mac, Linux)
 # release op GitHub, naast de APK (de Android-taak maakt de release; deze taak wacht daarop).
 # De installers zijn niet ondertekend: Windows en macOS waarschuwen bij de eerste keer openen (zie LEESMIJ).
 
+# Op een tak die met proef- begint: PROEFVERSIE 'Boa Paraat Proef' (eigen app-ID, naast de
+# gewone app te installeren, inloggen via een tijdelijk adres op de computer). Die komt bij de pre-release
+# proef-<commit> (samen met de test-APK) en nooit bij een gewone release.
+
 on:
   push:
-    branches: [main, 'desktop-*']
+    branches: [main, 'desktop-*', 'proef-*']
   workflow_dispatch:
+
+env:
+  BOA_PROEF: ${{ startsWith(github.ref_name, 'proef-') && '1' || '0' }}
 
 jobs:
   versie:
@@ -91,31 +98,35 @@ jobs:
         if: runner.os == 'macOS'
         working-directory: desktop
         run: |
-          hdiutil attach dist/Boa-Paraat-Mac.dmg -mountpoint /tmp/boa -nobrowse -quiet
-          lipo -archs "/tmp/boa/Boa Paraat.app/Contents/MacOS/Boa Paraat"
-          codesign --verify --deep --strict "/tmp/boa/Boa Paraat.app" && echo "ad-hoc ondertekend: in orde"
-          /usr/libexec/PlistBuddy -c "Print :CFBundleURLTypes:0:CFBundleURLSchemes:0" "/tmp/boa/Boa Paraat.app/Contents/Info.plist" | grep -x nl.boa.phbtrainer
+          N=$(node -p "require('./package.json').build.productName"); D=$(ls dist/Boa-Paraat*-Mac.dmg)
+          hdiutil attach "$D" -mountpoint /tmp/boa -nobrowse -quiet
+          lipo -archs "/tmp/boa/$N.app/Contents/MacOS/$N"
+          codesign --verify --deep --strict "/tmp/boa/$N.app" && echo "ad-hoc ondertekend: in orde"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "/tmp/boa/$N.app/Contents/Info.plist"
+          if [ "$BOA_PROEF" = "1" ]; then ! /usr/libexec/PlistBuddy -c "Print :CFBundleURLTypes" "/tmp/boa/$N.app/Contents/Info.plist" 2>/dev/null && echo "proef: neemt nl.boa.phbtrainer:// niet over";
+          else /usr/libexec/PlistBuddy -c "Print :CFBundleURLTypes:0:CFBundleURLSchemes:0" "/tmp/boa/$N.app/Contents/Info.plist" | grep -x nl.boa.phbtrainer; fi
           hdiutil detach /tmp/boa -quiet
       - name: Controleren (Linux)
         if: runner.os == 'Linux'
         working-directory: desktop
         run: |
-          dpkg-deb -I dist/Boa-Paraat-Linux.deb | grep -E "Package|Version"
-          dpkg-deb -x dist/Boa-Paraat-Linux.deb /tmp/deb && grep -r "x-scheme-handler/nl.boa.phbtrainer" /tmp/deb/usr/share/applications/
-          test -x dist/Boa-Paraat-Linux.AppImage || chmod +x dist/Boa-Paraat-Linux.AppImage
+          DEB=$(ls dist/Boa-Paraat*-Linux.deb); dpkg-deb -I "$DEB" | grep -E "Package|Version"
+          dpkg-deb -x "$DEB" /tmp/deb
+          if [ "$BOA_PROEF" = "1" ]; then ! grep -r "x-scheme-handler/nl.boa.phbtrainer" /tmp/deb/usr/share/applications/ && echo "proef: neemt nl.boa.phbtrainer:// niet over";
+          else grep -r "x-scheme-handler/nl.boa.phbtrainer" /tmp/deb/usr/share/applications/; fi
       - name: Controleren (Windows)
         if: runner.os == 'Windows'
         working-directory: desktop
         shell: bash
-        run: ls -la dist/Boa-Paraat-Windows.exe
+        run: ls -la dist/Boa-Paraat*-Windows.exe
       - uses: actions/upload-artifact@v4
         with:
           name: desktop-${{ runner.os }}
           path: |
-            desktop/dist/Boa-Paraat-Windows.exe
-            desktop/dist/Boa-Paraat-Mac.dmg
-            desktop/dist/Boa-Paraat-Linux.AppImage
-            desktop/dist/Boa-Paraat-Linux.deb
+            desktop/dist/Boa-Paraat*-Windows.exe
+            desktop/dist/Boa-Paraat*-Mac.dmg
+            desktop/dist/Boa-Paraat*-Linux.AppImage
+            desktop/dist/Boa-Paraat*-Linux.deb
             desktop/dist/scherm-*.png
           if-no-files-found: error
 
@@ -149,3 +160,39 @@ jobs:
             dist/Boa-Paraat-Mac.dmg
             dist/Boa-Paraat-Linux.AppImage
             dist/Boa-Paraat-Linux.deb
+
+  publiceer-proef:
+    needs: bouw
+    # ook als één systeem (meestal de Mac, door wachtrijen bij GitHub) niet klaar is: de rest wel publiceren
+    if: always() && startsWith(github.ref_name, 'proef-') && needs.bouw.result != 'skipped'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Wachten op de pre-release van de test-APK
+        id: tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          T="proef-${GITHUB_SHA::7}"; echo "tag=$T" >> "$GITHUB_OUTPUT"
+          for i in $(seq 1 60); do gh release view "$T" > /dev/null 2>&1 && exit 0; sleep 20; done
+          echo "Pre-release nog niet aanwezig: deze taak maakt hem zelf aan."
+      - name: Proef-desktopversie bij de pre-release zetten
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: Proefversie ${{ github.ref_name }} (${{ steps.tag.outputs.tag }})
+          prerelease: true
+          make_latest: false
+          fail_on_unmatched_files: false
+          files: |
+            dist/Boa-Paraat-Proef-Windows.exe
+            dist/Boa-Paraat-Proef-Mac.dmg
+            dist/Boa-Paraat-Proef-Linux.AppImage
+            dist/Boa-Paraat-Proef-Linux.deb

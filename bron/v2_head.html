@@ -66,7 +66,7 @@ a{color:var(--link)}
 .timer{font-family:var(--f-mono);font-weight:600;font-variant-numeric:tabular-nums;background:var(--sunk);border:1px solid var(--line);padding:4px 10px;border-radius:6px}
 .bar .timer,.bar .timer[hidden]+.barbtn{margin-left:auto}
 /* inloggen en account */
-.login .panel{max-width:520px}.lgoogle{width:100%;justify-content:center;min-height:52px;font-size:17px}
+.login .panel{max-width:520px}.lgoogle,.lapple{width:100%;justify-content:center;min-height:52px;font-size:17px}.btn.lapple{background:#000;color:#fff;border-color:#000}.btn.lapple:hover{background:#1d1d1f;color:#fff}:root[data-theme="dark"] .btn.lapple{background:#fff;color:#000;border-color:#fff}@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.lapple{background:#fff;color:#000;border-color:#fff}}
 .lbezig{display:flex;align-items:center;gap:10px;margin:0;font-weight:600}
 .lhint{margin:0;padding:10px 12px;border-radius:var(--r);background:var(--tint);border:1px solid var(--line);font-size:15px}
 .spin{width:20px;height:20px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--navy);animation:spin .8s linear infinite;flex:none}
@@ -264,7 +264,23 @@ details.review .rbody{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .prose p{margin:0 0 8px}
 .prose h4{font-family:var(--f-display);font-size:15px;margin:12px 0 6px;font-stretch:90%}
 /* telefoon en tablet: onderwerpen buiten beeld pas opbouwen bij het scrollen (studiestof opent sneller) */
-@media (max-width:999px){.stofsec{content-visibility:auto;contain-intrinsic-size:auto 640px}}
+@media (max-width:999px){.stofsec[open]{content-visibility:auto;contain-intrinsic-size:auto 640px}}
+details.stofsec{display:block}details.stofsec:not([open]){padding:12px 18px}details.stofsec>*+*{margin-top:12px}
+details.stofsec>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:32px}
+details.stofsec>summary::-webkit-details-marker{display:none}
+details.stofsec>summary h3{margin:0}
+details.stofsec>summary::after,details.info>summary::after{content:"";flex:none;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);margin:0 4px 4px;transition:transform .15s}
+details.stofsec[open]>summary::after,details.info[open]>summary::after{transform:rotate(-135deg);margin-top:6px;margin-bottom:0}
+@media (min-width:1000px){details.stofsec>summary{cursor:default;pointer-events:none}details.stofsec>summary::after{display:none}}
+@media (max-width:999px){.stofgrid .toc{display:none}}
+/* uitklapblok met steekwoorden */
+details.info{border:1px solid var(--line);border-radius:var(--rb);background:var(--surface);padding:6px 14px}
+details.info>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:600;min-height:36px}
+details.info>summary::-webkit-details-marker{display:none}
+details.info ul{margin:8px 0 2px;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:15px}
+details.info.mini{border:0;padding:0;background:none}
+details.info.mini>summary{font-weight:500;font-size:14px;color:var(--muted);justify-content:flex-start;min-height:36px}
+details.info.mini p{margin:4px 0 0}
 .chip.bg{background:transparent;border-style:dashed;color:var(--muted);font-weight:500}
 .mtx{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:0}
 .mtx>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;cursor:pointer;list-style:none}
@@ -669,6 +685,50 @@ footer{font-size:13px;color:var(--muted);padding-block:8px 32px}
   /* app-naam in het midden van de kopbalk (niet tijdens een oefenronde: dan staan er knoppen rechts) */
   body:not(.inses) .bar .wrap{justify-content:center}
 }
+/* zoeken in studiestof en vragen */
+.zoek{display:flex;gap:10px;align-items:center}
+.zoek input{flex:1;min-width:0;font:inherit;font-size:16px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--rb);background:var(--surface);color:var(--ink)}
+.zoek input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px var(--ring)}
+.zoekhit{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--rb);background:var(--surface);color:var(--ink);text-decoration:none}
+@media (hover:hover){.zoekhit:hover{border-color:var(--navy)}}
+.zoekhit b{color:var(--link)}
+.zoekq{border:1px solid var(--line);border-radius:var(--rb);background:var(--surface);padding:12px 14px}
+.zoekq>summary{cursor:pointer;display:flex;flex-direction:column;gap:6px;list-style:none}
+.zoekq>summary::-webkit-details-marker{display:none}
+.zoekq>summary .chip{align-self:flex-start}
+.zoekq[open]>summary{margin-bottom:8px}
+.zoekq p{margin:0 0 6px}
+.zoekq .corr{color:var(--ok);font-weight:600}
+mark{background:var(--warn-bg);color:inherit;border-radius:3px;padding:0 1px;box-shadow:inset 0 -2px 0 var(--hivis)}
+.err{color:var(--bad)}
+.lockbox .toch{margin:0}.lockbox .toch .linkbtn{text-decoration:underline}
+/* PHB 2: gesprekken oefenen */
+.kzlist{display:flex;flex-direction:column;gap:8px}
+.kzitem{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 14px;border:1px solid var(--line);border-radius:var(--rb);background:var(--surface)}
+.kzitem>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.kzitem .btn{flex:none;min-width:88px}
+.kzkaart h3{margin:6px 0 0;font-size:16px}
+.kzkaart .panel p{margin:0}
+.kzrol>summary{cursor:pointer;min-height:32px}
+.kzrol p{margin:10px 0 0}
+.kztimer{font-size:30px;font-weight:600;color:var(--navy);min-width:4ch;text-align:right}
+.kztimer.op{color:var(--bad)}
+.kzaudio{width:100%}
+.kzcrit{border:1px solid var(--line);border-radius:var(--rb);padding:12px 14px 6px;margin:0;background:var(--surface);min-width:0}
+.kzcrit legend{font-weight:700;padding:0 6px}
+.kzlvl{display:flex;gap:10px;align-items:flex-start;padding:8px 4px;border-top:1px solid var(--line);cursor:pointer;font-size:15px}
+.kzlvl:first-of-type{border-top:0}
+.kzlvl input{margin-top:3px;flex:none;width:18px;height:18px}
+.kzlvl b{white-space:nowrap}
+.kztips{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:10px}
+.kzchat{display:flex;flex-direction:column;gap:10px}
+.kzb{max-width:min(560px,88%);padding:10px 14px;border-radius:14px;display:flex;flex-direction:column;gap:2px;line-height:1.45}
+.kzb .small{font-size:12px;font-weight:600}
+.kzb.ak{align-self:flex-start;background:var(--sunk);border:1px solid var(--line);border-bottom-left-radius:4px}
+.kzb.jij{align-self:flex-end;background:var(--tint);border:1px solid var(--line);border-bottom-right-radius:4px}
+.kzfb{font-size:14px;padding:10px 14px;border-radius:var(--rb);border-left:3px solid var(--line);background:var(--surface)}
+.kzfb.ok{border-color:var(--ok);background:var(--ok-bg)} .kzfb.mid{border-color:var(--hivis);background:var(--warn-bg)} .kzfb.bad{border-color:var(--bad);background:var(--bad-bg)}
+.btn.kzopt{display:block;width:100%;text-align:left;white-space:normal;height:auto;line-height:1.45;padding:12px 14px;font-weight:500}
 @media print{
   .bar,.tabbar,footer,.toc,.homeside,.btn,.toast,.kdlg{display:none!important}
   body{background:#fff}

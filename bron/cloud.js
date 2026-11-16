@@ -25,12 +25,13 @@ const needsLogin=()=>cloudKan()&&!sesGet();
 const b64url=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 function randStr(n){const a=new Uint8Array(n);crypto.getRandomValues(a);return b64url(a).slice(0,n)}
 function redirectUrl(){return isNative()?REDIR_APP:location.origin+location.pathname}
-async function loginStart(){
+async function loginStart(prov){prov=prov==="apple"&&CLOUD.apple?"apple":"google";
   if(!navigator.onLine){cloudFout="Je bent offline. Om in te loggen heb je internet nodig.";render();return}
-  cloudFout="";cloudHint="";cloudBezig="Google wordt geopend…";render();
+  cloudFout="";cloudHint="";cloudBezig=(prov==="apple"?"Apple":"Google")+" wordt geopend…";render();
   try{const v=randStr(64);const ch=b64url(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v)));
     try{localStorage.setItem(PKCE,v)}catch(e){}
-    const u=CLOUD.url+"/auth/v1/authorize?provider=google&redirect_to="+encodeURIComponent(redirectUrl())+"&code_challenge="+ch+"&code_challenge_method=s256&prompt=select_account";
+    const red=DESK()&&DESK().loginRedirect?await DESK().loginRedirect():redirectUrl();
+    const u=CLOUD.url+"/auth/v1/authorize?provider="+prov+"&redirect_to="+encodeURIComponent(red)+"&code_challenge="+ch+"&code_challenge_method=s256"+(prov==="google"?"&prompt=select_account":"");
     const B=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.Browser;
     if(DESK()){await DESK().open(u);cloudBezig="";cloudHint="Log in via het venster van je browser. Daarna kom je vanzelf terug in Boa Paraat.";render()}
     else if(isNative()&&B){await B.open({url:u,presentationStyle:"popover"});cloudBezig="";render()}else location.assign(u);
@@ -74,7 +75,7 @@ async function rest(method,pad,body,extra,opnieuw){const t=await token(opnieuw);
   if(!r.ok){const e=new Error("HTTP "+r.status);e.status=r.status;throw e}
   const tx=await r.text();return tx?JSON.parse(tx):null}
 // ----- samenvoegen: voortgang van dit apparaat en uit de cloud -----
-// Oefenresultaten (s), dagen (d), geschiedenis (h), verslagen (w), examens (x) en eigen video's (yt) worden
+// Oefenresultaten (s), dagen (d), geschiedenis (h), verslagen (w), examens (x), eigen video's (yt) en gesprekken (k) worden
 // samengevoegd; profiel en instellingen volgen de laatst gewijzigde kant. Verwijderde onderdelen staan in
 // 'weg' zodat ze niet terugkomen; 'r' is het moment van 'Alles wissen': ouder dan dat telt niet meer mee.
 function mergeStore(a,b){
@@ -88,8 +89,8 @@ function mergeStore(a,b){
   const hk=x=>x.d+"|"+x.t+"|"+x.m+"|"+x.k;const hs=new Map();
   for(const x of [].concat(o.h||[],od.h||[]))if(x.d>=R&&!hs.has(hk(x)))hs.set(hk(x),x);
   o.h=[...hs.values()].sort((x,y)=>y.d-x.d).slice(0,50);
-  const lijst=(soort,max)=>{const m=new Map();for(const x of [].concat(o[soort]||[],od[soort]||[]))if(!m.has(x.id)&&!weg.has(soort+":"+x.id))m.set(x.id,x);let l=[...m.values()];if(soort==="w")l.sort((x,y)=>(y.d||0)-(x.d||0));return max?l.slice(0,max):l};
-  o.w=lijst("w",40);o.x=lijst("x");o.yt=lijst("yt");
+  const lijst=(soort,max)=>{const m=new Map();for(const x of [].concat(o[soort]||[],od[soort]||[]))if(!m.has(x.id)&&!weg.has(soort+":"+x.id))m.set(x.id,x);let l=[...m.values()];if(soort==="w"||soort==="k")l.sort((x,y)=>(y.d||0)-(x.d||0));return max?l.slice(0,max):l};
+  o.w=lijst("w",40);o.x=lijst("x");o.yt=lijst("yt");o.k=lijst("k",60);
   if(!o.p.ob&&od.p&&od.p.ob){o.p=JSON.parse(JSON.stringify(od.p))}
   return o}
 function wegZet(soort,id){store.weg=(store.weg||[]).filter(x=>x!==soort+":"+id).concat(soort+":"+id).slice(-300)}
@@ -134,16 +135,16 @@ function wisLokaal(){sesSet(null);clearTimeout(syncT);store=blank();try{localSto
 function viewLogin(){
   return `<div class="welcome login">
     <div class="whead"><span class="wmark" aria-hidden="true">${WMARK}</span>
-      <div><h1>Welkom bij Boa Paraat</h1><p class="lede">De Examentrainer voor je PHB. Log in met je Google-account, dan blijft je voortgang bewaard, ook als je van telefoon wisselt of op de computer verder oefent.</p></div></div>
+      <div><h1>Welkom bij Boa Paraat</h1><p class="lede">De Examentrainer voor je PHB. Log in met je ${CLOUD&&CLOUD.apple?"Google-account of Apple ID":"Google-account"}, dan blijft je voortgang bewaard, ook als je van telefoon wisselt of op de computer verder oefent.</p></div></div>
     <div class="panel stack">
-      ${cloudBezig?`<p class="lbezig" role="status"><span class="spin" aria-hidden="true"></span>${esc(cloudBezig)}</p>`:`<button class="btn hi lgoogle" data-act="login">Inloggen met Google</button>`}
+      ${cloudBezig?`<p class="lbezig" role="status"><span class="spin" aria-hidden="true"></span>${esc(cloudBezig)}</p>`:`<button class="btn hi lgoogle" data-act="login">Inloggen met Google</button>${CLOUD&&CLOUD.apple?`<button class="btn lapple" data-act="login-apple">Inloggen met Apple</button>`:""}`}
       ${cloudHint&&!cloudBezig&&!cloudFout?`<p class="lhint" role="status">${esc(cloudHint)}</p>`:""}
       ${cloudFout?`<p class="ferr" role="alert">${esc(cloudFout)}</p>`:""}
       ${!navigator.onLine&&!cloudBezig?`<p class="small">Je bent nu offline. De eerste keer inloggen kan alleen met internet; daarna werkt de app ook offline.</p>`:""}
       <p class="small">We bewaren alleen je e-mailadres, je naam en je oefenvoortgang, in een beveiligde database in de EU. Niemand anders kan ze zien. Je kunt je account en al je gegevens altijd verwijderen via Profiel.${SITE?` <a href="${SITE}privacy.html" target="_blank" rel="noopener" data-ext>Privacyverklaring</a>`:""}</p>
     </div></div>`}
 function viewAccount(){
-  if(!cloudKan())return `<div class="section stack"><h2>Account</h2><p class="small">In deze versie blijft je voortgang op dit apparaat. Inloggen met je Google-account kan in de Boa Paraat-app (telefoon en computer) en op de website.</p></div>`;
+  if(!cloudKan())return `<div class="section stack"><h2>Account</h2><p class="small">Voortgang staat op dit apparaat. Inloggen kan in de app en op de website.</p></div>`;
   const s=sesGet();if(!s)return "";
   const st=cloudSync.bezig?"Bezig met bijwerken…":!cloudSync.t?"Nog niet bijgewerkt":cloudSync.ok?"Bewaard in je account, laatst bijgewerkt om "+fmtTime(new Date(cloudSync.t)):"Offline: je voortgang wordt bewaard zodra je weer verbinding hebt";
   return `<div class="section stack" id="account"><h2>Account</h2>
@@ -156,7 +157,8 @@ function viewAccount(){
     ${SITE?`<p class="small"><a href="${SITE}privacy.html" target="_blank" rel="noopener" data-ext>Privacyverklaring</a></p>`:""}
     </div></div>`}
 function cloudAct(act){
-  if(act==="login"){loginStart();return true}
+  if(act==="login"){loginStart("google");return true}
+  if(act==="login-apple"){loginStart("apple");return true}
   if(act==="sync"){cloudFout="";cloudSyncNu().then(ok=>{if(!ok)toast("Bijwerken lukt nu niet. Controleer je internetverbinding.")});render();return true}
   if(act==="logout"){if(confirmUitOffline){const s=sesGet();if(s)fetch(CLOUD.url+"/auth/v1/logout",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+s.a}}).catch(()=>{});wisLokaal();location.hash="home";render();toast("Je bent uitgelogd");return true}uitloggen();return true}
   if(act==="logout-no"){confirmUitOffline=false;render();return true}
@@ -173,7 +175,7 @@ setTimeout(function(){
   if(!cloudKan())return;
   const ot=document.getElementById("opslagTekst");if(ot)ot.textContent="Je profiel en voortgang worden bewaard in je account, beveiligd in een database in de EU.";
   if(!isNative()&&/[?&](code|error)=/.test(location.search))loginTerug(location.href);
-  if(DESK()&&DESK().onLoginUrl)DESK().onLoginUrl(u=>{if(typeof u==="string"&&u.indexOf(REDIR_APP)===0)loginTerug(u)});
+  if(DESK()&&DESK().onLoginUrl)DESK().onLoginUrl(u=>{if(typeof u==="string"&&(u.indexOf(REDIR_APP)===0||/^http:\/\/127\.0\.0\.1:\d+\/login(\?|$)/.test(u)))loginTerug(u)});
   const A=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.App;
   if(isNative()&&A){try{A.addListener("appUrlOpen",e=>{if(e&&e.url&&e.url.indexOf(REDIR_APP)===0)loginTerug(e.url)});
       if(A.getLaunchUrl)A.getLaunchUrl().then(r=>{if(r&&r.url&&r.url.indexOf(REDIR_APP)===0)loginTerug(r.url)}).catch(()=>{});

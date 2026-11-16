@@ -6,15 +6,20 @@
 //   deze app, die het doorgeeft aan de pagina (preload.js → window.boaDesktop.onLoginUrl).
 // - Links naar buiten (privacyverklaring, Mijn ExTH) openen in de browser, nooit in het app-venster.
 // - Bij het opstarten kijkt de app op GitHub of er een nieuwere versie is en meldt dat één keer.
+// - PROEFVERSIE ("boaProef": true in package.json, gezet door klaarzetten.js met BOA_PROEF=1): de app heet
+//   'Boa Paraat Proef' en staat naast de gewone app. Om de gewone app niet zijn inlogadres af te pakken,
+//   registreert de proef geen nl.boa.phbtrainer:// maar ontvangt hij de terugkeer van Google zelf, op een
+//   tijdelijk adres op deze computer (http://127.0.0.1:<poort>/login). Geen updatemelding.
 const {app,BrowserWindow,protocol,net,shell,ipcMain,Menu,dialog,screen,nativeTheme,session}=require("electron");
-const path=require("path"),fs=require("fs"),os=require("os"),{pathToFileURL}=require("url"),{execFile}=require("child_process");
+const path=require("path"),fs=require("fs"),os=require("os"),http=require("http"),{pathToFileURL}=require("url"),{execFile}=require("child_process");
+const PROEF=!!require("./package.json").boaProef;
 
 const SCHEME="nl.boa.phbtrainer",ORIGIN="app://boa",ROOT=path.join(__dirname,"app");
 const REPO="IanSchrotenboer/BOAParaat",RELEASES="https://github.com/"+REPO+"/releases/latest";
 const TEST=!!process.env.BOA_TEST;
 if(process.env.BOA_USERDATA)app.setPath("userData",process.env.BOA_USERDATA);
-app.setName("Boa Paraat");
-if(process.platform==="win32")app.setAppUserModelId("nl.boa.phbtrainer");
+app.setName(PROEF?"Boa Paraat Proef":"Boa Paraat");
+if(process.platform==="win32")app.setAppUserModelId(PROEF?"nl.boa.phbtrainer.proef":"nl.boa.phbtrainer");
 
 protocol.registerSchemesAsPrivileged([{scheme:"app",privileges:{standard:true,secure:true,supportFetchAPI:true,corsEnabled:true}}]);
 
@@ -30,8 +35,9 @@ function openExtern(url){
 ipcMain.handle("extern",(e,url)=>openExtern(url));
 
 // ---------- terugkomst na inloggen (nl.boa.phbtrainer://login?code=…) ----------
+const LUS=/^http:\/\/127\.0\.0\.1:\d+\/login(\?|$)/;
 function bezorg(url){
-  if(typeof url!=="string"||url.indexOf(SCHEME+"://")!==0)return;
+  if(typeof url!=="string"||(url.indexOf(SCHEME+"://")!==0&&!LUS.test(url)))return;
   if(win&&klaar){win.webContents.send("login-url",url);toon()}else wachtend=url;
 }
 function toon(){if(!win)return;if(win.isMinimized())win.restore();win.show();win.focus()}
@@ -47,8 +53,21 @@ else{
   app.on("activate",()=>{if(!win)maakVenster()});
 }
 
+// terugkeer na inloggen in de proefversie: een klein adres op deze computer dat de code doorgeeft
+let lus=null,lusPoort=0;
+const LUS_PAGINA='<!doctype html><html lang="nl"><meta charset="utf-8"><title>Boa Paraat Proef</title><body style="font:17px/1.5 system-ui,sans-serif;max-width:460px;margin:15vh auto;padding:0 20px;color:#1b2533"><h1 style="font-size:22px">Je kunt terug naar Boa Paraat Proef</h1><p>Het inloggen is doorgegeven aan het programma. Dit tabblad mag je sluiten.</p></body></html>';
+function loginLus(){return new Promise((klaar,fout)=>{
+  if(lus&&lusPoort)return klaar(lusPoort);
+  lus=http.createServer((req,res)=>{let u;try{u=new URL(req.url,"http://127.0.0.1")}catch(e){res.writeHead(400);return res.end()}
+    if(u.pathname!=="/login"){res.writeHead(404);return res.end()}
+    res.writeHead(200,{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store"});res.end(LUS_PAGINA);
+    bezorg("http://127.0.0.1:"+lusPoort+"/login"+u.search)});
+  lus.on("error",e=>{lus=null;lusPoort=0;fout(e)});
+  lus.listen(0,"127.0.0.1",()=>{lusPoort=lus.address().port;klaar(lusPoort)})})}
+ipcMain.handle("login-redirect",async()=>PROEF?"http://127.0.0.1:"+(await loginLus())+"/login":SCHEME+"://login");
+
 function registreerSchema(){
-  if(TEST)return;
+  if(TEST||PROEF)return;
   try{
     if(process.defaultApp&&process.argv.length>=2)app.setAsDefaultProtocolClient(SCHEME,process.execPath,[path.resolve(process.argv[1])]);
     else app.setAsDefaultProtocolClient(SCHEME);
@@ -91,7 +110,7 @@ function maakVenster(){
   const st=leesStand(),b=st.b&&zichtbaar(st.b)?st.b:null;
   win=new BrowserWindow({
     width:b?b.width:1200,height:b?b.height:820,x:b?b.x:undefined,y:b?b.y:undefined,minWidth:360,minHeight:520,
-    title:"Boa Paraat",show:false,autoHideMenuBar:true,
+    title:PROEF?"Boa Paraat Proef":"Boa Paraat",show:false,autoHideMenuBar:true,
     backgroundColor:nativeTheme.shouldUseDarkColors?"#111827":"#f4f6f9",
     icon:process.platform==="linux"?path.join(ROOT,"icons","icon-512.png"):undefined,
     webPreferences:{preload:path.join(__dirname,"preload.js"),contextIsolation:true,sandbox:true,nodeIntegration:false,spellcheck:false}
@@ -125,7 +144,7 @@ function maakMenu(){
 function nieuwer(a,b){const pa=String(a).split(".").map(n=>parseInt(n,10)||0),pb=String(b).split(".").map(n=>parseInt(n,10)||0);
   for(let i=0;i<3;i++){if((pa[i]||0)!==(pb[i]||0))return (pa[i]||0)>(pb[i]||0)}return false}
 async function updateCheck(){
-  if(TEST||!win)return;
+  if(TEST||PROEF||!win)return;
   try{
     const r=await net.fetch("https://api.github.com/repos/"+REPO+"/releases/latest",{headers:{"User-Agent":"Boa-Paraat-desktop","Accept":"application/vnd.github+json"}});
     if(!r.ok)return;const j=await r.json();const v=String(j.tag_name||"").replace(/^v/,"");
@@ -140,4 +159,4 @@ async function updateCheck(){
 }
 
 // alleen voor tests/desktop.js
-if(TEST)global.__boa={extern,bezorg,nieuwer};
+if(TEST)global.__boa={extern,bezorg,nieuwer,PROEF};

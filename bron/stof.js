@@ -172,7 +172,7 @@ const STOF = [
 <li>Art. 153 Sv: het pv wordt op ambtseed opgemaakt, persoonlijk, gedateerd en ondertekend, met <b>redenen van wetenschap</b> (hoe je het weet).</li>
 <li>De verklaring van de verdachte zoveel mogelijk in zijn eigen woorden, liefst in vraag-en-antwoordvorm (art. 29a Sv). Hij mag opmerkingen maken en tekent als hij het eens is.</li>
 <li>Pv's, aangiften en inbeslaggenomen voorwerpen gaan onverwijld naar de hulpOvJ of OvJ (art. 156 Sv).</li>
-<li>De dia's behandelen ook de opbouw: waarnemen en ondervinden, de 7 W's, mededelingen aan de verdachte, bevoegdheden beschrijven en daderwetenschap.</li>
+<li>Let ook op de opbouw: waarnemen en ondervinden, de 7 W's, mededelingen aan de verdachte, de gebruikte bevoegdheden en daderwetenschap.</li>
 </ul>`},
 {id:"rechtspraak", deel:"Algemene rechtskennis", titel:"De rechterlijke macht", html:`
 <ul>
@@ -278,16 +278,116 @@ const STOF = [
 <li>Zwaardere feiten blijven misdrijven uit het Wetboek van Strafrecht: opzettelijk gevaar voor het spoorverkeer (art. 164), door schuld (art. 165) en vernieling van spoorwegwerken (art. 351).</li>
 <li><b>Art. 15 Wet lokaal spoor</b> (tram en metro): verboden in te grijpen in installaties, de infrastructuur te beschadigen of te wijzigen, op of langs een afgesloten lokale spoorweg te lopen, en het beheer of verkeer te hinderen.</li>
 </ul>`},
-{id:"praktijk", deel:"Praktijk", titel:"Praktijkexamen: het sanctiegesprek", html:`
-<p>De rubric in de dia's beschrijft waar je op wordt beoordeeld in het sanctiegesprek met een acteur. Kort samengevat:</p>
+{id:"bejeg", deel:"Bejegening", titel:"Communicatie, de-escalatie en beroepshouding", html:`
+<h4>Gesprekstechniek</h4>
 <ul>
-<li>Begroet de persoon, stel jezelf voor en vertel waarom je hem aanspreekt.</li>
-<li>Spreek duidelijk en verstaanbaar, laat de ander uitspreken en houd de regie.</li>
-<li>Houd minstens 1,5 meter afstand en blijf geduldig.</li>
-<li>Meld vóór het staande houden nog eens het strafbare feit en houd de verdachte daarna staande.</li>
-<li>Geef de <b>cautie</b> en leg uit wat die betekent. Noem de rechten met uitleg, en vertel dat afzien ervan nadelige gevolgen kan hebben.</li>
-<li>Vraag duidelijk om een verklaring.</li>
-<li>Leg de vervolgprocedure uit en hoe iemand bezwaar kan maken. Sluit het gesprek netjes en professioneel af.</li>
+<li><b>LSD</b>: luisteren, samenvatten, doorvragen. Met een samenvatting controleer je of je het goed hebt begrepen en breng je structuur aan. Vraag daarna gericht door en zeg waarom je iets wilt weten.</li>
+<li><b>Open vragen</b> ('Wat is er gebeurd?') laten de ander vertellen. <b>Gesloten vragen</b> ('Was u alleen?') gebruik je om feiten te controleren. Vermijd <b>suggestieve vragen</b> die het antwoord voorzeggen.</li>
+<li><b>Actief luisteren</b>: oogcontact, knikken, laten uitpraten, samenvatten. Onderbreek alleen als het echt nodig is.</li>
+<li><b>Gevoelsreflectie</b>: benoem de emotie en de reden, bijvoorbeeld 'Ik merk dat u boos bent, omdat u haast heeft.' Vraag daarna door op die emotie. Pas als de emotie gezakt is, ga je over op de zakelijke afhandeling.</li>
+<li><b>Ik-boodschap</b>: noem het gedrag, het effect en wat je wilt, zonder aanval: 'Ik zie dat u rookt op het perron. Hier geldt een rookverbod. Ik vraag u de sigaret uit te maken.'</li>
+<li><b>Slecht nieuws</b> breng je direct aan het begin, kort en duidelijk. Daarna geef je ruimte voor de reactie.</li>
+<li>Spreek <b>begrijpelijk</b>: geen vakjargon, of leg het uit, en sluit aan bij de woorden die de ander zelf gebruikt.</li>
+</ul>
+<h4>Agressie en de-escalatie</h4>
+<ul>
+<li><b>Frustratieagressie</b> komt voort uit onmacht of teleurstelling: de-escaleer met begrip, gevoelsreflectie en uitleg. <b>Instrumentele agressie</b> wordt doelbewust ingezet om iets te bereiken: stel duidelijke grenzen en geef niet toe.</li>
+<li><b>Grens stellen</b>: benoem het gedrag, geef de grens aan en noem het gevolg als het doorgaat. Stel geen grens als iemand alleen boos is; dan werkt een gevoelsreflectie beter.</li>
+<li><b>Roos van Leary</b>: gedrag roept gedrag op. Boven-gedrag (leiden, bepalen) lokt onder-gedrag uit, samen-gedrag lokt samen-gedrag uit. Kies bewust je positie.</li>
+<li><b>Afstand</b>: houd minstens een armlengte afstand, sta iets schuin en beweeg mee als de ander dichterbij komt. Zeg ook dat je afstand houdt en waarom.</li>
+<li>Bij direct gevaar gaat veiligheid voor praten: trek je terug of vraag assistentie. Een collega kan het gesprek overnemen als het contact is vastgelopen.</li>
+</ul>
+<h4>Beroepshouding</h4>
+<ul>
+<li>Je treedt <b>integer, neutraal, respectvol en consequent</b> op. Je zegt 'u' en 'meneer' of 'mevrouw', ook als het gesprek moeilijk wordt.</li>
+<li>Je doet geen beloftes die je niet kunt nakomen en bent eerlijk over wat je niet weet.</li>
+<li>Je deelt geen persoonsgegevens van anderen, ook niet van collega's.</li>
+<li>Treed je op tegen een bekende, dan behandel je hem als ieder ander of laat je een collega optreden.</li>
+<li>Na een ingrijpend incident meld je het voorval en maak je gebruik van nazorg.</li>
+</ul>`},
+{id:"bejeg1", deel:"Bejegening", titel:"Het examen Bejegening in domein I: calamiteit, aanwijzing en balie", html:`
+<p>Het examen is een praktijkexamen van 30 minuten met een acteur, in drie casussen. Elke casus wordt met een rubric beoordeeld en moet minimaal voldoende zijn (ongeveer 70% van de punten). Oefen met de casussen onder <a href="#casus">Gesprekken oefenen</a>.</p>
+<h4>Calamiteit</h4>
+<ul>
+<li>Benader rustig, stel je voor en zeg meneer of mevrouw en u. Sluit aan bij de emotie en het niveau van de persoon en speel geen gezag uit.</li>
+<li>Geef een gevoelsreflectie, laat het verhaal vertellen, vat samen en vraag gericht door met de 7 W's.</li>
+<li>Bel de meldkamer uit jezelf en zeg waarom je belt. Geef volledig door: wie je bent, waar, wat er is gebeurd, hoe het met de persoon gaat en wat er nodig is. Vraag of familie moet worden ingelicht.</li>
+<li>Rond af: vraag of er nog vragen zijn, begin niet opnieuw over een eerdere escalatie en groet.</li>
+</ul>
+<h4>Aanwijzing</h4>
+<ul>
+<li>Leg in 2 tot 4 zinnen feitelijk uit wat er aan de hand is en wat het voor de persoon betekent. Geef dan de aanwijzing.</li>
+<li>Reageer op boosheid met een gevoelsreflectie en vraag door. Stel alleen een grens als het gedrag daarom vraagt.</li>
+<li>Bied een realistisch alternatief nadat de emotie gezakt is, en herhaal daarbij wat de persoon over zijn situatie vertelde. Kom niet terug met een oplossing die hij al heeft afgewezen.</li>
+<li>Houd de regie en minstens een armlengte afstand. Herhaal aan het eind de afspraak, maak geen excuses voor je optreden en groet.</li>
+</ul>
+<h4>Balie dienstverlening</h4>
+<ul>
+<li>Vraag met de 7 W's uit wat er speelt en leg uit waarom je de informatie nodig hebt.</li>
+<li>Doe geen beloftes die je niet kunt nakomen of die buiten je bevoegdheid vallen. Zeg duidelijk wat wel en niet kan, bijvoorbeeld hoe iemand bezwaar of een klacht indient.</li>
+<li>Handel integer: geef juiste informatie, zeg het als je iets niet weet en deel geen gegevens van collega's of anderen.</li>
+</ul>`},
+{id:"praktijk", deel:"Bejegening", titel:"Het examen Bejegening in domein IV: aanwijzing en strafbaar feit", html:`
+<p>Het examen is een praktijkexamen van 30 minuten met een acteur, in twee casussen: een aanwijzing en een strafbaar feit. Elke casus moet minimaal voldoende zijn (ongeveer 70% van de punten). Oefen met de casussen onder <a href="#casus">Gesprekken oefenen</a>.</p>
+<h4>In beide casussen</h4>
+<ul>
+<li>Begroet de persoon, stel jezelf voor, zeg meneer of mevrouw en u, en laat je legitimatie zien als daarom wordt gevraagd.</li>
+<li>Spreek duidelijk en vanuit 'ik', laat de ander uitspreken en houd de regie. Gebruik begrijpelijke taal en sluit aan bij de woorden van de persoon.</li>
+<li>Houd minstens een armlengte afstand, zeg dat je dat doet en beweeg mee als de persoon dichterbij komt.</li>
+<li>Geef bij boosheid een gevoelsreflectie en vraag door. Onderbouw je keuzes met de regels en de feiten, niet met je mening, en controleer of de boodschap is begrepen.</li>
+</ul>
+<h4>Aanwijzing</h4>
+<ul>
+<li>Leg in 2 tot 4 zinnen uit wat er aan de hand is en wat het voor de persoon betekent. Een aanwijzing van een boa OV moet worden opgevolgd (art. 73 Wp2000).</li>
+<li>Bied een realistisch alternatief als de emotie gezakt is. Herhaal aan het eind de afspraak, vraag of er nog vragen zijn en groet.</li>
+</ul>
+<h4>Strafbaar feit</h4>
+<ul>
+<li>Noem het juiste strafbare feit, houd de verdachte staande en zeg dat. Leg uit wat staande houden is: je stelt de identiteit vast om een proces-verbaal op te maken.</li>
+<li>Zeg vanuit 'ik' duidelijk proces-verbaal aan.</li>
+<li>Geef de <b>cautie</b> voordat je om een verklaring vraagt: de verdachte hoeft geen antwoord te geven (art. 29 Sv). Vraag daarna duidelijk om een verklaring.</li>
+<li>Leg uit wat er na het proces-verbaal gebeurt en hoe iemand bezwaar kan maken. Beantwoord vragen feitelijk en sluit het gesprek netjes af.</li>
+</ul>`},
+{id:"waarneming", deel:"Waarneming en verslaglegging", titel:"Waarnemen, signalementen en verslag", html:`
+<ul>
+<li>Een <b>objectieve waarneming</b> beschrijft controleerbare feiten zonder eigen interpretatie: 'De man schreeuwde en balde zijn vuisten', niet 'De man was agressief'.</li>
+<li>Waarnemingen worden vertekend door <b>verwachtingen, vooroordelen, stress</b> en omstandigheden zoals afstand, licht en zicht. Vermeld die omstandigheden: zo kan de lezer de betrouwbaarheid beoordelen.</li>
+<li>Scheid <b>eigen waarneming</b> (zelf gezien of gehoord) van <b>informatie van horen zeggen</b> en vermeld van wie je die informatie hebt.</li>
+<li>Een <b>signalement</b> beschrijf je van algemeen naar bijzonder: geslacht, geschatte leeftijd, lengte, postuur, huidskleur, haar, en daarna kleding van boven naar beneden en opvallende kenmerken zoals tatoeages.</li>
+<li>Een verslag beantwoordt de <b>7 W's</b>: wie, wat, waar, wanneer, waarom, hoe en waarmee. Schrijf in de ik-vorm en de verleden tijd, in chronologische volgorde.</li>
+<li>Neem opvallende <b>uitspraken letterlijk</b> op, tussen aanhalingstekens.</li>
+<li>Bij het examen (ExTH) beschrijf je de <b>aanvangssituatie</b>, de <b>gebeurtenissen</b> (wie deed wat, hoe, waarmee, wie zei wat, met welke gevolgen) en de <b>specificaties</b> (signalementen, voertuigen, voorwerpen). Elk onderdeel moet minstens de helft van de punten halen. Oefen dit met de praktijkoefening bij PHB 3.</li>
+</ul>`},
+{id:"wijk", deel:"Functiegerichte trainingen (PHB 4)", titel:"Wijkgericht werken", html:`
+<ul>
+<li>Bij <b>wijkgericht werken</b> ben je zichtbaar en aanspreekbaar in een vaste wijk. Je kent de bewoners, ondernemers en partners en pakt problemen samen met hen aan.</li>
+<li>Je belangrijkste partner is de <b>wijkagent</b>. Andere partners zijn het sociaal wijkteam, woningcorporaties, jongerenwerk, buurtbemiddeling, de GGD en ondernemersverenigingen.</li>
+<li><b>Informeel contact</b> levert vertrouwen en informatie op. Problemen vallen eerder op en bewoners melden sneller.</li>
+<li><b>Probleemgericht werken</b>: bij steeds terugkerende overlast analyseer je met partners de oorzaak (wie, waar, wanneer, waarom) en combineer je maatregelen. Alleen handhaven lost een structureel probleem meestal niet op.</li>
+<li>Je bent ook <b>ogen en oren</b>: signalen van verwaarlozing, verwardheid, huiselijk geweld of ondermijning geef je door aan de juiste partner. Je lost ze niet zelf op.</li>
+<li>Bij <b>buurtbemiddeling</b> lossen buren met hulp van getrainde vrijwilligers zelf een conflict op. Beide partijen moeten vrijwillig meedoen.</li>
+<li>Een <b>buurtschouw</b> is een ronde door de wijk met bewoners en partners om knelpunten in de openbare ruimte vast te stellen.</li>
+<li>Houd bewoners op de hoogte van wat er met hun meldingen gebeurt. Zo blijft het vertrouwen bestaan, ook als niet alles meteen kan.</li>
+</ul>`},
+{id:"cult", deel:"Functiegerichte trainingen (PHB 4)", titel:"Cultureel vakmanschap", html:`
+<ul>
+<li><b>Cultureel vakmanschap</b> is professioneel en zonder vooroordelen omgaan met mensen met een andere achtergrond, zodat je iedereen gelijk behandelt.</li>
+<li>Artikel 1 van de Grondwet verbiedt <b>discriminatie</b>. Gelijke gevallen worden gelijk behandeld.</li>
+<li><b>Etnisch profileren</b> is controleren op basis van etniciteit, huidskleur of uiterlijk zonder objectieve reden. Het is onrechtmatig en schaadt het vertrouwen. Baseer een controle op gedrag en objectieve informatie en leg uit waarom je iemand aanspreekt.</li>
+<li>Iedereen heeft <b>vooroordelen</b> en stereotypen. Ze beïnvloeden onbewust je waarneming en beslissingen. Wees je daarvan bewust en toets je beslissingen: zou ik dit bij ieder ander ook doen?</li>
+<li>Cultuur bepaalt mede hoe mensen <b>communiceren</b>: oogcontact, afstand, aanraking en direct of indirect spreken. Interpreteer gedrag niet te snel.</li>
+<li>Bij een <b>taalbarrière</b> gebruik je korte, eenvoudige zinnen, controleer je of je begrepen wordt en schakel je zo nodig een tolk in. Gebruik bij voorkeur geen kinderen als tolk.</li>
+<li>Diversiteit in een team helpt om verschillende groepen in de samenleving beter te begrijpen en te bereiken.</li>
+</ul>`},
+{id:"jeugd", deel:"Functiegerichte trainingen (PHB 4)", titel:"Jeugd en communicatie met jongeren", html:`
+<ul>
+<li>Het <b>puberbrein</b> is nog in ontwikkeling: jongeren overzien gevolgen minder goed, zijn gevoelig voor groepsdruk en reageren sneller impulsief.</li>
+<li>Spreek een <b>groep</b> rustig en duidelijk aan. Neem de jongeren serieus, zoek de leider op en spreek die zo nodig apart aan. Zo voorkom je dat iemand voor de groep moet stoer doen.</li>
+<li>Wees <b>duidelijk en consequent</b>: wat je zegt, doe je. Leg uit waarom iets niet mag.</li>
+<li><b>Jeugdstrafrecht</b>: onder 12 jaar geen vervolging, wel opsporing en ophouden (max. 6 uur). Van 12 tot 18 jaar geldt het jeugdstrafrecht; ook voor jongvolwassenen tot 23 kan de rechter het toepassen.</li>
+<li><b>Halt</b>: een alternatieve afdoening voor jongeren van 12 tot 18 bij lichte strafbare feiten, zoals vernieling of vuurwerkoverlast. Ten hoogste 20 uur (art. 77e Sr). De jongere moet het feit bekennen en instemmen, en de ouders worden betrokken.</li>
+<li>Bij een minderjarige verdachte informeer je de ouders of voogd. Een jongere heeft recht op een raadsman en mag zich laten bijstaan door een vertrouwenspersoon bij het verhoor.</li>
+<li>Werk samen met <b>jongerenwerk</b>, school (leerplichtambtenaar) en de wijkagent. Signalen van zorg, zoals verwaarlozing of radicalisering, geef je door.</li>
 </ul>`},
 {id:"ambts", deel:"Ambtsinstructie en RTGB", titel:"Geweld: wettelijke basis en begrippen", html:`
 <p>Geweld is in Nederland in beginsel verboden, ook voor de overheid. Alleen de wet kan het toestaan, en dan onder strikte voorwaarden. De Ambtsinstructie voor de politie, de Koninklijke marechaussee en andere opsporingsambtenaren werkt artikel 7 van de Politiewet 2012 uit. Voor een boa met geweldsbevoegdheid gelden de artikelen die artikel 37 noemt; voor 'de korpschef' lees je dan de <b>direct toezichthouder</b>.</p>
@@ -464,6 +564,7 @@ const STOF = [
 ];
 // Samenvatting per wetsartikel: [regex op de bronverwijzing van de vraag, sectie]
 const STOF_ART = [
+[/Rubric Bejegening Domein IV|Bejegening Domein IV/,"praktijk"],[/Domein I, casus|Bejegening Domein I\b(?! en IV)/,"bejeg1"],[/Rubric Bejegening|Toetsmatrijs Bejegening|Communicatieleer|Agressie|Roos van Leary/,"bejeg"],[/Rubric Waarneming|Sjabloon Waarneming|Waarnemen/,"waarneming"],[/Wijkgericht/,"wijk"],[/Cultureel vakmanschap/,"cult"],[/training Jeugd|Halt|jeugdstrafrecht/,"jeugd"],
 [/Model-APV|RVV|WVW|Alcoholwet|Winkeltijdenwet|WED\b|Omgevingswet|Bal\b|bruidsschat|Visserijwet|Wm\b|Gemeentewet|Beleidsregels boa, paragraaf 6|Toetsmatrijs Domein I, toetsterm 1\.3/,"ruimte"],[/art\. 5:(2|8|10|10a|21|27|29|31d|40) Awb|art\. 1:1 Awb|Toetsmatrijs Domein I, toetsterm 3/,"bestuur"],
 [/art\. 1[789]a? Ambtsinstructie|18a Ambtsinstructie|art\. 24 Ambtsinstructie|RTGB|Stb\. 2020|art\. 82 Sr|Lesstof geweldsbeheersing/,"geweldmelding"],[/Ambtsinstructie/,"ambts"],
 [/art\. 70 Wp2000|art\. 70 lid/,"ovbewijs"],[/art\. 71 Wp2000/,"ovorde"],[/art\. 72 Wp2000/,"ovorde"],[/art\. 73 Wp2000/,"ovorde"],
@@ -488,4 +589,4 @@ const STOF_ART = [
 ];
 // Standaard-sectie per categorie als de bronverwijzing niets specifieks oplevert
 const STOF_CAT = {sr:"staat",ro:"rechtspraak",boa:"boa",pol:"politie",str:"recht",vd:"verhoor",bev:"bevoegd",kl:"aangifte",vrij:"aanhouden",fou:"fouilleren",bes:"fouilleren",pl:"woning",sch:"strafbaar",amb:"tegenambt",
-  wp:"ovopsp",bp:"ovbewijs",ovt:"ovtoezicht",spw:"spoor",com:"praktijk",agr:"praktijk",prof:"praktijk",waa:"pv",pv:"pv",gem:"ruimte",bst:"bestuur",apv:"ruimte",wvw:"ruimte",bijz:"ruimte",jgd:"bevoegd",aig:"ambts",ais:"rtgbrecht",aim:"geweldmelding",aiw:"rtgbmiddel",aif:"rtgbmiddel",air:"rtgbexamen",avg:"privacy"};
+  wp:"ovopsp",bp:"ovbewijs",ovt:"ovtoezicht",spw:"spoor",com:"bejeg",agr:"bejeg",prof:"bejeg",waa:"waarneming",pv:"pv",gem:"ruimte",bst:"bestuur",apv:"ruimte",wvw:"ruimte",bijz:"ruimte",jgd:"jeugd",wijk:"wijk",cult:"cult",aig:"ambts",ais:"rtgbrecht",aim:"geweldmelding",aiw:"rtgbmiddel",aif:"rtgbmiddel",air:"rtgbexamen",avg:"privacy"};

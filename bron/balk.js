@@ -11,7 +11,7 @@ function balkTab(r){
   if(r==="home")return "home";
   if(r==="stof"||r.indexOf("stof-")===0)return "stof";
   if(r.indexOf("profiel")===0||r==="fouten")return "profiel";
-  if(MODBY[r]||r==="wv"||r.indexOf("verslag-")===0||r==="sessie")return "oef";
+  if(MODBY[r]||r==="wv"||r.indexOf("verslag-")===0||r==="sessie"||/^(casus|gesprek)/.test(r))return "oef";
   return ""}
 function balkTeken(r){
   const cur=balkTab(r);

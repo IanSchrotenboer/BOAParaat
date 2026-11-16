@@ -22,7 +22,8 @@ const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);r
   if(u.pathname==='/auth/v1/authorize'){ // 'Google': meteen terug naar de app met een code
     const red=u.searchParams.get('redirect_to'),ch=u.searchParams.get('code_challenge');
     if(db.weiger){res.writeHead(302,{Location:red+'?error=access_denied&error_description=Toegang+geweigerd'});return res.end()}
-    if(u.searchParams.get('provider')!=='google'||u.searchParams.get('code_challenge_method')!=='s256'||!ch)return json(res,400,{error:'bad'});
+    const prov=u.searchParams.get('provider');db.prov=prov;db.prompt=u.searchParams.get('prompt');
+    if(!['google','apple'].includes(prov)||u.searchParams.get('code_challenge_method')!=='s256'||!ch)return json(res,400,{error:'bad'});
     const code='c-'+crypto.randomBytes(6).toString('hex');db.codes[code]={ch,u:{...db.als}};db.users[db.als.id]={...db.als};
     res.writeHead(302,{Location:red+(red.includes('?')?'&':'?')+'code='+code});return res.end()}
   if(u.pathname==='/auth/v1/token'){const b=JSON.parse(body||'{}');
@@ -48,7 +49,7 @@ const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);r
   json(res,404,{message:'?'})})});
 const app=http.createServer((req,res)=>{const u=new URL(req.url,'http://x');
   if(u.pathname==='/frame.html'){res.writeHead(200,{'Content-Type':'text/html'});return res.end(`<iframe src="${APP}/app.html#home" style="width:390px;height:800px"></iframe>`)}
-  res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(html.replace(/const CLOUD=(null|\{[^;]*\});/,'const CLOUD='+JSON.stringify({url:SUPA,key:'pk-test'})+';'))});
+  res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(html.replace(/const CLOUD=(null|\{[^;]*\});/,'const CLOUD='+JSON.stringify(Object.assign({url:SUPA,key:'pk-test'},u.pathname==='/apple.html'?{apple:true}:{}))+';'))});
 const listen=s=>new Promise(r=>s.listen(0,'127.0.0.1',()=>r(s.address().port)));
 // ---------------- hulpjes ----------------
 const store=p=>p.evaluate(()=>JSON.parse(localStorage.getItem('phb-trainer-v1')||'{}'));
@@ -182,6 +183,22 @@ const nS=s=>Object.keys((s&&s.s)||{}).length;
     await pa.evaluate(u=>window.__h.appUrlOpen.forEach(f=>f({url:u})),terug);await w(1200);
     t(await pa.locator('#obForm').count()===1&&(await pa.inputValue('#obNaam'))==='Dirk Jansen'&&await pa.evaluate(()=>window.__dicht===1),'app: ingelogd, browser gesloten, welkomstscherm met naam uit Google');
     t(!pa._errs.length,'app: geen JS-fouten'+(pa._errs.length?': '+pa._errs.join(' | '):''));
+    await ctx.close()}
+  // ---------- 14. Inloggen met Apple (alleen als Apple in Supabase aanstaat) ----------
+  {const pg=await apparaat(b);
+    t(await pg.locator('[data-act="login-apple"]').count()===0,'Apple: zonder Apple in de instellingen alleen de knop van Google');
+    await pg.context().close();
+    db.als={id:'u-eva',email:'abc123@privaterelay.appleid.com',naam:''};
+    const ctx=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const pa=await ctx.newPage();pa._errs=[];pa.on('pageerror',e=>pa._errs.push(e.message));
+    await pa.goto(APP+'/apple.html#home');await w(300);
+    t(await pa.locator('[data-act="login"]').count()===1&&await pa.locator('[data-act="login-apple"]').count()===1&&/Apple ID/.test(await pa.textContent('.login .lede')),'Apple: inlogscherm met Google en Apple');
+    const kn=await pa.locator('[data-act="login-apple"]').boundingBox();t(kn&&kn.height>=44,'Apple: knop groot genoeg om op te tikken');
+    await pa.click('[data-act="login-apple"]');await pa.waitForURL(/apple\.html(#.*)?$/,{timeout:5000}).catch(()=>{});await w(900);
+    t(db.prov==='apple'&&!db.prompt,'Apple: inloggen gaat via Apple (zonder Google-accountkeuze)');
+    t(await pa.locator('#obForm').count()===1&&(await pa.inputValue('#obNaam'))==='','Apple: ingelogd, welkomstscherm (Apple geeft geen naam mee, die vul je zelf in)');
+    const s=await pa.evaluate(()=>JSON.parse(localStorage.getItem('boa-sessie')||'null'));
+    t(s&&s.u&&s.u.id==='u-eva'&&s.u.email.endsWith('privaterelay.appleid.com'),'Apple: sessie met het doorstuuradres van Apple');
+    t(!pa._errs.length,'Apple: geen JS-fouten'+(pa._errs.length?': '+pa._errs.join(' | '):''));
     await ctx.close()}
   // ---------- 13. ingesloten (zoals in claude.ai) en los bestand: geen inloggen mogelijk ----------
   const p4=await (await b.newContext()).newPage();await p4.goto(APP+'/frame.html');await w(800);

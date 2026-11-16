@@ -11,7 +11,7 @@ function viewWelcome(){
   const modsFor=(d==="4"?[["phb1","PHB 1 Wet- en regelgeving (domein IV)"]]:[["phb1","PHB 1 Wet- en regelgeving"]]).concat(MODS.slice(1).map(m=>[m.id,m.code+" "+m.name]));
   return `<div class="welcome">
     <div class="whead"><span class="wmark" aria-hidden="true">${WMARK}</span>
-      <div><h1>Welkom bij Boa Paraat</h1><p class="lede">De Examentrainer voor je PHB. Vul eerst je gegevens in, dan richten we de app voor je in.</p></div></div>
+      <div><h1>Welkom bij Boa Paraat</h1><p class="lede">Vul je gegevens in, dan richten we de app voor je in.</p></div></div>
     <form class="panel stack wform" id="obForm" novalidate autocomplete="on">
       <div class="field"><label for="obNaam">Naam <span class="req" aria-hidden="true">*</span></label><input id="obNaam" name="name" autocomplete="name" autocapitalize="words" enterkeyhint="next" spellcheck="false" placeholder="Voor- en achternaam" value="${esc(p.naam||obNaamVoor||"")}" required${inv("naam")}>${err("naam")}</div>
       <div class="field"><label for="obWerk">${rol==="scholier"?"Werkgever of opleiding":"Werkgever"} <span class="req" aria-hidden="true">*</span></label><input id="obWerk" name="organization" autocomplete="organization" autocapitalize="words" enterkeyhint="next" placeholder="${rol==="scholier"?"Bijvoorbeeld gemeente Utrecht of je opleiding":"Bijvoorbeeld gemeente Utrecht of NS"}" value="${esc(p.werk||"")}" required${inv("werk")}>${err("werk")}</div>
@@ -432,11 +432,11 @@ async function mldSet(k,on){
 function mldSection(){
   const m=store.p.mld,app=!!LNp();
   const sw=(k,lid,did)=>`<button type="button" class="switch" role="switch" aria-checked="${!!m[k]}" aria-labelledby="${lid}" aria-describedby="${did}" data-act="mld" data-k="${k}"><span></span></button>`;
-  return `<div class="section stack" id="meldingen"><div><h2>Meldingen</h2><p class="small">${app?"Herinneringen op je telefoon, ook als de app dicht is. Je zet ze hier aan of uit.":"In de browser zie je deze herinneringen op het overzicht als je de app opent. Meldingen op je telefoon, ook als de app dicht is, krijg je met de Android-app."}</p></div>
+  return `<div class="section stack" id="meldingen"><div><h2>Meldingen</h2><p class="small">${app?"Ook als de app dicht is.":"In de browser op het overzicht. Meldingen op je telefoon: Android-app."}</p></div>
     <div class="setlist">
-      <div class="setrow"><div><b id="mlOL">Herinnering om te oefenen</b><p class="small" id="mlOD">Elke dag om ${esc(m.tijd)}, alleen als je die dag nog niet hebt geoefend.</p></div>${sw("oefen","mlOL","mlOD")}</div>
+      <div class="setrow"><div><b id="mlOL">Herinnering om te oefenen</b><p class="small" id="mlOD">Dagelijks om ${esc(m.tijd)}, als je nog niet oefende.</p></div>${sw("oefen","mlOL","mlOD")}</div>
       ${m.oefen?`<div class="setrow sub"><label for="mlTijd">Tijdstip</label><select id="mlTijd">${MLD_UUR.map(u=>`<option${u===m.tijd?" selected":""}>${u}</option>`).join("")}</select></div>`:""}
-      <div class="setrow"><div><b id="mlEL">Herinnering voor je examen</b><p class="small" id="mlED">7 dagen, 3 dagen en 1 dag voor een gepland examen. Je examens zet je onder Examens.</p></div>${sw("examen","mlEL","mlED")}</div>
+      <div class="setrow"><div><b id="mlEL">Herinnering voor je examen</b><p class="small" id="mlED">7, 3 en 1 dag voor een gepland examen.</p></div>${sw("examen","mlEL","mlED")}</div>
     </div>
     ${mldNote?`<p class="small mldwarn" role="status">${esc(mldNote)}</p>`:""}
     ${app&&(m.oefen||m.examen)?`<div><button type="button" class="btn sm" data-act="mld-test">Stuur een testmelding</button></div>`:""}
