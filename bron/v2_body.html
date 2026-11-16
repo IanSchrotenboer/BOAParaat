@@ -100,6 +100,7 @@ function normalize(p){const b=blank();if(!isObj(p))return b;
   P.naam=str(q.naam,60);P.werk=str(q.werk,60);P.akte=ISO.test(q.akte)?q.akte:"";P.datum=ISO.test(q.datum)?q.datum:"";
   P.dom=q.dom==="4"?"4":"1";P.rol=q.rol==="scholier"||q.rol==="werkend"?q.rol:"";P.thema=["licht","donker"].includes(q.thema)?q.thema:"systeem";
   if(typeof q.lic==="string"&&LIC[q.lic])P.lic=q.lic;
+  if(Array.isArray(q.klas)){const kl=q.klas.filter(isObj).map(k=>({id:str(k.id,40),naam:str(k.naam,80),start:str(k.start,40),rol:k.rol==="docent"?"docent":"leerling",doc:(Array.isArray(k.doc)?k.doc:[]).map(x=>str(x,60)).slice(0,5)})).filter(k=>k.id).slice(0,10);if(kl.length)P.klas=kl}
   if(q.ob)P.ob=1;if(typeof q.gezien==="string")P.gezien=q.gezien;
   const m=isObj(q.mld)?q.mld:{};P.mld={oefen:m.oefen===true,examen:m.examen===true,tijd:/^\d{2}:\d{2}$/.test(m.tijd)?m.tijd:"19:00"};if(m.gevraagd)P.mld.gevraagd=1;if(typeof m.weg==="string")P.mld.weg=m.weg;
   if(!P.rol&&(P.akte||P.naam))P.rol="werkend";
@@ -249,7 +250,7 @@ function score(){
 let pageAnim=false;
 $("#app").addEventListener("animationend",e=>{if(e.target.id==="app")e.target.classList.remove("enter","swl","swr")});
 function render(){
-  const r=route();const app=$("#app");csClose(false);
+  const r=route();const app=$("#app");csClose(false);klasNamen();
   if(needsLogin()){swipeAbort();app.dataset.v="login";app.innerHTML=viewLogin();paintNav();return}
   if(needsWelcome()){swipeAbort();app.dataset.v="welkom";app.innerHTML=viewWelcome();paintNav();enhanceSelects(app);tuneInputs(app);obAfterRender();return}
   let v="home",h;
@@ -500,6 +501,7 @@ function viewProfile(tab){
       </form>
     </div>
     ${licSectie()}
+    ${klasSectie()}
     ${mldSection()}
     ${store.h.length?`<div class="section stack"><h2>Toets- en examenhistorie</h2><div class="panel"><ul class="hist">${store.h.slice(0,12).map(x=>`<li><span>${esc(x.t)}<br><span class="small mono">${fmtDate(x.d)} · ${fmtTime(x.d)}</span></span><span class="row" style="gap:8px;flex-wrap:nowrap"><span class="mono">${x.g}/${x.n}</span><span class="pill ${x.p?"pass":"fail"}">${x.p?"Geslaagd":"Gezakt"}</span></span></li>`).join("")}</ul></div></div>`:""}
     <div class="section stack"><div><h2>Voortgang overzetten</h2><p class="small">Kopieer je code en plak die op je andere apparaat.</p></div>
@@ -660,6 +662,7 @@ document.addEventListener("click",e=>{
   if(act.indexOf("yt-")===0&&ytClick(act,{...d}))return;
   if(["login","login-apple","login-mail","mail-terug","mail-ander","mail-opnieuw","sync","logout","logout-no","acc-del","acc-del-no","acc-del-yes"].includes(act)&&cloudAct(act))return;
   if((act.indexOf("lic-")===0||act==="ob-lic")&&licAct(act))return;
+  if(act.indexOf("klas-")===0&&klasAct(act,b))return;
   if(["oefen","mix","fouten","herhaal","toets","examen","mtx"].includes(act)){launch(act,{...d});return}
   if(act==="akte-edit"){const go=()=>{const f=$("#pAkte");if(f){f.scrollIntoView({block:"center"});f.focus()}};if($("#pAkte"))go();else{location.hash="profiel";setTimeout(go,120)}return}
   if(act==="thema"){store.p.thema=d.v;save();applyTheme();render();toast(d.v==="donker"?"Donkere weergave":d.v==="licht"?"Lichte weergave":"Weergave volgt je systeem");return}

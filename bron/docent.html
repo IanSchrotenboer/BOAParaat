@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Boa Paraat Docent</title>
+<link rel="icon" type="image/png" href="../icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=IBM+Plex+Mono:wght@500;600&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Docentenomgeving van Boa Paraat (app.boaparaat.nl/docent). Zelfde huisstijl als de app.
+   Layout: kopbalk; links de klassen (op brede schermen), rechts het overzicht van de gekozen klas of leerling. */
+:root{color-scheme:light;accent-color:var(--navy);padding-top:env(safe-area-inset-top,0px);
+  --paper:#f4f6f9;--surface:#ffffff;--sunk:#f7f8fb;--ink:#1c2533;--muted:#5b6676;--line:#dce1e8;--track:#e3e8ef;
+  --navy:#2c4a73;--navy-ink:#ffffff;--tint:#e7edf5;--hivis:#a0823a;--ring:rgba(44,74,115,.22);
+  --ok:#2f6b4f;--ok-bg:#e6f1ea;--bad:#a0564c;--bad-bg:#f6eae7;--warn:#7a5c12;--warn-bg:#f6f1e4;
+  --f-display:"Archivo","Arial Narrow",Arial,sans-serif;--f-body:"Public Sans","Segoe UI",Roboto,Helvetica,Arial,sans-serif;--f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:12px}
+@media (prefers-color-scheme: dark){:root{color-scheme:dark;
+  --paper:#10151c;--surface:#171e28;--sunk:#131922;--ink:#e3e8ef;--muted:#9ba7b6;--line:#273140;--track:#232c39;
+  --navy:#9db8e0;--navy-ink:#0f1a2b;--tint:#1d2939;--hivis:#cfab5c;--ring:rgba(157,184,224,.32);
+  --ok:#79c79e;--ok-bg:#14271d;--bad:#e8968b;--bad-bg:#2f1b19;--warn:#e3c37a;--warn-bg:#272418}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 var(--f-body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+h1,h2,h3{font-family:var(--f-display);font-stretch:88%;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:28px;font-weight:750}h2{font-size:20px;font-weight:700}h3{font-size:16px;font-weight:700}
+p{margin:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ring);outline-offset:2px}
+.eyebrow{font:600 11px/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.small{font-size:13px;color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:14px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.brand svg{width:34px;height:34px;flex:none}
+.m-sh{fill:var(--navy)}.m-rim{fill:none;stroke:#c9a24a;stroke-width:1.8}.m-ck{fill:none;stroke:var(--navy-ink);stroke-width:5.4;stroke-linecap:round;stroke-linejoin:round}.m-bl{fill:#c9a24a}
+.brand b{font:750 18px/1 var(--f-display);font-stretch:88%;display:block}
+.brand span{font-size:12px;color:var(--muted)}
+.rolchip{font:600 11px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;background:var(--tint);color:var(--navy);border-radius:999px;padding:6px 10px}
+.wie{margin-left:auto;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--muted);min-width:0;text-align:right}
+.wie b{color:var(--ink);font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:28ch}
+@media (max-width:560px){.wie .wnaam{display:none}}
+.wrap{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:280px minmax(0,1fr);gap:24px;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr)}}
+.wrap.enkel{grid-template-columns:minmax(0,1fr);max-width:560px}
+aside{display:flex;flex-direction:column;gap:12px;min-width:0}
+main{min-width:0;display:flex;flex-direction:column;gap:18px}
+main:focus{outline:none}
+.lijst{display:flex;flex-direction:column;gap:8px}
+.klasknop{display:flex;flex-direction:column;gap:6px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;cursor:pointer;width:100%;text-decoration:none;color:var(--ink)}
+.klasknop:hover{border-color:var(--navy)}
+.klasknop[aria-current="page"]{border-color:var(--navy);box-shadow:inset 3px 0 0 var(--navy)}
+.klasknop .kn{font-weight:650}
+.klasknop .km{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12.5px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:600;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--navy)}
+.btn:disabled{opacity:.6;cursor:default}
+.btn.hi{background:var(--navy);border-color:var(--navy);color:var(--navy-ink)}
+.btn.danger{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.btn.sm{min-height:36px;font-size:13.5px;padding:0 12px}
+.btn.vol{width:100%}
+.linkbtn{background:none;border:0;color:var(--navy);cursor:pointer;font-weight:600;padding:6px 0;text-decoration:underline;text-underline-offset:3px}
+form.vak{display:flex;flex-direction:column;gap:8px;background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:12px 14px}
+.veld{display:flex;flex-direction:column;gap:4px}
+label{font-weight:600;font-size:13.5px}
+input[type=text],input[type=email],input[type=search],input[type=number],select{font:inherit;font-size:16px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;min-height:44px;padding:0 12px;width:100%}
+input:focus,select:focus{border-color:var(--navy);outline:3px solid var(--ring);outline-offset:0}
+.melding{font-size:13.5px;border-radius:8px;padding:8px 10px}
+.melding.ok{background:var(--ok-bg);color:var(--ok)}.melding.fout{background:var(--bad-bg);color:var(--bad)}.melding.info{background:var(--tint);color:var(--ink)}
+.kop{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.kop .stack{display:flex;flex-direction:column;gap:6px;min-width:0}
+.terug{align-self:flex-start}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.tile .v{font:700 26px/1.1 var(--f-display);font-stretch:90%;font-variant-numeric:tabular-nums}
+.tile .l{font-size:12.5px;color:var(--muted)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;min-height:44px}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--navy)}
+.paneel{display:flex;flex-direction:column;gap:12px}
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.filters input,.filters select{width:auto;min-width:200px;flex:1 1 200px;max-width:340px}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}
+caption{text-align:left;padding:10px 12px;caption-side:top}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font:600 11px/1.2 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--sunk);white-space:nowrap}
+th button{all:unset;cursor:pointer;display:inline-flex;gap:4px;align-items:center}
+th button:focus-visible{outline:3px solid var(--ring)}
+td.r,th.r{text-align:right}
+tbody tr:last-child td{border-bottom:0}
+tbody tr.klik{cursor:pointer}
+tbody tr.klik:hover td{background:var(--tint)}
+.naam{font-weight:600;color:var(--ink);background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.pill{display:inline-block;font-size:12px;font-weight:600;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.bad{background:var(--bad-bg);color:var(--bad)}.pill.warn{background:var(--warn-bg);color:var(--warn)}.pill.neu{background:var(--track);color:var(--muted)}
+.meter{display:flex;align-items:center;gap:8px}
+.meter i{display:block;height:7px;border-radius:4px;background:var(--track);flex:1 1 60px;min-width:50px;position:relative;overflow:hidden}
+.meter i b{position:absolute;inset:0 auto 0 0;background:var(--navy);border-radius:4px}
+.vraag{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.vraag summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:start;padding:12px 14px}
+.vraag summary::-webkit-details-marker{display:none}
+.vraag .rang{font:700 15px/1.4 var(--f-mono);color:var(--muted);min-width:2ch}
+.vraag .vt{font-weight:600}
+.vraag .vm{display:flex;flex-wrap:wrap;gap:6px 10px;margin-top:6px;font-size:12.5px;color:var(--muted)}
+.vraag .score{text-align:right;min-width:92px}
+.vraag .score b{font:700 20px/1 var(--f-display);color:var(--bad);font-variant-numeric:tabular-nums}
+.vraag .body{border-top:1px solid var(--line);padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px}
+.juist{background:var(--ok-bg);color:var(--ok);border-radius:8px;padding:8px 10px;font-weight:600}
+.chip{font:500 12px/1.3 var(--f-mono);background:var(--track);color:var(--muted);border-radius:6px;padding:3px 7px;align-self:flex-start}
+.bars{display:flex;flex-direction:column;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.barrow{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,2fr) 76px;gap:12px;align-items:center;font-size:14px}
+@media (max-width:640px){.barrow{grid-template-columns:minmax(0,1fr) 76px}.barrow .bt{grid-column:1/-1;order:3}}
+.barrow .bt{height:10px;background:var(--track);border-radius:5px;position:relative;overflow:hidden}
+.barrow .bt b{position:absolute;inset:0 auto 0 0;background:var(--bad);border-radius:5px;opacity:.85}
+.barrow .bv{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.twee{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:760px){.twee{grid-template-columns:minmax(0,1fr)}}
+.kaart{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.modrow{display:grid;grid-template-columns:minmax(0,1fr) 120px 44px;gap:10px;align-items:center;font-size:14px}
+.examrow{display:flex;justify-content:space-between;gap:10px;font-size:14px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.examrow:last-child{border-bottom:0;padding-bottom:0}
+.groep{display:flex;flex-direction:column;gap:8px}
+.groep h3{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline}
+.leeg{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:18px;color:var(--muted);text-align:center}
+.voet{font-size:12.5px;color:var(--muted)}
+.inlog{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:14px}
+.codes{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.codes code{font:600 14px var(--f-mono);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:8px 10px;text-align:center}
+.codes code.doc{border-color:var(--navy);color:var(--navy)}
+.confirm{background:var(--bad-bg);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+textarea{font:13px var(--f-mono);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;width:100%;padding:8px}
+@media (prefers-reduced-motion:no-preference){.klasknop,.btn,tbody tr.klik td{transition:background .15s,border-color .15s}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <a class="brand" href="#klassen" aria-label="Boa Paraat Docent, naar je klassen"><svg viewBox="0 0 64 64" aria-hidden="true"><path class="m-sh" d="M32 4 L54 11 V30 C54 44.5 44.5 54.5 32 60 C19.5 54.5 10 44.5 10 30 V11 Z"/><path class="m-rim" d="M32 8.5 L50.5 14.3 V30 C50.5 42.3 42.6 50.9 32 55.8 C21.4 50.9 13.5 42.3 13.5 30 V14.3 Z"/><path class="m-ck" d="M21.5 28.5 L28.5 35.5 L43 21"/><g class="m-bl"><rect x="21" y="42" width="4.6" height="3.4" rx="1"/><rect x="27.1" y="42" width="4.6" height="3.4" rx="1"/><rect x="33.2" y="42" width="4.6" height="3.4" rx="1"/><rect x="39.3" y="42" width="4.6" height="3.4" rx="1"/></g></svg>
+    <span><b>Boa Paraat</b><span>De Examentrainer</span></span></a>
+  <span class="rolchip">Docent</span>
+  <div class="wie" id="wie"></div>
+</div></header>
+<noscript><p style="padding:24px">De docentenomgeving heeft JavaScript nodig.</p></noscript>
+<div class="wrap" id="wrap"><aside id="aside" aria-label="Je klassen"></aside><main id="main" tabindex="-1"></main></div>
+<script>
+"use strict";
+const CLOUD=/*__CLOUD__*/null;
+const APPURL=/*__SITE__*/"";
+/*__CATS__*/
+/*__Q__*/
+function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return "q"+(h>>>0).toString(36)}
+const QB=[].concat(Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9).map(r=>[r[5]||hash(r[1]),r[0],r[1],r[2][0],r[3],r[4]||""]);
+const CASUS=/*__CASUS__*/{};
+const VERSIE=/*__VERSIE__*/"";
+// ---------- vragen en modules (in een klas: Module 1 t/m 5) ----------
+const MODNAAM={phb1:"Module 1 · Wet- en regelgeving",phb2:"Module 2 · Bejegening",phb3:"Module 3 · Waarneming en verslaglegging",phb4:"Module 4 · Keuzemodule",rtgb:"Module 5 · Ambtsinstructie en geweldsbeheersing"};
+const MODKORT={phb1:"Module 1",phb2:"Module 2",phb3:"Module 3",phb4:"Module 4",rtgb:"Module 5"};
+const MODS=Object.keys(MODNAAM);
+const Q=QB.map(r=>({id:r[0],c:r[1],m:CATS[r[1]]?CATS[r[1]][0]:"phb1",cat:CATS[r[1]]?CATS[r[1]][1]:r[1],q:r[2],a:r[3],e:r[4],r:r[5]}));
+const QBY=Object.fromEntries(Q.map(q=>[q.id,q]));
+const PERMOD={};MODS.forEach(m=>PERMOD[m]=0);Q.forEach(q=>PERMOD[q.m]++);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct=(a,b)=>b?Math.round(100*a/b):0;
+const DAG=864e5;
+const wanneer=t=>{if(!t)return "nog nooit";const d=Math.floor((Date.now()-t)/DAG);return d<=0?"vandaag":d===1?"gisteren":d<7?d+" dagen geleden":d<14?"vorige week":d<60?Math.floor(d/7)+" weken geleden":"meer dan 2 maanden geleden"};
+const datum=t=>new Date(t).toLocaleDateString("nl-NL",{day:"numeric",month:"short"});
+
+// ---------- inloggen (zelfde account en sessie als de app op dit adres) ----------
+const SES="boa-sessie",PKCE="boa-pkce";
+function sesGet(){try{const s=JSON.parse(localStorage.getItem(SES)||"null");return s&&s.r&&s.u&&s.u.id?s:null}catch(e){return null}}
+function sesSet(s){try{if(s)localStorage.setItem(SES,JSON.stringify(s));else localStorage.removeItem(SES)}catch(e){}}
+const b64url=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+function randStr(n){const a=new Uint8Array(n);crypto.getRandomValues(a);return b64url(a).slice(0,n)}
+async function authFetch(pad,body){
+  const r=await fetch(CLOUD.url+"/auth/v1/"+pad,{method:"POST",headers:{apikey:CLOUD.key,"Content-Type":"application/json"},body:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(j.error_description||j.msg||j.error||("HTTP "+r.status));e.status=r.status;throw e}return j}
+function sesVan(j){const m=(j.user&&j.user.user_metadata)||{};
+  return {a:j.access_token,r:j.refresh_token,x:Date.now()+((j.expires_in||3600)*1000),u:{id:j.user.id,email:j.user.email||"",naam:String(m.full_name||m.name||"").slice(0,60)}}}
+let tokBezig=null;   // verzoeken tegelijk vernieuwen het toegangsbewijs maar één keer
+async function token(nieuw){const s=sesGet();if(!s)throw Object.assign(new Error("niet ingelogd"),{status:401});
+  if(!nieuw&&s.x-Date.now()>60000)return s.a;
+  if(!tokBezig)tokBezig=(async()=>{try{const j=await authFetch("token?grant_type=refresh_token",{refresh_token:s.r});const n=sesVan(j);sesSet(n);return n.a}
+    catch(e){if(e.status===400||e.status===401){sesSet(null);D={};toon()}throw e}finally{tokBezig=null}})();
+  return tokBezig}
+async function rpc(naam,body,opnieuw){const t=await token(opnieuw);
+  const r=await fetch(CLOUD.url+"/rest/v1/rpc/"+naam,{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+t,"Content-Type":"application/json"},body:JSON.stringify(body||{})});
+  if(r.status===401&&!opnieuw)return rpc(naam,body,true);
+  if(!r.ok){const j=await r.json().catch(()=>({}));const e=new Error(j.message||("HTTP "+r.status));e.status=r.status;throw e}
+  const tx=await r.text();return tx?JSON.parse(tx):null}
+let inlog={bezig:"",fout:"",mail:0,adres:"",t:0};
+async function googleStart(){inlog.fout="";inlog.bezig="Google wordt geopend…";toon();
+  try{const v=randStr(64);const ch=b64url(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v)));try{localStorage.setItem(PKCE,v)}catch(e){}
+    location.assign(CLOUD.url+"/auth/v1/authorize?provider=google&redirect_to="+encodeURIComponent(location.origin+location.pathname)+"&code_challenge="+ch+"&code_challenge_method=s256&prompt=select_account")}
+  catch(e){inlog.bezig="";inlog.fout="Inloggen kon niet worden gestart. Probeer het opnieuw.";toon()}}
+async function terugVanGoogle(){const q=new URLSearchParams(location.search);const code=q.get("code"),err=q.get("error_description")||q.get("error");
+  if(!code&&!err)return;try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}
+  if(err){inlog.fout="Inloggen is niet gelukt. Probeer het opnieuw.";return}
+  let v="";try{v=localStorage.getItem(PKCE)||""}catch(e){}
+  if(!v){inlog.fout="Inloggen is verlopen. Probeer het opnieuw.";return}
+  inlog.bezig="Bezig met inloggen…";toon();
+  try{const j=await authFetch("token?grant_type=pkce",{auth_code:code,code_verifier:v});try{localStorage.removeItem(PKCE)}catch(e){}sesSet(sesVan(j));inlog.bezig=""}
+  catch(e){inlog.bezig="";inlog.fout="Inloggen is niet gelukt. Probeer het opnieuw."}}
+async function mailStuur(adres){adres=String(adres||"").trim().toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(adres)){inlog.fout="Vul een geldig e-mailadres in.";inlog.adres=adres;toon();focus("#mIn");return}
+  inlog.fout="";inlog.bezig="De code wordt verstuurd…";toon();
+  try{await authFetch("otp",{email:adres,create_user:true});inlog={bezig:"",fout:"",mail:2,adres,t:Date.now()};toon();focus("#mCode")}
+  catch(e){inlog.bezig="";inlog.fout=e.status===429?"Je hebt net al een code gekregen. Wacht een minuut en probeer het opnieuw.":"De code kon niet worden verstuurd. Controleer je e-mailadres.";inlog.adres=adres;toon()}}
+async function mailCheck(code){code=String(code||"").replace(/\D/g,"");if(code.length<6){inlog.fout="Vul de code uit de mail in.";toon();focus("#mCode");return}
+  inlog.fout="";inlog.bezig="Bezig met inloggen…";toon();
+  try{const j=await authFetch("verify",{type:"email",email:inlog.adres,token:code});sesSet(sesVan(j));inlog={bezig:"",fout:"",mail:0,adres:"",t:0};await laden()}
+  catch(e){inlog.bezig="";inlog.fout="Deze code klopt niet of is verlopen. Controleer de code of vraag een nieuwe aan.";toon();focus("#mCode")}}
+function inlogView(){const mailAan=CLOUD&&CLOUD.email;
+  return `<div class="inlog"><span class="eyebrow">Docentenomgeving</span><h1>Bekijk de voortgang van je klassen</h1>
+    <p>Log in met hetzelfde account als in de app. Daarna zie je per klas welke vragen je leerlingen fout hebben en welke vragen de klas het vaakst fout heeft.</p>
+    ${inlog.bezig?`<p class="melding info" role="status">${esc(inlog.bezig)}</p>`:""}
+    ${inlog.fout?`<p class="melding fout" role="alert">${esc(inlog.fout)}</p>`:""}
+    ${inlog.mail===1?`<form class="veld" id="mForm" novalidate><label for="mIn">E-mailadres</label><input type="email" id="mIn" autocomplete="email" value="${esc(inlog.adres)}" placeholder="naam@opleiding.nl"><button class="btn hi vol" type="submit">Stuur mij een code</button><button class="linkbtn" type="button" data-act="mail-terug">Terug</button></form>`
+    :inlog.mail===2?`<form class="veld" id="mCodeForm" novalidate><p class="small">We hebben een code gestuurd naar <b>${esc(inlog.adres)}</b>. Kijk ook bij ongewenste mail.</p><label for="mCode">Code uit de mail</label><input type="text" id="mCode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="123456"><button class="btn hi vol" type="submit">Inloggen</button><button class="linkbtn" type="button" data-act="mail-terug">Ander e-mailadres</button></form>`
+    :`<button class="btn hi vol" data-act="google">Inloggen met Google</button>${mailAan?`<button class="btn vol" data-act="mail">Inloggen met e-mail</button>`:""}`}
+    <p class="small">Nog geen docentcode? Die krijg je van de beheerder van Boa Paraat, samen met de codes voor je leerlingen.</p></div>`}
+
+// ---------- gegevens ----------
+let D={};   // klassen, beheerder, per klas de geladen gegevens
+let st={klas:"",leerling:"",tab:"leerlingen",zoek:"",sort:["naam",1],mod:"",lmod:"",meld:"",nieuwKlas:null,weg:"",fout:""};
+try{const t=localStorage.getItem("boa-docent-tab");if(t==="fout"||t==="leerlingen")st.tab=t}catch(e){}
+async function laden(){if(!sesGet()){toon();return}
+  D.laden=true;toon();
+  try{const [kl,beh]=await Promise.all([rpc("mijn_klassen"),rpc("ben_ik_beheerder").catch(()=>false)]);
+    D.klassen=(kl||[]).filter(k=>k.rol==="docent");D.beheer=beh===true;D.data=D.data||{};D.laden=false;st.fout=""}
+  catch(e){D.laden=false;st.fout=e.status===401?"":"De gegevens konden niet worden geladen. Controleer je internetverbinding en probeer het opnieuw."}
+  route()}
+async function klasLaden(id,opnieuw){if(D.data[id]&&!opnieuw)return D.data[id];
+  const j=await rpc("docent_klas",{klas:id});D.data[id]=verwerk(j);return D.data[id]}
+// per leerling uitrekenen wat de docent ziet
+function verwerk(j){const ls=(j.leerlingen||[]).map(l=>{const s=l.s||{};let pog=0,ok=0,gemaakt=0;const fout=[];const perMod={};MODS.forEach(m=>perMod[m]={beheerst:0,gemaakt:0});
+    let laatst=l.bijgewerkt?Date.parse(l.bijgewerkt):0;
+    for(const [id,v] of Object.entries(s)){const q=QBY[id];if(!q||!Array.isArray(v))continue;gemaakt++;pog+=v[0]||0;ok+=v[1]||0;perMod[q.m].gemaakt++;if(v[2])perMod[q.m].beheerst++;else fout.push(q);if(v[3]>laatst)laatst=v[3]}
+    const h=(l.h||[]).filter(x=>x&&typeof x.d==="number");h.forEach(x=>{if(x.d>laatst)laatst=x.d});
+    const ex=h.filter(x=>x.k==="examen"||x.k==="toets").map(x=>({naam:String(x.t||"Oefenexamen"),m:x.m,d:x.d,score:pct(x.g,x.n),p:!!x.p}));
+    const ex1=ex.filter(x=>x.m==="phb1"&&/examen/i.test(x.naam));
+    const ks=(l.k||[]).filter(x=>x&&typeof x.p==="number").map(x=>({naam:CASUS[x.cs]||"Casus",gesprek:/^g-/.test(x.cs||""),p:x.p,m:x.m,o:x.o,d:x.d}));
+    const cas=ks.filter(x=>!x.gesprek);
+    const week=Object.entries(l.d||{}).filter(([k])=>Date.now()-Date.parse(k)<7*DAG).reduce((a,[,v])=>a+(+v||0),0);
+    return {id:l.id,naam:l.naam||"Onbekend",email:l.email||"",s,pog,ok,goed:pct(ok,pog),gemaakt,fout,perMod,laatst,ex,beste:ex1.length?Math.max(...ex1.map(x=>x.score)):null,
+      casus:ks,casusBeste:cas.length?cas.reduce((b,x)=>!b||x.p/x.m>b.p/b.m?x:b,null):null,week}});
+  return {klas:j.klas,codes:j.codes||{},ls}}
+function klasStats(k){const ls=k.ls;const actief=ls.filter(x=>x.laatst&&Date.now()-x.laatst<7*DAG).length;
+  const metPog=ls.filter(x=>x.pog);const gem=metPog.length?Math.round(metPog.reduce((a,x)=>a+x.goed,0)/metPog.length):0;
+  const ex=ls.filter(x=>x.beste!==null);return {actief,gem,ex:ex.length,boven:ex.filter(x=>x.beste>=70).length}}
+function meestFout(k,mod){const per={};
+  for(const l of k.ls)for(const [id,v] of Object.entries(l.s)){const q=QBY[id];if(!q||(mod&&q.m!==mod)||!Array.isArray(v))continue;
+    const p=per[id]||(per[id]={q,gemaakt:0,fout:0,wie:[]});p.gemaakt++;if(!v[2]){p.fout++;p.wie.push(l.naam)}}
+  return Object.values(per).filter(p=>p.gemaakt>=3&&p.fout).map(p=>({...p,perc:pct(p.fout,p.gemaakt)})).sort((a,b)=>b.perc-a.perc||b.fout-a.fout).slice(0,10)}
+function onderwerpen(k,mod){const per={};
+  for(const l of k.ls)for(const [id,v] of Object.entries(l.s)){const q=QBY[id];if(!q||(mod&&q.m!==mod)||!Array.isArray(v))continue;const p=per[q.c]||(per[q.c]={cat:q.cat,m:q.m,pog:0,fout:0});p.pog+=v[0]||0;p.fout+=(v[0]||0)-(v[1]||0)}
+  return Object.values(per).filter(p=>p.pog>=15&&p.fout).map(p=>({...p,perc:pct(p.fout,p.pog)})).sort((a,b)=>b.perc-a.perc).slice(0,8)}
+
+// ---------- weergave ----------
+const main=document.getElementById("main"),aside=document.getElementById("aside"),wrap=document.getElementById("wrap");
+function focus(sel){const el=document.querySelector(sel);if(el)el.focus()}
+function wieBalk(){const s=sesGet();document.getElementById("wie").innerHTML=s?`<span class="wnaam"><b>${esc(s.u.naam||s.u.email)}</b>${esc(s.u.naam?s.u.email:"")}</span><button class="btn sm" data-act="uitloggen">Uitloggen</button>`:""}
+function zijbalk(){aside.innerHTML=`<div class="eyebrow">Je klassen</div><div class="lijst">${(D.klassen||[]).map(k=>`<a class="klasknop" href="#klas-${esc(k.id)}" aria-current="${st.klas===k.id&&!st.leerling?"page":"false"}"><span class="kn">${esc(k.naam)}</span>
+    <span class="km num"><span>${k.leerlingen||0} ${k.leerlingen===1?"leerling":"leerlingen"}</span>${k.start?`<span>gestart ${esc(k.start)}</span>`:""}</span></a>`).join("")||`<p class="small">Nog geen klassen.</p>`}</div>
+  <form class="vak" id="addForm" novalidate><label for="docCode">Klas toevoegen met je docentcode</label>
+    <input type="text" id="docCode" placeholder="DOC-XXXX-XXXX" autocomplete="off" spellcheck="false" autocapitalize="characters">
+    <button class="btn sm" type="submit">Klas toevoegen</button><div id="addMelding" role="status">${st.meld}</div></form>
+  ${D.beheer?`<a class="klasknop" href="#beheer" aria-current="${location.hash==="#beheer"?"page":"false"}"><span class="kn">Beheer</span><span class="km">Klassen en codes aanmaken</span></a>`:""}
+  <p class="small"><a href="${esc(APPURL||"../")}">Naar de app</a></p>`}
+function toon(){wieBalk();
+  if(!CLOUD){wrap.classList.add("enkel");aside.hidden=true;main.innerHTML=`<div class="leeg">De docentenomgeving werkt alleen op de website van Boa Paraat.</div>`;return}
+  if(!sesGet()){wrap.classList.add("enkel");aside.hidden=true;main.innerHTML=inlogView();return}
+  wrap.classList.remove("enkel");aside.hidden=false;zijbalk();
+  if(D.laden&&!D.klassen){main.innerHTML=`<div class="leeg" role="status">Je klassen worden geladen…</div>`;return}
+  if(st.fout){main.innerHTML=`<p class="melding fout" role="alert">${esc(st.fout)}</p><div><button class="btn" data-act="opnieuw">Opnieuw proberen</button></div>`;return}
+  const h=location.hash.slice(1);
+  if(h==="beheer"&&D.beheer)return beheerView();
+  const k=st.klas&&D.data&&D.data[st.klas];
+  if(st.klas&&!k){main.innerHTML=`<div class="leeg" role="status">De klas wordt geladen…</div>`;return}
+  if(!k){main.innerHTML=(D.klassen||[]).length?`<div class="leeg">Kies links een klas.</div>`:`<div class="kaart"><h1>Welkom</h1><p>Je hebt nog geen klassen. Vul links de docentcode in die je van de beheerder hebt gekregen. Daarna zie je hier de resultaten van je leerlingen.</p></div>`;return}
+  if(st.leerling){const l=k.ls.find(x=>x.id===st.leerling);if(l)return leerlingView(k,l)}
+  klasView(k)}
+function klasView(k){const s=klasStats(k);
+  main.innerHTML=`<div class="kop"><div class="stack"><span class="eyebrow">Klas${k.klas.start?" · gestart "+esc(k.klas.start):""}</span><h1>${esc(k.klas.naam)}</h1></div>
+    <span class="row"><span class="small num">${k.codes.gebruikt||0} van ${k.codes.leerling||0} leerlingcodes gebruikt</span><button class="btn sm" data-act="vernieuw">Vernieuwen</button></span></div>
+  <div class="tiles">
+    <div class="tile"><span class="v num">${k.ls.length}</span><span class="l">leerlingen</span></div>
+    <div class="tile"><span class="v num">${s.actief}</span><span class="l">deze week actief</span></div>
+    <div class="tile"><span class="v num">${s.gem}%</span><span class="l">gemiddeld goed</span></div>
+    <div class="tile"><span class="v num">${s.boven}/${s.ex}</span><span class="l">beste oefenexamen module 1 voldoende</span></div>
+  </div>
+  ${k.ls.length?`<div class="tabs" role="tablist" aria-label="Klasoverzicht">${[["leerlingen","Leerlingen"],["fout","Meest fout gemaakt"]].map(([t,n])=>`<button role="tab" id="tab-${t}" aria-controls="paneel" aria-selected="${st.tab===t}" data-tab="${t}">${n}</button>`).join("")}</div>
+  <section class="paneel" id="paneel" role="tabpanel" aria-labelledby="tab-${st.tab}">${st.tab==="fout"?foutPaneel(k):leerlingenPaneel(k)}</section>`
+  :`<div class="leeg">Nog geen leerlingen. Geef je leerlingen hun code: ze vullen die in de app in bij Profiel → Klas.</div>`}
+  <p class="voet">Leerlingen zien in de app in welke klas ze zitten en dat jij hun oefenresultaten kunt bekijken. Hun profiel en verslagen zie je niet.</p>`}
+const KOL=[["naam","Leerling"],["laatst","Laatst actief"],["gemaakt","Vragen gemaakt","r"],["goed","% goed","r"],["fout","Nu nog fout","r"],["beste","Beste oefenexamen","r"],["casus","Beste casus","r"],["status","Let op"]];
+function status(x){const p=[];const dg=x.laatst?Math.floor((Date.now()-x.laatst)/DAG):null;
+  if(dg===null||!x.gemaakt)p.push(`<span class="pill neu">Nog niet begonnen</span>`);else if(dg>14)p.push(`<span class="pill warn">${dg} dagen niet actief</span>`);
+  if(x.beste!==null&&x.beste<70)p.push(`<span class="pill bad">Examen onvoldoende</span>`);
+  if(!p.length)p.push(x.beste===null?`<span class="pill neu">Nog geen examen</span>`:`<span class="pill ok">Op schema</span>`);return p.join(" ")}
+const casusTxt=c=>c?c.p+"/"+c.m:"–";
+function leerlingenPaneel(k){let rows=k.ls.filter(x=>!st.zoek||(x.naam+" "+x.email).toLowerCase().includes(st.zoek.toLowerCase()));
+  const [key,dir]=st.sort;const val={naam:x=>x.naam.toLowerCase(),laatst:x=>x.laatst||0,gemaakt:x=>x.gemaakt,goed:x=>x.goed,fout:x=>x.fout.length,beste:x=>x.beste??-1,casus:x=>x.casusBeste?x.casusBeste.p/x.casusBeste.m:-1,status:x=>(x.laatst&&Date.now()-x.laatst>14*DAG?2:0)+(x.beste!==null&&x.beste<70?1:0)}[key];
+  rows.sort((a,b)=>{const A=val(a),B=val(b);return (typeof A==="string"?A.localeCompare(B,"nl"):A-B)*dir});
+  return `<div class="filters"><input type="search" id="zoek" placeholder="Zoek een leerling" value="${esc(st.zoek)}" aria-label="Zoek een leerling"></div>
+  <div class="tbl"><table><caption class="eyebrow">Klik op een leerling voor de foute vragen en examens</caption><thead><tr>${KOL.map(([c,n,cl])=>`<th class="${cl||""}" aria-sort="${key===c?(dir>0?"ascending":"descending"):"none"}"><button data-sort="${c}">${n}${key===c?(dir>0?" ▲":" ▼"):""}</button></th>`).join("")}</tr></thead><tbody>
+  ${rows.map(x=>`<tr class="klik" data-l="${esc(x.id)}"><td><button class="naam" data-l="${esc(x.id)}">${esc(x.naam)}</button></td><td>${wanneer(x.laatst)}</td><td class="r num">${x.gemaakt}</td>
+    <td class="r num">${x.pog?x.goed+"%":"–"}</td><td class="r num">${x.fout.length}</td><td class="r num">${x.beste===null?"–":x.beste+"%"}</td><td class="r num">${casusTxt(x.casusBeste)}</td><td>${status(x)}</td></tr>`).join("")||`<tr><td colspan="8">Geen leerling gevonden.</td></tr>`}
+  </tbody></table></div>`}
+function modSelect(id,v){return `<select id="${id}" aria-label="Kies een module"><option value="">Alle modules</option>${MODS.map(m=>`<option value="${m}"${v===m?" selected":""}>${esc(MODNAAM[m])}</option>`).join("")}</select>`}
+function vraagKaart(p,i){const q=p.q;return `<details class="vraag"><summary><span class="rang num">${i+1}</span><span><span class="vt">${esc(q.q)}</span>
+    <span class="vm"><span>${esc(MODKORT[q.m])} · ${esc(q.cat)}</span><span class="num">${p.gemaakt} leerlingen maakten hem</span></span></span>
+    <span class="score"><b class="num">${p.perc}%</b><br><span class="small num">${p.fout} van ${p.gemaakt} fout</span></span></summary>
+  <div class="body"><p class="juist">Juist: ${esc(q.a)}</p><p>${esc(q.e)}</p>${q.r?`<span class="chip">${esc(q.r)}</span>`:""}
+    <p class="small"><b>Nu nog fout bij:</b> ${p.wie.map(esc).join(", ")}</p></div></details>`}
+function foutPaneel(k){const lijst=meestFout(k,st.mod);const ow=onderwerpen(k,st.mod);const max=Math.max(1,...ow.map(o=>o.perc));
+  return `<div class="filters">${modSelect("modFilter",st.mod)}<span class="small">Vragen die minstens 3 leerlingen maakten. Het percentage is het deel van die leerlingen bij wie de laatste poging fout was.</span></div>
+  <div class="kop"><h2>Top 10 vragen</h2>${lijst.length?`<button class="btn sm" data-kopieer="klas">Kopieer als lesopdracht</button>`:""}</div>
+  <div id="kopieMelding" role="status" class="small"></div>
+  ${lijst.length?lijst.map(vraagKaart).join(""):`<div class="leeg">Nog te weinig gemaakte vragen${st.mod?" in deze module":""}. Een vraag telt mee als minstens 3 leerlingen hem maakten.</div>`}
+  <h2>Onderwerpen met de meeste fouten</h2>
+  ${ow.length?`<div class="bars">${ow.map(o=>`<div class="barrow"><span>${esc(o.cat)} <span class="small">· ${esc(MODKORT[o.m])}</span></span><span class="bt" aria-hidden="true"><b style="width:${Math.round(100*o.perc/max)}%"></b></span><span class="bv">${o.perc}% fout</span></div>`).join("")}</div>`:`<div class="leeg">Nog te weinig antwoorden.</div>`}`}
+function leerlingView(k,x){const fout=x.fout.filter(q=>!st.lmod||q.m===st.lmod);const groepen={};fout.forEach(q=>(groepen[q.c]||(groepen[q.c]={cat:q.cat,m:q.m,qs:[]})).qs.push(q));
+  main.innerHTML=`<a class="linkbtn terug" href="#klas-${esc(k.klas.id)}">← Terug naar ${esc(k.klas.naam)}</a>
+  <div class="kop"><div class="stack"><span class="eyebrow">Leerling · ${esc(k.klas.naam)}</span><h1>${esc(x.naam)}</h1><span class="small">${esc(x.email)} · laatst actief ${wanneer(x.laatst)}</span></div><div>${status(x)}</div></div>
+  <div class="tiles">
+    <div class="tile"><span class="v num">${x.gemaakt}</span><span class="l">vragen gemaakt</span></div>
+    <div class="tile"><span class="v num">${x.pog?x.goed+"%":"–"}</span><span class="l">goed beantwoord</span></div>
+    <div class="tile"><span class="v num">${x.fout.length}</span><span class="l">vragen nu nog fout</span></div>
+    <div class="tile"><span class="v num">${x.week}</span><span class="l">vragen geoefend deze week</span></div>
+  </div>
+  <div class="twee">
+    <div class="kaart"><h2>Voortgang per module</h2>
+      ${MODS.map(m=>{const v=pct(x.perMod[m].beheerst,PERMOD[m]);return `<div class="modrow"><span>${esc(MODNAAM[m])}</span><span class="meter" aria-hidden="true"><i><b style="width:${v}%"></b></i></span><span class="num small" style="text-align:right">${v}%</span></div>`}).join("")}
+      <p class="small">Deel van alle vragen in de module dat de leerling bij de laatste poging goed had.</p></div>
+    <div class="kaart"><h2>Oefenexamens, casussen en gesprekken</h2>
+      ${x.ex.length||x.casus.length?[...x.ex.map(e=>`<div class="examrow"><span>${esc(e.naam)} <span class="small">· ${datum(e.d)}</span></span><span class="pill ${e.p?"ok":"bad"} num">${e.score}%</span></div>`),
+        ...x.casus.map(c=>`<div class="examrow"><span>${c.gesprek?"Gesprek":"Casus"} ${esc(c.naam)} <span class="small">· Module 2${c.d?" · "+datum(c.d):""}</span></span><span class="pill ${c.o==="Onvoldoende"?"bad":"ok"} num">${c.p}/${c.m}</span></div>`)].join(""):`<p class="small">Nog geen oefenexamens, casussen of gesprekken.</p>`}</div>
+  </div>
+  <div class="kop"><h2>Vragen die nu nog fout zijn</h2><div class="filters">${modSelect("lmodFilter",st.lmod)}${fout.length?`<button class="btn sm" data-kopieer="leerling">Kopieer als lesopdracht</button>`:""}</div></div>
+  <div id="kopieMelding" role="status" class="small"></div>
+  ${fout.length?Object.values(groepen).sort((a,b)=>b.qs.length-a.qs.length).map(g=>`<div class="groep"><h3>${esc(g.cat)} <span class="small">${esc(MODKORT[g.m])} · ${g.qs.length} ${g.qs.length===1?"vraag":"vragen"}</span></h3>
+    ${g.qs.map(q=>{const v=x.s[q.id];return `<details class="vraag"><summary><span class="rang">•</span><span class="vt">${esc(q.q)}</span><span class="small num">${v[1]} van ${v[0]} goed</span></summary>
+      <div class="body"><p class="juist">Juist: ${esc(q.a)}</p><p>${esc(q.e)}</p>${q.r?`<span class="chip">${esc(q.r)}</span>`:""}</div></details>`}).join("")}</div>`).join(""):`<div class="leeg">Geen openstaande foute vragen${st.lmod?" in deze module":""}.</div>`}`;
+  main.focus({preventScroll:true})}
+function opdrachtTekst(){const k=D.data[st.klas];
+  if(st.leerling){const x=k.ls.find(l=>l.id===st.leerling);const f=x.fout.filter(q=>!st.lmod||q.m===st.lmod);
+    return `Lesopdracht voor ${x.naam}\nHerhaal deze vragen in Boa Paraat:\n\n`+f.map((q,i)=>`${i+1}. ${q.q}\n   (${MODKORT[q.m]} · ${q.cat}${q.r?" · "+q.r:""})`).join("\n")}
+  return `Lesopdracht voor ${k.klas.naam}\nDeze vragen gingen in de klas het vaakst fout. Bespreek ze en oefen ze opnieuw:\n\n`+meestFout(k,st.mod).map((p,i)=>`${i+1}. ${p.q.q}\n   Juist: ${p.q.a} (${MODKORT[p.q.m]} · ${p.q.cat})`).join("\n")}
+
+// ---------- beheer: klassen en codes aanmaken (alleen de beheerder) ----------
+function codesBlok(r){return `<div class="kaart"><h2>Codes voor ${esc(r.naam)}</h2>
+    <p class="melding info"><b>Bewaar deze codes nu.</b> Je ziet ze maar één keer: de database bewaart alleen een controlegetal.</p>
+    ${r.docent?`<h3>Docentcode</h3><div class="codes"><code class="doc">${esc(r.docent)}</code></div>`:""}
+    ${r.leerlingen&&r.leerlingen.length?`<h3>${r.leerlingen.length} leerlingcodes</h3><div class="codes">${r.leerlingen.map(c=>`<code>${esc(c)}</code>`).join("")}</div>`:""}
+    <div class="row"><button class="btn" data-kopieer="codes">Kopieer alle codes</button></div><div id="kopieMelding" role="status" class="small"></div></div>`}
+function beheerView(){
+  main.innerHTML=`<div class="kop"><div class="stack"><span class="eyebrow">Beheer</span><h1>Klassen en codes</h1></div></div>
+  ${st.nieuwKlas?codesBlok(st.nieuwKlas):""}
+  <form class="kaart" id="klasForm" novalidate><h2>Nieuwe klas</h2>
+    <div class="veld"><label for="kNaam">Naam van de klas</label><input type="text" id="kNaam" maxlength="80" placeholder="BOA Basis · groep A"></div>
+    <div class="veld"><label for="kStart">Gestart (optioneel)</label><input type="text" id="kStart" maxlength="40" placeholder="nov 2026"></div>
+    <div class="veld"><label for="kAantal">Aantal leerlingcodes</label><input type="number" id="kAantal" min="1" max="60" value="20" inputmode="numeric"></div>
+    <p class="small">Je krijgt de leerlingcodes en één docentcode.</p>
+    <div><button class="btn hi" type="submit">Klas aanmaken</button></div><div id="klasMelding" role="status"></div></form>
+  <h2>Alle klassen</h2><div id="beheerLijst" class="lijst"><div class="leeg" role="status">Laden…</div></div>`;
+  rpc("beheer_klassen").then(ls=>{const el=document.getElementById("beheerLijst");if(!el)return;
+    el.innerHTML=(ls||[]).map(k=>`<div class="kaart"><div class="kop"><div class="stack"><b>${esc(k.naam)}</b><span class="small num">${k.start?"gestart "+esc(k.start)+" · ":""}${k.leerlingcodes_gebruikt} van ${k.leerlingcodes} leerlingcodes gebruikt · docent: ${k.docenten.length?k.docenten.map(esc).join(", "):k.docentcode_open?"code nog niet gebruikt":"geen"}</span></div></div>
+      <div class="row"><button class="btn sm" data-act="codes-erbij" data-id="${esc(k.id)}" data-naam="${esc(k.naam)}" data-rol="leerling">5 leerlingcodes erbij</button><button class="btn sm" data-act="codes-erbij" data-id="${esc(k.id)}" data-naam="${esc(k.naam)}" data-rol="docent">Nieuwe docentcode</button>
+        ${st.weg===k.id?`</div><div class="confirm"><span><b>${esc(k.naam)} verwijderen?</b> Leerlingen en docenten worden uit de klas gehaald. Hun eigen voortgang blijft bewaard.</span><div class="row"><button class="btn danger sm" data-act="klas-weg-ja" data-id="${esc(k.id)}">Verwijderen</button><button class="btn sm" data-act="klas-weg-nee">Annuleren</button></div></div>`
+        :`<button class="btn sm" data-act="klas-weg" data-id="${esc(k.id)}">Verwijderen</button></div>`}</div>`).join("")||`<div class="leeg">Nog geen klassen.</div>`},
+    ()=>{const el=document.getElementById("beheerLijst");if(el)el.innerHTML=`<p class="melding fout">De klassen konden niet worden geladen.</p>`})}
+
+// ---------- navigatie ----------
+async function route(){const h=location.hash.slice(1);st.leerling="";
+  if(h.startsWith("leerling-")){st.klas=h.slice(9,45);st.leerling=h.slice(46)}
+  else if(h.startsWith("klas-"))st.klas=h.slice(5);
+  else if(h!=="beheer")st.klas=(D.klassen&&D.klassen[0]&&D.klassen[0].id)||"";
+  if(st.klas&&D.klassen&&!D.klassen.some(k=>k.id===st.klas))st.klas="";
+  toon();window.scrollTo({top:0});
+  if(st.klas&&D.data&&!D.data[st.klas]){try{await klasLaden(st.klas);toon()}catch(e){st.fout="Deze klas kon niet worden geladen. Probeer het opnieuw.";toon();st.fout=""}}}
+window.addEventListener("hashchange",route);
+document.addEventListener("click",async e=>{const t=e.target.closest("[data-act],[data-tab],[data-sort],[data-l],[data-kopieer]");if(!t)return;const a=t.dataset.act;
+  if(a==="google"){googleStart();return}
+  if(a==="mail"){inlog.mail=1;inlog.fout="";toon();focus("#mIn");return}
+  if(a==="mail-terug"){inlog.mail=inlog.mail===2?1:0;inlog.fout="";toon();return}
+  if(a==="uitloggen"){const s=sesGet();if(s)fetch(CLOUD.url+"/auth/v1/logout",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+s.a}}).catch(()=>{});sesSet(null);D={};toon();return}
+  if(a==="opnieuw"){laden();return}
+  if(a==="vernieuw"){t.disabled=true;try{await klasLaden(st.klas,true)}catch(x){}toon();return}
+  if(a==="codes-erbij"){t.disabled=true;try{const r=await rpc("beheer_codes_erbij",{klas:t.dataset.id,rol:t.dataset.rol,aantal:t.dataset.rol==="docent"?1:5});
+      st.nieuwKlas={naam:t.dataset.naam,docent:r.rol==="docent"?r.codes[0]:"",leerlingen:r.rol==="leerling"?r.codes:[]};beheerView();window.scrollTo({top:0})}catch(x){t.disabled=false}return}
+  if(a==="klas-weg"){st.weg=t.dataset.id;beheerView();return}
+  if(a==="klas-weg-nee"){st.weg="";beheerView();return}
+  if(a==="klas-weg-ja"){try{await rpc("beheer_klas_verwijderen",{klas:t.dataset.id});st.weg="";await laden()}catch(x){}return}
+  if(t.dataset.tab){st.tab=t.dataset.tab;try{localStorage.setItem("boa-docent-tab",st.tab)}catch(x){}toon();focus("#tab-"+st.tab);return}
+  if(t.dataset.sort){const c=t.dataset.sort;st.sort=[c,st.sort[0]===c?-st.sort[1]:(c==="naam"?1:-1)];toon();focus(`[data-sort="${c}"]`);return}
+  if(t.dataset.l){location.hash="leerling-"+st.klas+"-"+t.dataset.l;return}
+  if(t.dataset.kopieer){const m=document.getElementById("kopieMelding");
+    const tekst=t.dataset.kopieer==="codes"?(st.nieuwKlas.docent?"Docentcode: "+st.nieuwKlas.docent+"\n\n":"")+(st.nieuwKlas.leerlingen.length?"Leerlingcodes:\n"+st.nieuwKlas.leerlingen.join("\n"):""):opdrachtTekst();
+    const toonTekst=()=>{if(m){m.innerHTML=`<textarea readonly rows="8" aria-label="Tekst om te kopiëren">${esc(tekst)}</textarea>`;const ta=m.querySelector("textarea");ta.focus();ta.select()}};
+    try{navigator.clipboard.writeText(tekst).then(()=>{if(m)m.textContent="Gekopieerd."},toonTekst)}catch(x){toonTekst()}}});
+document.addEventListener("input",e=>{if(e.target.id==="zoek"){st.zoek=e.target.value;const pos=e.target.selectionStart;toon();const z=document.getElementById("zoek");if(z){z.focus();z.setSelectionRange(pos,pos)}}
+  if(e.target.id==="mCode"){const v=e.target.value.replace(/\D/g,"");if(v!==e.target.value)e.target.value=v;if(v.length===6&&!inlog.bezig)mailCheck(v)}});
+document.addEventListener("change",e=>{if(e.target.id==="modFilter"){st.mod=e.target.value;toon();focus("#modFilter")}
+  if(e.target.id==="lmodFilter"){st.lmod=e.target.value;toon();focus("#lmodFilter")}});
+document.addEventListener("submit",async e=>{e.preventDefault();const f=e.target.id;
+  if(f==="mForm")return mailStuur(document.getElementById("mIn").value);
+  if(f==="mCodeForm")return mailCheck(document.getElementById("mCode").value);
+  if(f==="addForm"){const inp=document.getElementById("docCode");const code=inp.value.trim();const zet=h=>{st.meld=h;const m=document.getElementById("addMelding");if(m)m.innerHTML=h};
+    if(code.replace(/[^A-Za-z0-9]/g,"").length<6){zet(`<p class="melding fout">Vul de docentcode in die je van de beheerder hebt gekregen.</p>`);inp.focus();return}
+    zet(`<p class="melding info">Bezig…</p>`);
+    try{const j=await rpc("klascode_inwisselen",{code,verwacht:"docent"});
+      if(!j||!j.ok){zet(`<p class="melding fout">${j&&j.reden==="soort"?"Dit is een leerlingcode. Leerlingen vullen die in de app in; hier gebruik je je docentcode (DOC-…).":j&&j.reden==="gebruikt"?"Deze docentcode is al gebruikt. Vraag de beheerder om een nieuwe.":j&&j.reden==="te_vaak"?"Te veel pogingen. Probeer het over een uur opnieuw.":"Deze docentcode kennen we niet. Controleer de code."}</p>`);inp.focus();return}
+      st.meld=`<p class="melding ok">${esc(j.klas.naam)} is toegevoegd.</p>`;await laden();location.hash="klas-"+j.klas.id}
+    catch(x){zet(`<p class="melding fout">De code kon niet worden gecontroleerd. Controleer je internetverbinding.</p>`)}return}
+  if(f==="klasForm"){const naam=document.getElementById("kNaam").value.trim(),start=document.getElementById("kStart").value.trim(),aantal=parseInt(document.getElementById("kAantal").value,10);const m=document.getElementById("klasMelding");
+    if(naam.length<2){m.innerHTML=`<p class="melding fout">Geef de klas een naam.</p>`;focus("#kNaam");return}
+    if(!(aantal>=1&&aantal<=60)){m.innerHTML=`<p class="melding fout">Kies 1 tot 60 leerlingcodes.</p>`;focus("#kAantal");return}
+    m.innerHTML=`<p class="melding info">Bezig…</p>`;
+    try{const r=await rpc("beheer_klas_maken",{naam,start,aantal});st.nieuwKlas=r;beheerView();window.scrollTo({top:0})}
+    catch(x){m.innerHTML=`<p class="melding fout">De klas kon niet worden aangemaakt. Probeer het opnieuw.</p>`}}});
+(async()=>{if(CLOUD){await terugVanGoogle()}if(CLOUD&&sesGet())laden();else toon()})();
+</script>
+</body>
+</html>

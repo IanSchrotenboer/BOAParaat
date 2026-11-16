@@ -154,7 +154,8 @@ const nS=s=>Object.keys((s&&s.s)||{}).length;
   t(!(await p3.locator('#obForm').count())&&c&&nS(c.data)===3&&c.data.h.length===1&&c.data.p.dom==='4','bestaande tester: eerdere voortgang en profiel gaan mee naar het nieuwe account');
   // ---------- 9. ingetrokken sessie ----------
   for(const k of Object.keys(db.refresh))if(db.refresh[k]==='u-cor')delete db.refresh[k];for(const v of Object.values(db.tokens))v.exp=0;
-  await p3.evaluate(()=>location.hash='profiel');await w(200);await p3.click('[data-act="sync"]');await w(900);
+  // (Profiel vraagt ook de klassen op; met een ingetrokken sessie kan de app dan al eerder uitloggen)
+  await p3.evaluate(()=>location.hash='profiel');await w(200);const sb=p3.locator('[data-act="sync"]');if(await sb.count())await sb.click().catch(()=>{});await w(900);
   t(await p3.locator('[data-act="login"]').count()===1&&nS(await store(p3))===3,'sessie ingetrokken: terug naar inloggen, voortgang op het apparaat blijft tot je weer inlogt');
   await inloggen(p3);await w(500);
   t(!(await p3.locator('[data-act="login"]').count())&&nS(await store(p3))===3,'opnieuw ingelogd: alles is er nog');

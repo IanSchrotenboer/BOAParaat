@@ -108,10 +108,14 @@ function mailTikker(){clearInterval(mailTik);mailTik=setInterval(()=>{const b=do
 document.addEventListener("input",e=>{if(e.target&&e.target.id==="mailCode"){const v=e.target.value.replace(/\D/g,"");if(v!==e.target.value)e.target.value=v;
   if(v.length===6&&!cloudBezig)mailCheck(v)}});
 // geldig toegangsbewijs; vernieuwt het zo nodig. Verlopen of ingetrokken: opnieuw inloggen
-async function token(nieuw){let s=sesGet();if(!s)throw new Error("niet ingelogd");
+// Meerdere verzoeken tegelijk vernieuwen het toegangsbewijs maar één keer (een vernieuwcode is eenmalig).
+let tokBezig=null;
+async function token(nieuw){const s=sesGet();if(!s)throw new Error("niet ingelogd");
   if(!nieuw&&s.x-Date.now()>60000)return s.a;
-  try{const j=await authFetch("token?grant_type=refresh_token",{refresh_token:s.r});s=sesVan(j);sesSet(s);return s.a}
-  catch(e){if(e.status===400||e.status===401){sesSet(null);render();toast("Je bent uitgelogd. Log opnieuw in om je voortgang te bewaren.")}throw e}}
+  if(!tokBezig)tokBezig=(async()=>{try{const j=await authFetch("token?grant_type=refresh_token",{refresh_token:s.r});const n=sesVan(j);sesSet(n);return n.a}
+    catch(e){if(e.status===400||e.status===401){sesSet(null);render();toast("Je bent uitgelogd. Log opnieuw in om je voortgang te bewaren.")}throw e}
+    finally{tokBezig=null}})();
+  return tokBezig}
 async function rest(method,pad,body,extra,opnieuw){const t=await token(opnieuw);
   const r=await fetch(CLOUD.url+"/rest/v1/"+pad,{method,headers:Object.assign({apikey:CLOUD.key,Authorization:"Bearer "+t,"Content-Type":"application/json"},extra||{}),body:body==null?undefined:JSON.stringify(body)});
   if(r.status===401&&!opnieuw)return rest(method,pad,body,extra,true); // toegang eerder verlopen dan verwacht: één keer vernieuwen

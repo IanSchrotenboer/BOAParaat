@@ -36,3 +36,12 @@ De knop "Inloggen met e-mail" verschijnt pas als in `bron/cloud.json` `"email": 
 2. Supabase → Authentication → Emails → SMTP Settings: host `smtp.resend.com`, poort `465`, gebruikersnaam `resend`, wachtwoord de API-sleutel van Resend, afzender `inloggen@boaparaat.nl`, naam `Boa Paraat`.
 3. Supabase → Authentication → Sign In / Providers → Email: aan, Email OTP Length `6`.
 4. Supabase → Authentication → Emails → Templates: in **Magic Link** én **Confirm signup** de code tonen met `{{ .Token }}` (geen link).
+
+## Klassen en docentenomgeving
+
+Tabellen `klassen`, `klascodes`, `klas_leden` en `beheerders` (migraties `20261116150000_klassen_docenten.sql` en `20261116160000_klascode_soort_controleren.sql`). Alle vier hebben row level security zonder regels: alleen de functies lezen en schrijven ze.
+
+- **Beheerder:** staat in `public.beheerders` (nu de twee accounts van Ian). Maakt in de docentenomgeving (app.boaparaat.nl/docent → Beheer) een klas aan en krijgt dan de leerlingcodes (`KLAS-…`) en één docentcode (`DOC-…`). De codes zijn alleen dan te zien; de database bewaart een controlegetal (`licentie_hash`). Een beheerder toevoegen: `insert into public.beheerders (user_id) select id from auth.users where email = '…';`
+- **Leerling:** vult de leerlingcode in de app in (Profiel → Klas). `klascode_inwisselen` zet hem in de klas; `klas_verlaten` haalt hem eruit.
+- **Docent:** vult de docentcode in de docentenomgeving in. `docent_klas` geeft per leerling naam, e-mailadres en de oefenresultaten (`s`, `h`, `k`, `d` uit `voortgang.data`), alleen als de vrager docent van die klas is.
+- Codes zijn eenmalig; mislukte pogingen tellen mee in `licentie_pogingen` (maximaal 10 per uur).

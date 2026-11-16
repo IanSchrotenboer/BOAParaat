@@ -201,3 +201,7 @@ Een push naar een tak die met `proef-` begint, bouwt een proefversie die naast d
 - Weergave: onder **Profiel → Gegevens → Weergave** kies je **Systeem** (volgt licht/donker van je telefoon of computer), **Licht** of **Donker**.
 - Voortgang en profiel worden per telefoon of browser bewaard. Met **Profiel → Voortgang overzetten** neem je ze mee naar een ander apparaat.
 - App-naam: Boa Paraat. App-ID: `nl.boa.phbtrainer`. Dit staat in `capacitor.config.json`.
+
+## Docentenomgeving
+
+Op `app.boaparaat.nl/docent` (bron: `bron/docent.html`, gebouwd naar `www/docent/index.html`) zien docenten per klas de oefenresultaten van hun leerlingen: wie actief is, het percentage goed, de vragen die nu nog fout zijn (met juist antwoord en uitleg), oefenexamens, casussen en gesprekken, en de top 10 van vragen die de klas het vaakst fout heeft. Met "Kopieer als lesopdracht" zet je die vragen als tekst klaar. Inloggen gaat met hetzelfde account als de app. Leerlingen koppelen zich met hun code in de app (Profiel → Klas); in een klas heten de modules Module 1 t/m 5. De beheerder maakt klassen en codes aan onder Beheer. Zie `supabase/config.md` voor de database. Test: `tests/docent.js`.
