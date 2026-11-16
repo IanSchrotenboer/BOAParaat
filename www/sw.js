@@ -1,6 +1,6 @@
 // Bewaart de app op het toestel, zodat hij snel opent en ook zonder internet werkt.
 // Eerst uit de opslag tonen, op de achtergrond bijwerken (ook de lettertypen).
-const CACHE = "boa-paraat-v50";
+const CACHE = "boa-paraat-v51";
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"];
 const FONTS = /^https:\/\/fonts\.(googleapis|gstatic)\.com\//;
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES))); self.skipWaiting(); });

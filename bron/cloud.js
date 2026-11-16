@@ -75,7 +75,7 @@ async function mailStuur(adres){adres=String(adres||"").trim().toLowerCase();
   if(!mailGeldig(adres)){cloudFout="Vul een geldig e-mailadres in.";render();const i=document.getElementById("mailIn");if(i){i.value=adres;i.focus()}return}
   if(!navigator.onLine){cloudFout="Je bent offline. Om in te loggen heb je internet nodig.";render();return}
   cloudFout="";cloudHint="";cloudBezig="De code wordt verstuurd…";render();
-  try{await authFetch("otp",{email:adres,create_user:true});mail={stap:2,adres,t:Date.now()};cloudBezig="";render();
+  try{await authFetch("otp",{email:adres,create_user:true});mail={stap:2,adres,t:Date.now()};cloudBezig="";render();mailTikker();
     const i=document.getElementById("mailCode");if(i)i.focus()}
   catch(e){cloudBezig="";cloudFout=e.status===429?"Je hebt net al een code gekregen. Wacht een minuut en probeer het opnieuw.":e.status>=500||!navigator.onLine?"Geen verbinding met de server. Probeer het zo opnieuw.":"De code kon niet worden verstuurd. Controleer je e-mailadres.";
     mail.stap=mail.stap||1;mail.adres=adres;render()}}
@@ -100,8 +100,10 @@ document.addEventListener("submit",e=>{
   if(e.target.id==="mailForm"){e.preventDefault();mailStuur((document.getElementById("mailIn")||{}).value)}
   if(e.target.id==="mailCodeForm"){e.preventDefault();mailCheck((document.getElementById("mailCode")||{}).value)}});
 // aftellen tot je een nieuwe code mag vragen, zonder het scherm opnieuw op te bouwen (dan blijft je invoer staan)
-setInterval(()=>{if(mail.stap!==2)return;const b=document.querySelector('[data-act="mail-opnieuw"]');if(!b)return;
-  const w=Math.max(0,60-Math.round((Date.now()-mail.t)/1000));b.disabled=!!w;b.textContent=w?"Nieuwe code over "+w+" s":"Stuur een nieuwe code"},1000);
+let mailTik=0;
+function mailTikker(){clearInterval(mailTik);mailTik=setInterval(()=>{const b=document.querySelector('[data-act="mail-opnieuw"]');
+  const w=Math.max(0,60-Math.round((Date.now()-mail.t)/1000));
+  if(mail.stap!==2||!b||!w)clearInterval(mailTik);if(!b)return;b.disabled=!!w;b.textContent=w?"Nieuwe code over "+w+" s":"Stuur een nieuwe code"},1000)}
 // code automatisch versturen als hij volledig is ingevuld of geplakt
 document.addEventListener("input",e=>{if(e.target&&e.target.id==="mailCode"){const v=e.target.value.replace(/\D/g,"");if(v!==e.target.value)e.target.value=v;
   if(v.length===6&&!cloudBezig)mailCheck(v)}});
