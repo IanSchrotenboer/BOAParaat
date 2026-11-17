@@ -205,3 +205,7 @@ Een push naar een tak die met `proef-` begint, bouwt een proefversie die naast d
 ## Beheer
 
 Op `app.boaparaat.nl/beheer` (bron: `bron/beheer.html`, gebouwd naar `www/beheer/index.html`) ziet de beheerder wie de app gebruikt, waar ze mee bezig zijn, de activiteit per dag en alle uitgegeven codes (alleen de laatste vier tekens). Inloggen gaat met hetzelfde account als de app; in de app staat voor beheerders een knop bij Profiel → Account. De gegevens komen uit `beheer_overzicht()` in Supabase, die eerst controleert of je beheerder bent (zie `supabase/config.md`). Test: `tests/beheer.js`.
+
+## Leerpad (proef, `bron/pad.js`)
+
+Tabblad in het midden van de tabbalk (`#pad`, `#pad-<module>`, les: `#pad-les`). Per module een pad in de volgorde van `blocksOf(m)`: per onderwerp eerst 'Lees de stof' (`STOF_CAT`), dan 2–5 lessen met de vragen van dat onderwerp, gesorteerd van makkelijk naar moeilijk (`padMoeite`: lengte, situatie, ontkenning, wetsartikel, lengte van de antwoorden; per vraag te overschrijven in `PAD_MOEITE`). Elk deel eindigt met een toets (10 vragen uit de moeilijkere helft, 8 goed); die halen telt de lessen van dat deel als gedaan. Les: 3 levens, fout = vraag komt terug, sterren 3/2/1. Eerste pogingen gaan via `record()` in `store.s`; voortgang in `store.pad` (`"<module>:<onderwerp>:<les>"` en `"<module>:T:<deel>"` → `[sterren, tijd]`), samengevoegd in `mergeStore` (meeste sterren). Test: `tests/pad.js`.

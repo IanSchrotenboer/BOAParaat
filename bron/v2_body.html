@@ -80,7 +80,7 @@ const KEY="phb-trainer-v1";
 // licenties per organisatie (zie licentie.js); h = controlegetallen van geldige codes
 const LIC={ns:{naam:"Nederlandse Spoorwegen",kort:"NS",dom:"4",h:["q7psou2"],logo:/*__LOGO_ns__*/""}};
 const licVan=c=>{const h=hash("boa-lic:"+String(c||"").toUpperCase().replace(/[^A-Z0-9]/g,""));return Object.keys(LIC).find(k=>LIC[k].h.includes(h))||""};
-const blank = () => ({s:{},h:[],x:[],e:{},w:[],wd:null,yt:[],k:[],d:{},p:{naam:"",dom:"1",werk:"",datum:"",akte:"",rol:"",thema:"systeem",mld:{oefen:false,examen:false,tijd:"19:00"}}});
+const blank = () => ({s:{},h:[],x:[],e:{},w:[],wd:null,yt:[],k:[],d:{},pad:{},p:{naam:"",dom:"1",werk:"",datum:"",akte:"",rol:"",thema:"systeem",mld:{oefen:false,examen:false,tijd:"19:00"}}});
 let store=blank();
 // opgeslagen gegevens controleren: verkeerde soorten waarden (bijv. door een oude of beschadigde versie) worden hersteld
 const isObj=v=>!!v&&typeof v==="object"&&!Array.isArray(v);
@@ -96,11 +96,13 @@ function normalize(p){const b=blank();if(!isObj(p))return b;
   b.k=(Array.isArray(p.k)?p.k:[]).filter(x=>isObj(x)&&typeof x.id==="string"&&typeof x.cs==="string"&&typeof x.p==="number"&&typeof x.m==="number").map(x=>({id:str(x.id,30),cs:str(x.cs,40),d:typeof x.d==="number"?x.d:0,p:x.p,m:x.m,o:["Goed","Voldoende","Onvoldoende"].includes(x.o)?x.o:"Onvoldoende",...(Array.isArray(x.v)?{v:x.v.filter(n=>typeof n==="number").slice(0,20)}:{})})).slice(0,60);
   b.wd=isObj(p.wd)&&p.wd.sc?p.wd:null;
   if(isObj(p.d))for(const [k,v] of Object.entries(p.d))if(ISO.test(k)&&typeof v==="number")b.d[k]=v;
+  // leerpad: per les [sterren 1–3, tijd]
+  if(isObj(p.pad))for(const [k,v] of Object.entries(p.pad))if(/^[a-z0-9]{2,8}:[A-Za-z0-9]{1,8}:\d{1,2}$|^[a-z0-9]{2,8}:T:[A-Z]{1,3}$/.test(k)&&Array.isArray(v)&&typeof v[0]==="number"&&v[0]>=1&&v[0]<=3&&typeof v[1]==="number")b.pad[k]=[Math.round(v[0]),v[1]];
   const q=isObj(p.p)?p.p:{},P=b.p;
   P.naam=str(q.naam,60);P.werk=str(q.werk,60);P.akte=ISO.test(q.akte)?q.akte:"";P.datum=ISO.test(q.datum)?q.datum:"";
   P.dom=q.dom==="4"?"4":"1";P.rol=q.rol==="scholier"||q.rol==="werkend"?q.rol:"";P.thema=["licht","donker"].includes(q.thema)?q.thema:"systeem";
   if(typeof q.lic==="string"&&LIC[q.lic])P.lic=q.lic;
-  if(q.ob)P.ob=1;if(typeof q.gezien==="string")P.gezien=q.gezien;
+  if(q.ob)P.ob=1;if(typeof q.pm==="string"&&/^[a-z0-9]{2,8}$/.test(q.pm))P.pm=q.pm;if(typeof q.gezien==="string")P.gezien=q.gezien;
   const m=isObj(q.mld)?q.mld:{};P.mld={oefen:m.oefen===true,examen:m.examen===true,tijd:/^\d{2}:\d{2}$/.test(m.tijd)?m.tijd:"19:00"};if(m.gevraagd)P.mld.gevraagd=1;if(typeof m.weg==="string")P.mld.weg=m.weg;
   if(!P.rol&&(P.akte||P.naam))P.rol="werkend";
   if(typeof p.t==="number")b.t=p.t;if(typeof p.r==="number")b.r=p.r;if(typeof p.eig==="string")b.eig=p.eig.slice(0,60);
@@ -199,16 +201,16 @@ const MODICON={phb1:"book",phb2:"talk",phb3:"eye",phb4:"sign",rtgb:"cuffs"};
 // ---------- navigatie ----------
 function route(){return (location.hash||"#home").slice(1)||"home"}
 function paintNav(){
-  const r=route();const welcome=needsWelcome();const inSession=welcome||(r==="sessie"&&S&&!S.done)||(r==="wv"&&!!W);
-  const items=[["home","Overzicht",ICON.home]].concat(MODS.map(m=>[m.id,m.code,ICON[MODICON[m.id]],m.name])).concat([["stof","Studiestof",ICON.doc]]);
-  const cur=id=>r===id||(id==="stof"&&r.indexOf("stof-")===0)||(id==="phb2"&&/^(casus|gesprek)/.test(r));
+  const r=route();const welcome=needsWelcome();const inSession=welcome||(r==="sessie"&&S&&!S.done)||(r==="wv"&&!!W)||(r==="pad-les"&&padBezig());
+  const items=[["home","Overzicht",ICON.home]].concat(MODS.map(m=>[m.id,m.code,ICON[MODICON[m.id]],m.name])).concat([["pad","Leerpad",BI.pad],["stof","Studiestof",ICON.doc]]);
+  const cur=id=>r===id||(id==="stof"&&r.indexOf("stof-")===0)||(id==="pad"&&r.indexOf("pad-")===0)||(id==="phb2"&&/^(casus|gesprek)/.test(r));
   $("#topnav").innerHTML=items.map(([id,l,ic,full])=>`<a href="#${id}"${cur(id)?' aria-current="page"':""}${full?` title="${esc(full)}"`:""}><span class="ic" aria-hidden="true">${ic}</span>${l}</a>`).join("");
   balkTeken(r);
   $("#topnav").hidden=inSession;$("#tabbar").hidden=inSession;$("#profBtn").hidden=inSession;
   document.body.classList.toggle("tabs",!inSession);document.body.classList.toggle("inses",inSession&&!welcome);
   const pb=$("#profBtn");if(r.indexOf("profiel")===0||r==="fouten")pb.setAttribute("aria-current","page");else pb.removeAttribute("aria-current");
   $("#profAva").textContent=initials(store.p.naam);
-  $("#stopBtn").hidden=!inSession||welcome;paintTimer();
+  $("#stopBtn").hidden=!inSession||welcome||r==="pad-les";paintTimer();
 }
 
 // ---------- sessie ----------
@@ -258,12 +260,14 @@ function render(){
   else if(r.indexOf("verslag-")===0){v="verslag";h=viewWVResult(r.slice(8))}
   else if(r==="profiel"||r==="profiel-examens"||r==="profiel-phb3"||r==="profiel-fouten"||r==="fouten"){v="profiel";h=viewProfile(r==="profiel-examens"?"examens":r==="profiel-fouten"||r==="fouten"?"fouten":"voortgang")}
   else if(r==="stof"||r.indexOf("stof-")===0){v="stof";h=viewStof()}
+  else if(r==="pad-les"&&!PL){location.replace("#pad");return}
+  else if(r==="pad"||r.indexOf("pad-")===0){v="pad";h=viewPad(r)}
   else if(r==="casus"||r.indexOf("casus-")===0||r.indexOf("gesprek-")===0){v="casus";store.p.lm="phb2";h=viewKz(r)}
   else if(MODBY[r]){v="module";store.p.lm=r;h=viewModule(MODBY[r])}
   else h=viewHome();
   tabTransition(app);app.dataset.v=v;app.innerHTML=h;
   if(pageAnim){pageAnim=false;app.classList.remove("enter","swl","swr");void app.offsetWidth;app.classList.add("enter");if(swipeIn)app.classList.add(swipeIn)}swipeIn="";
-  paintNav();wvAfterRender();enhanceSelects(app);tuneInputs(app);pcAfterRender(v);vouwStand();modChipsScroll();
+  paintNav();wvAfterRender();enhanceSelects(app);tuneInputs(app);pcAfterRender(v);vouwStand();modChipsScroll();padNaRender();
 }
 // ---------- studiestof ----------
 const STOFBY = Object.fromEntries(STOF.map(s=>[s.id,s]));
@@ -730,6 +734,8 @@ window.addEventListener("hashchange",()=>{
   if(!/^casus-/.test(route()))kzRecStop(true);
   if(route()!=="wv")wvAskStop=false;wvAskSubmit=false;wvDel=null;ytDel=null;if(route()!=="phb3")ytForm=null;
   if(S&&!S.done&&route()!=="sessie"&&S.mode!=="oefen"){location.hash="sessie";confirmStop=true;return}
+  // midden in een les van het leerpad: eerst vragen of je wilt stoppen
+  if(padBezig()&&route()!=="pad-les"){if(PL.eerst.size){plStop=true;location.hash="pad-les";return}PL=null}else if(PL&&PL.klaar&&route()!=="pad-les")PL=null;
   confirmReset=false;showExport=false;showImport=false;exEdit=null;exDel=null;exOpen=false;calFor=null;lastAdded=null;exAlles=false;pageAnim=true;render();
   const r=route();if(r.indexOf("stof-")===0){const el=document.getElementById("s-"+r.slice(5));if(el){el.scrollIntoView({block:"start"});return}}
   if(r==="profiel-phb3"){const el=document.getElementById("pmod-phb3");if(el){el.scrollIntoView({block:"start"});return}}

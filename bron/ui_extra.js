@@ -176,6 +176,7 @@ function appBack(){
   if(closeTopLayer())return "laag";
   const r=route();
   if(r==="sessie"&&S&&!S.done){$("#stopBtn").click();return "sessie"}
+  if(r==="pad-les"&&padBezig()){if(plStop){plStop=false;render()}else padVraagStop();return "leerpad"}
   if(r==="wv"&&W){wvCollect();wvAskStop=true;render();window.scrollTo(0,0);return "praktijk"}
   if(needsWelcome()){exitApp();return "afsluiten"}
   if(navStack.length>1){history.back();return "terug"}
@@ -309,7 +310,7 @@ function openDlg(html){
 function openKeys(){
   openDlg(`<div role="dialog" aria-modal="true" aria-labelledby="kdlgT">
     <div class="row" style="justify-content:space-between"><h2 id="kdlgT">Sneltoetsen</h2><button class="btn ghost sm" data-act="keys-close">Sluiten</button></div>
-    <div class="kcols"><section><h3>Overal</h3><ul class="keys">${keyRows([["H","Overzicht"],["1 2 3 4","PHB 1 t/m 4"],["5 of R","RTGB"],["S","Studiestof"],["P","Profiel"],["E","Mijn examens"],["F","Foutenanalyse"],["?","Deze hulp"]])}</ul></section>
+    <div class="kcols"><section><h3>Overal</h3><ul class="keys">${keyRows([["H","Overzicht"],["1 2 3 4","PHB 1 t/m 4"],["5 of R","RTGB"],["L","Leerpad"],["S","Studiestof"],["P","Profiel"],["E","Mijn examens"],["F","Foutenanalyse"],["?","Deze hulp"]])}</ul></section>
     <section><h3>Tijdens het oefenen</h3><ul class="keys">${keyRows([["A B C D","Antwoord kiezen"],["1 2 3 4","Antwoord kiezen"],["Enter","Volgende vraag"],["← →","Vorige of volgende vraag (toets en examen)"],["Esc","Stoppen of melding sluiten"]])}</ul></section></div>
     <p class="small">Tijdens een oefensessie of de praktijkoefening gelden alleen de toetsen voor het oefenen. In een tekstveld werken de sneltoetsen niet, zodat je gewoon kunt typen.</p></div>`);
 }
@@ -348,12 +349,12 @@ document.addEventListener("keydown",e=>{
     return;
   }
   const typing=!!(e.target.closest&&e.target.closest("input,textarea,select,[contenteditable]"));
-  const r=route();const busy=(r==="sessie"&&S&&!S.done)||(r==="wv"&&W);
+  const r=route();const busy=(r==="sessie"&&S&&!S.done)||(r==="wv"&&W)||(r==="pad-les"&&padBezig());
   if(e.key==="Escape"){if(closeTopLayer()){e.preventDefault();return}if(busy&&!typing){e.preventDefault();appBack()}return}
   if(typing||needsWelcome())return;
   if(e.key==="?"){e.preventDefault();openKeys();return}
   if(busy||e.shiftKey)return;
-  const go={h:"home",s:"stof",p:"profiel",e:"profiel-examens",r:"rtgb",f:"profiel-fouten","1":"phb1","2":"phb2","3":"phb3","4":"phb4","5":"rtgb"}[e.key.toLowerCase()];
+  const go={h:"home",l:"pad",s:"stof",p:"profiel",e:"profiel-examens",r:"rtgb",f:"profiel-fouten","1":"phb1","2":"phb2","3":"phb3","4":"phb4","5":"rtgb"}[e.key.toLowerCase()];
   if(go){e.preventDefault();if(r!==go)location.hash=go}
 });
 function pcAfterRender(v){
