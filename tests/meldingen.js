@@ -67,6 +67,7 @@ const ln=p=>p.evaluate(()=>window.__ln);
   t(oe.length>=6&&oe.every(n=>new Date(n.schedule.at).getHours()===19),'oefenherinnering de komende dagen om 19:00');
   t(s.pending.every(n=>n.smallIcon==='ic_stat_boa'&&n.iconColor==='#2c4a73'&&n.channelId==='herinneringen'),'meldingen in app-stijl (schildicoon, blauw)');
   t(ex[0].extra.route==='phb1','tik op examenmelding opent PHB 1');
+  t(oe.every(n=>n.extra.route==='pad-phb1')&&/Begin aan je leerpad/.test(oe[0].title)&&/Staatsrecht, les 1 \(basis\)/.test(oe[0].body),'dagelijkse herinnering noemt je eerste les in het leerpad en opent het leerpad');
   // oefenen vandaag → geen herinnering meer voor vandaag
   await p.evaluate(()=>location.hash='phb1');await w(100);await p.click('[data-act="oefen"][data-cat="sr"]');await w(100);
   await p.locator('[data-act="pick"]').first().click();await w(1900);
@@ -75,7 +76,7 @@ const ln=p=>p.evaluate(()=>window.__ln);
   await p.click('#stopBtn');await w(150);
   // instellingen in het profiel
   await p.evaluate(()=>location.hash='profiel');await w(150);
-  t(await p.locator('#meldingen .switch[aria-checked="true"]').count()===2,'profiel: beide schakelaars aan');
+  t(await p.locator('#meldingen .switch[aria-checked="true"]').count()===3,'profiel: oefenen, examen en leerpad aan');
   await p.evaluate(()=>document.getElementById('meldingen').scrollIntoView({block:'center'}));await w(100);
   await p.screenshot({path:SHOTS+'/meld_profiel_licht.png'});
   await p.click('#mlTijd-cs');await w(120);await p.locator('.cs-list li',{hasText:'08:00'}).first().click();await w(1900);
@@ -83,7 +84,9 @@ const ln=p=>p.evaluate(()=>window.__ln);
   await p.click('#meldingen .switch[data-k="examen"]');await w(1900);
   s=await ln(p);t(!s.pending.some(n=>n.id>=1000)&&s.pending.some(n=>n.id<200),'examenherinnering uit: alleen oefenherinneringen over');
   await p.click('#meldingen .switch[data-k="oefen"]');await w(1900);
-  s=await ln(p);t(s.pending.length===0,'beide uit: niets meer ingepland');
+  s=await ln(p);t(s.pending.filter(n=>n.id<200).length>=6&&s.pending.every(n=>n.extra.route==='pad-phb1'),'oefenherinnering uit, leerpad aan: nog steeds elke dag een seintje (voor het leerpad)');
+  await p.click('#meldingen .switch[data-k="pad"]');await w(1900);
+  s=await ln(p);t(s.pending.length===0,'alles uit: niets meer ingepland');
   t(await p.locator('#meldingen .switch[aria-checked="true"]').count()===0,'schakelaars staan uit');
   await p.click('#meldingen .switch[data-k="examen"]');await w(200);
   t(await p.locator('[data-act="mld-test"]').count()===1,'knop testmelding zichtbaar als iets aan staat');
@@ -92,6 +95,38 @@ const ln=p=>p.evaluate(()=>window.__ln);
   await p.evaluate(()=>window.__ln.on_localNotificationActionPerformed({notification:{extra:{route:'phb2'}}}));await w(150);
   t(await p.evaluate(()=>location.hash)==='#phb2','tik op een melding opent het juiste scherm');
   t(!p._errs.length,'meldingen: geen JS-fouten'+(p._errs.length?': '+p._errs.join(' | '):''));
+  await p.context().close();
+  // ---------- leerpad-herinnering ----------
+  const nu0=Date.now();
+  p=await open(b,{fake:true,perm:'granted',seed:PROF({p:{naam:'Sam de Vries',dom:'1',werk:'NS',akte:'2029-01-01',rol:'werkend',ob:1,mld:{gevraagd:1,tijd:'19:00'}},pad:{'phb1:sr:1':[3,nu0]}})});
+  await p.evaluate(()=>location.hash='pad');await w(300);
+  t(await p.locator('.padview .nudge [data-k="pad"]').count()===1,'leerpad: vraagt één keer of je elke dag een seintje wilt');
+  await p.click('.padview .nudge [data-k="pad"]');await w(1900);
+  s=await ln(p);const pd=s.pending.filter(n=>n.id>=100&&n.id<200);
+  t(pd.length>=6&&/Staatsrecht, les 2 \(gevorderd\)/.test(pd[0].body)&&pd[0].extra.route==='pad-phb1','aangezet: elke dag een melding met je volgende les');
+  t(await p.locator('.padview .nudge').count()===0&&await p.evaluate(()=>JSON.parse(localStorage.getItem('phb-trainer-v1')).p.mld.pad===true),'daarna geen vraag meer; instelling bewaard');
+  await p.evaluate(()=>location.hash='home');await w(150);
+  await p.evaluate(()=>window.__ln.on_localNotificationActionPerformed({notification:{extra:{route:'pad-phb1'}}}));await w(300);
+  t(await p.evaluate(()=>location.hash)==='#pad-phb1'&&await p.locator('.padkop').count()===1,'tik op de melding opent het leerpad');
+  await p.click('.pknoop.nu');await w(300);await p.locator('.ples [data-pad="kies"]').first().click();await p.click('[data-pad="check"]');await w(1900);
+  s=await ln(p);
+  t(!s.pending.some(n=>n.id<200&&new Date(n.schedule.at).toDateString()===new Date().toDateString()),'na een vraag in het leerpad: vandaag geen herinnering meer');
+  await p.evaluate(()=>window.__ln.on_localNotificationActionPerformed({notification:{extra:{route:'profiel'}}}));await w(200);
+  t(await p.evaluate(()=>location.hash)==='#pad-les','midden in een les: een tik op een melding haalt je er niet uit');
+  t(!p._errs.length,'leerpad-herinnering: geen JS-fouten'+(p._errs.length?': '+p._errs.join(' | '):''));
+  await p.context().close();
+  // niet nu
+  p=await open(b,{fake:true,perm:'granted'});await p.evaluate(()=>location.hash='pad');await w(300);
+  await p.click('[data-act="mld-padnee"]');await w(200);
+  t(await p.locator('.padview .nudge').count()===0&&(await ln(p)).pending.length===0,'leerpad: "Niet nu" verbergt de vraag en plant niets');
+  await p.context().close();
+  // browser: kaart op het overzicht met de volgende les
+  const uur=String(Math.max(0,new Date().getHours()-1)).padStart(2,'0')+':00';
+  p=await open(b,{seed:PROF({p:{naam:'Sam de Vries',dom:'1',werk:'NS',akte:'2029-01-01',rol:'werkend',ob:1,mld:{gevraagd:1,pad:true,tijd:uur}},pad:{'phb1:sr:1':[3,nu0]}})});
+  t(await p.locator('.nudge [data-pad="start"][data-k="phb1:sr:2"]').count()===1&&/Staatsrecht, les 2/.test(await p.textContent('.nudge')),'browser: kaart op het overzicht met je volgende les');
+  await p.click('.nudge [data-pad="start"]');await w(300);
+  t(await p.evaluate(()=>location.hash)==='#pad-les'&&await p.locator('.ples').count()===1,'kaart: Volgende les start meteen de les');
+  t(!p._errs.length,'browser leerpad: geen JS-fouten'+(p._errs.length?': '+p._errs.join(' | '):''));
   await p.context().close();
   // geweigerde toestemming
   p=await open(b,{fake:true,perm:'denied'});

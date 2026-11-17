@@ -375,6 +375,8 @@ function pcAfterRender(v){
 // - Oefenherinnering: elke dag op het gekozen tijdstip, alleen als je die dag nog niet hebt geoefend (de komende 7 dagen
 //   staan klaar; bij elke keer openen of oefenen wordt dit opnieuw ingepland).
 // - Examenherinnering: 7, 3 en 1 dag voor een gepland examen, om 18:00.
+// - Leerpad-herinnering: dezelfde dagelijkse herinnering, maar met je volgende les in het leerpad (zie padHerinnering in
+//   pad.js); een tik opent het leerpad. Staan oefen- en leerpadherinnering allebei aan, dan komt er één melding per dag.
 // In de browser: dezelfde herinneringen als kaart op het overzicht.
 let mldNote="",mldWeg="";
 const LNp=()=>{const C=window.Capacitor;return C&&C.Plugins&&C.Plugins.LocalNotifications||null};
@@ -404,9 +406,9 @@ async function mldPlan(){
     const p=await LN.getPending();if(p&&p.notifications&&p.notifications.length)await LN.cancel({notifications:p.notifications.map(n=>({id:n.id}))});
     const m=store.p.mld,now=Date.now(),list=[];
     const base={channelId:"herinneringen",smallIcon:"ic_stat_boa",iconColor:"#2c4a73"};
-    if(m.oefen){const [hh,mm]=(m.tijd||"19:00").split(":").map(Number);const r=verderRoute();
+    if(m.oefen||m.pad){const [hh,mm]=(m.tijd||"19:00").split(":").map(Number);const r=m.pad?"pad-"+padMod():verderRoute();
       for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()+i);d.setHours(hh,mm,0,0);if(d.getTime()<=now)continue;if(i===0&&store.d[dayKey()])continue;
-        const t=oefenTekst(i);list.push({...base,id:100+i,title:t[0],body:t[1],schedule:{at:d,allowWhileIdle:true},extra:{route:r}})}}
+        const t=m.pad?padHerinnering(i):oefenTekst(i);list.push({...base,id:100+i,title:t[0],body:t[1],schedule:{at:d,allowWhileIdle:true},extra:{route:r}})}}
     if(m.examen)store.x.filter(x=>x.status==="gepland"&&x.datum).slice(0,20).forEach((x,xi)=>{[7,3,1].forEach((dd,k)=>{
       const d=new Date(x.datum+"T18:00");d.setDate(d.getDate()-dd);if(d.getTime()<=now)return;const t=examTekst(x,dd);
       list.push({...base,id:1000+xi*10+k,title:t[0],body:t[1],schedule:{at:d,allowWhileIdle:true},extra:{route:MODBY[x.mod]?x.mod:"profiel-examens"}})})});
@@ -421,14 +423,15 @@ async function mldPerm(){
 function mldInit(){
   const LN=LNp();if(!LN)return;
   try{LN.createChannel({id:"herinneringen",name:"Herinneringen",description:"Herinneringen om te oefenen en voor je examen",importance:3,visibility:1}).catch(()=>{})}catch(e){}
-  try{LN.addListener("localNotificationActionPerformed",a=>{const r=a&&a.notification&&a.notification.extra&&a.notification.extra.route;if(r&&!(S&&!S.done)&&!W)location.hash=r})}catch(e){}
+  try{LN.addListener("localNotificationActionPerformed",a=>{const r=a&&a.notification&&a.notification.extra&&a.notification.extra.route;if(r&&!(S&&!S.done)&&!W&&!padBezig())location.hash=r})}catch(e){}
   const A=window.Capacitor.Plugins.App;try{if(A&&A.addListener)A.addListener("appStateChange",s=>{if(s&&s.isActive){mldPlan();if(route()==="home")render()}})}catch(e){}
   mldPlan();
 }
 async function mldSet(k,on){
   if(on&&!(await mldPerm())){mldNote="Meldingen staan uit voor Boa Paraat in de instellingen van je telefoon. Zet ze daar aan en probeer het opnieuw.";render();return}
   store.p.mld[k]=on;store.p.mld.gevraagd=1;mldNote="";save();render();mldPlan();
-  toast(on?(k==="oefen"?"Oefenherinnering staat aan":"Examenherinneringen staan aan"):(k==="oefen"?"Oefenherinnering staat uit":"Examenherinneringen staan uit"));
+  const n={oefen:"Oefenherinnering",examen:"Examenherinneringen",pad:"Herinnering voor je leerpad"}[k]||"Herinnering";
+  toast(n+(on?" staat aan":" staat uit")+(on&&!LNp()?". In de browser zie je hem op het overzicht":""));
 }
 function mldSection(){
   const m=store.p.mld,app=!!LNp();
@@ -436,11 +439,12 @@ function mldSection(){
   return `<div class="section stack" id="meldingen"><div><h2>Meldingen</h2><p class="small">${app?"Ook als de app dicht is.":"In de browser op het overzicht. Meldingen op je telefoon: Android-app."}</p></div>
     <div class="setlist">
       <div class="setrow"><div><b id="mlOL">Herinnering om te oefenen</b><p class="small" id="mlOD">Dagelijks om ${esc(m.tijd)}, als je nog niet oefende.</p></div>${sw("oefen","mlOL","mlOD")}</div>
-      ${m.oefen?`<div class="setrow sub"><label for="mlTijd">Tijdstip</label><select id="mlTijd">${MLD_UUR.map(u=>`<option${u===m.tijd?" selected":""}>${u}</option>`).join("")}</select></div>`:""}
+      <div class="setrow"><div><b id="mlPL">Herinnering voor je leerpad</b><p class="small" id="mlPD">Dagelijks om ${esc(m.tijd)}: je volgende les, als je nog niet oefende.</p></div>${sw("pad","mlPL","mlPD")}</div>
+      ${m.oefen||m.pad?`<div class="setrow sub"><label for="mlTijd">Tijdstip</label><select id="mlTijd">${MLD_UUR.map(u=>`<option${u===m.tijd?" selected":""}>${u}</option>`).join("")}</select></div>`:""}
       <div class="setrow"><div><b id="mlEL">Herinnering voor je examen</b><p class="small" id="mlED">7, 3 en 1 dag voor een gepland examen.</p></div>${sw("examen","mlEL","mlED")}</div>
     </div>
     ${mldNote?`<p class="small mldwarn" role="status">${esc(mldNote)}</p>`:""}
-    ${app&&(m.oefen||m.examen)?`<div><button type="button" class="btn sm" data-act="mld-test">Stuur een testmelding</button></div>`:""}
+    ${app&&(m.oefen||m.examen||m.pad)?`<div><button type="button" class="btn sm" data-act="mld-test">Stuur een testmelding</button></div>`:""}
   </div>`;
 }
 // kaarten op het overzicht: eenmalig de vraag om herinneringen, en de herinneringen zelf
@@ -448,22 +452,26 @@ function homeNudges(tgt){
   const m=store.p.mld,out=[];const today=dayKey();
   const card=(ic,t,p,act)=>`<div class="nudge" role="status"><span class="ni">${mIcon(ic)}</span><div><b>${t}</b><p>${p}</p></div><div class="nact">${act}</div></div>`;
   const weg=`<button type="button" class="x" data-act="mld-weg" aria-label="Verbergen voor vandaag">${mIcon("x")}</button>`;
-  if(!m.gevraagd&&!m.oefen&&!m.examen)return card("bel","Herinneringen aanzetten?","Een seintje om te oefenen, en 7, 3 en 1 dag voor je examen. Wijzigen kan altijd onder Profiel.",`<button type="button" class="btn hi sm" data-act="mld-ja">Aanzetten</button><button type="button" class="btn ghost sm" data-act="mld-nee">Niet nu</button>`);
+  if(!m.gevraagd&&!m.oefen&&!m.examen&&!m.pad)return card("bel","Herinneringen aanzetten?","Elke dag een seintje voor je volgende les in het leerpad, en 7, 3 en 1 dag voor je examen. Wijzigen kan altijd onder Profiel.",`<button type="button" class="btn hi sm" data-act="mld-ja">Aanzetten</button><button type="button" class="btn ghost sm" data-act="mld-nee">Niet nu</button>`);
   if(mldWeg===today||m.weg===today)return "";
   if(m.examen){const nx=nextExam();const dd=nx?daysTo(nx.datum):null;
     if(nx&&[7,3,1,0].includes(dd)){const t=examTekst(nx,dd);out.push(card("kal",esc(t[0]),esc(t[1]),`<a class="btn sm" href="#${MODBY[nx.mod]?nx.mod:"profiel-examens"}">${MODBY[nx.mod]&&MODBY[nx.mod].exam?"Oefenexamen":"Oefenen"}</a>${weg}`))}}
-  if(m.oefen&&!store.d[today]){const [hh,mm]=(m.tijd||"19:00").split(":").map(Number);const n=new Date();
-    if(n.getHours()*60+n.getMinutes()>=hh*60+mm){const t=oefenTekst(0,out.length>0);out.push(card("bel",esc(t[0]),esc(t[1]),`<a class="btn sm" href="#${tgt}">Oefenen</a>${out.length?"":weg}`))}}
+  if((m.oefen||m.pad)&&!store.d[today]){const [hh,mm]=(m.tijd||"19:00").split(":").map(Number);const n=new Date();
+    if(n.getHours()*60+n.getMinutes()>=hh*60+mm){
+      if(m.pad){const t=padHerinnering(0),k=padStand(padVan(MODBY[padMod()])).nu;
+        out.push(card("bel",esc(t[0]),esc(t[1]),`${k?`<button type="button" class="btn sm" data-pad="start" data-k="${esc(k)}">Volgende les</button>`:`<a class="btn sm" href="#pad">Leerpad</a>`}${out.length?"":weg}`))}
+      else{const t=oefenTekst(0,out.length>0);out.push(card("bel",esc(t[0]),esc(t[1]),`<a class="btn sm" href="#${tgt}">Oefenen</a>${out.length?"":weg}`))}}}
   return out.join("");
 }
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-act]");if(!b)return;const a=b.dataset.act;
   if(a==="mld"){mldSet(b.dataset.k,b.getAttribute("aria-checked")!=="true");return}
   if(a==="mld-ja"){(async()=>{if(!(await mldPerm())){store.p.mld.gevraagd=1;save();mldNote="Meldingen staan uit voor Boa Paraat in de instellingen van je telefoon.";location.hash="profiel";return}
-    Object.assign(store.p.mld,{oefen:true,examen:true,gevraagd:1});save();render();mldPlan();toast("Herinneringen staan aan. Wijzigen kan onder Profiel.")})();return}
+    Object.assign(store.p.mld,{oefen:true,examen:true,pad:true,gevraagd:1});save();render();mldPlan();toast("Herinneringen staan aan. Wijzigen kan onder Profiel.")})();return}
   if(a==="mld-nee"){store.p.mld.gevraagd=1;save();render();toast("Je kunt herinneringen later aanzetten onder Profiel");return}
+  if(a==="mld-padnee"){store.p.mld.padNee=1;save();render();return}
   if(a==="mld-weg"){mldWeg=dayKey();store.p.mld.weg=mldWeg;save();render();return}
   if(a==="mld-test"){const LN=LNp();if(!LN)return;(async()=>{if(!(await mldPerm())){mldNote="Meldingen staan uit voor Boa Paraat in de instellingen van je telefoon.";render();return}
-    try{await LN.schedule({notifications:[{id:9,title:"Zo ziet een herinnering eruit",body:"Je krijgt een seintje om te oefenen en voor je examen.",schedule:{at:new Date(Date.now()+3000),allowWhileIdle:true},channelId:"herinneringen",smallIcon:"ic_stat_boa",iconColor:"#2c4a73",extra:{route:"profiel"}}]});toast("Testmelding komt over een paar seconden")}catch(x){toast("Testmelding lukte niet")}})();return}
+    try{await LN.schedule({notifications:[{id:9,title:"Zo ziet een herinnering eruit",body:"Je krijgt een seintje voor je volgende les, om te oefenen en voor je examen.",schedule:{at:new Date(Date.now()+3000),allowWhileIdle:true},channelId:"herinneringen",smallIcon:"ic_stat_boa",iconColor:"#2c4a73",extra:{route:"profiel"}}]});toast("Testmelding komt over een paar seconden")}catch(x){toast("Testmelding lukte niet")}})();return}
 });
-document.addEventListener("change",e=>{if(e.target.id==="mlTijd"){store.p.mld.tijd=e.target.value;save();render();mldPlan();toast("Oefenherinnering om "+e.target.value)}});
+document.addEventListener("change",e=>{if(e.target.id==="mlTijd"){store.p.mld.tijd=e.target.value;save();render();mldPlan();toast("Herinnering om "+e.target.value)}});

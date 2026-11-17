@@ -97,7 +97,23 @@ function viewPadPad(m){
         ${springen?`<button class="btn sm" data-pad="start" data-k="${esc(d.toets)}">Spring vooruit: doe de toets</button>`:""}</div>
       ${ond}<ol class="ppad">${(z=0,knoop(d.toets,"Toets deel "+d.letter,PAD_TOETS+" vragen, "+PAD_TOETS_GOED+" goed om te halen","toets"))}</ol></section>`}).join("");
   const af=!s.nu?`<div class="panel stack"><b>Je hebt dit pad helemaal afgerond.</b><p class="small">Doe een les nog eens voor meer sterren, of kies een ander pad.</p></div>`:"";
-  return `<div class="stack padview">${chips}${kop}${af}${delen}<p class="small">De vragen worden per onderwerp steeds wat lastiger. In een les heb je ${PAD_LEVENS} levens; wat je fout doet, komt aan het eind terug.</p></div>`}
+  return `<div class="stack padview">${chips}${kop}${padMldVraag()}${af}${delen}<p class="small">De vragen worden per onderwerp steeds wat lastiger. In een les heb je ${PAD_LEVENS} levens; wat je fout doet, komt aan het eind terug.</p></div>`}
+// ---------- herinnering (meldingen in ui_extra.js) ----------
+// tekst voor de dagelijkse melding en de kaart op het overzicht: wat je volgende stap in het leerpad is.
+// i = hoeveel dagen vanaf vandaag (de meldingen voor de komende 7 dagen staan klaar en worden steeds opnieuw ingepland).
+function padStapTekst(k){const f=padZoek(k);if(!f)return "";return f.toets?"de toets van deel "+f.d.letter:`${f.o.naam}, les ${f.l.nr} (${PAD_NIV[f.l.niv].toLowerCase()})`}
+function padHerinnering(i){
+  const m=MODBY[padMod()],s=padStand(padVan(m)),st=streak(),nx=nextExam(),dn=nx?daysTo(nx.datum)-i:null;
+  if(!s.nu)return ["Je leerpad is af","Doe een les nog eens voor meer sterren, of kies het leerpad van een andere module."];
+  const stap=padStapTekst(s.nu);
+  if(!s.af)return ["Begin aan je leerpad",`${m.name}: je eerste les is ${stap}. Dat duurt een paar minuten.`];
+  if(nx&&dn>0&&dn<=30)return [`Nog ${dn} ${dn===1?"dag":"dagen"} tot je examen`,`Volgende stap in je leerpad: ${stap}.`];
+  if(i===0&&st>=2)return ["Houd je reeks vast",`${st} dagen op rij. Volgende stap: ${stap}.`];
+  return [["Je leerpad wacht","Klaar voor de volgende les?","Nog een stap verder"][i%3],`Volgende stap: ${stap}. Dat duurt een paar minuten.`]}
+// op het leerpad: één keer vragen of je elke dag een seintje wilt
+function padMldVraag(){const m=store.p.mld;if(m.pad||m.padNee)return "";
+  return `<div class="nudge" role="status"><span class="ni">${mIcon("bel")}</span><div><b>Elke dag een seintje?</b><p>${LNp()?"Een melding op je telefoon met je volgende les, als je die dag nog niet oefende.":"Een herinnering op het overzicht met je volgende les. Meldingen op je telefoon krijg je met de Android-app."}</p></div>
+    <div class="nact"><button type="button" class="btn hi sm" data-act="mld" data-k="pad">Aanzetten</button><button type="button" class="btn ghost sm" data-act="mld-padnee">Niet nu</button></div></div>`}
 // na het tekenen: de volgende stap in beeld
 // (één keer per bezoek; na het scrollen naar boven door de paginawissel)
 let padGezien="";

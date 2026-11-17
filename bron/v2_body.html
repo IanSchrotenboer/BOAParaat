@@ -103,7 +103,7 @@ function normalize(p){const b=blank();if(!isObj(p))return b;
   P.dom=q.dom==="4"?"4":"1";P.rol=q.rol==="scholier"||q.rol==="werkend"?q.rol:"";P.thema=["licht","donker"].includes(q.thema)?q.thema:"systeem";
   if(typeof q.lic==="string"&&LIC[q.lic])P.lic=q.lic;
   if(q.ob)P.ob=1;if(typeof q.pm==="string"&&/^[a-z0-9]{2,8}$/.test(q.pm))P.pm=q.pm;if(typeof q.gezien==="string")P.gezien=q.gezien;
-  const m=isObj(q.mld)?q.mld:{};P.mld={oefen:m.oefen===true,examen:m.examen===true,tijd:/^\d{2}:\d{2}$/.test(m.tijd)?m.tijd:"19:00"};if(m.gevraagd)P.mld.gevraagd=1;if(typeof m.weg==="string")P.mld.weg=m.weg;
+  const m=isObj(q.mld)?q.mld:{};P.mld={oefen:m.oefen===true,examen:m.examen===true,pad:m.pad===true,tijd:/^\d{2}:\d{2}$/.test(m.tijd)?m.tijd:"19:00"};if(m.gevraagd)P.mld.gevraagd=1;if(m.padNee)P.mld.padNee=1;if(typeof m.weg==="string")P.mld.weg=m.weg;
   if(!P.rol&&(P.akte||P.naam))P.rol="werkend";
   if(typeof p.t==="number")b.t=p.t;if(typeof p.r==="number")b.r=p.r;if(typeof p.eig==="string")b.eig=p.eig.slice(0,60);
   if(Array.isArray(p.weg))b.weg=p.weg.filter(x=>typeof x==="string").slice(-300);return b}
