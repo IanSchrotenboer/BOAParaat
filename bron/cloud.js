@@ -177,7 +177,7 @@ async function accountWeg(){
     const s=sesGet();if(s)fetch(CLOUD.url+"/auth/v1/logout",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+s.a}}).catch(()=>{});
     wisLokaal();cloudBezig="";cloudDel=false;location.hash="home";render();toast("Je account en je voortgang zijn verwijderd")}
   catch(e){cloudBezig="";cloudFout="Verwijderen is niet gelukt. Controleer je internetverbinding en probeer het opnieuw.";render()}}
-function wisLokaal(){sesSet(null);clearTimeout(syncT);store=blank();try{localStorage.removeItem(KEY)}catch(e){}confirmUitOffline=false;cloudUit=false;applyTheme()}
+function wisLokaal(){sesSet(null);benBeheer=false;klasGeladen=false;clearTimeout(syncT);store=blank();try{localStorage.removeItem(KEY)}catch(e){}confirmUitOffline=false;cloudUit=false;applyTheme()}
 // ----- schermen -----
 function viewLogin(){
   return `<div class="welcome login">

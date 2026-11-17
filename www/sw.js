@@ -1,6 +1,6 @@
 // Bewaart de app op het toestel, zodat hij snel opent en ook zonder internet werkt.
 // Eerst uit de opslag tonen, op de achtergrond bijwerken (ook de lettertypen).
-const CACHE = "boa-paraat-v53";
+const CACHE = "boa-paraat-v54";
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"];
 const FONTS = /^https:\/\/fonts\.(googleapis|gstatic)\.com\//;
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES))); self.skipWaiting(); });
@@ -8,7 +8,7 @@ self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Pr
 self.addEventListener("fetch", e => {
   const req = e.request; const url = new URL(req.url);
   if (req.method !== "GET" || (url.origin !== location.origin && !FONTS.test(req.url))) return;
-  if (url.origin === location.origin && url.pathname.indexOf("/docent/") >= 0) return; // docentenomgeving: altijd vers van internet
+  if (url.origin === location.origin && /\/(docent|beheer)\//.test(url.pathname)) return; // docentenomgeving en beheer: altijd vers van internet
   e.respondWith(caches.open(CACHE).then(async c => {
     const hit = await c.match(req, { ignoreSearch: req.mode === "navigate" });
     const net = fetch(req).then(r => { if (r.ok || r.type === "opaque") c.put(req, r.clone()); return r; }).catch(() => null);

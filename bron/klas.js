@@ -4,10 +4,11 @@
 // de docentenomgeving. De klassen staan in store.p.klas (ook offline bekend) en worden bij het openen van Profiel
 // met de database vergeleken (supabase/migrations/…_klassen_docenten.sql). Wie in een klas zit, krijgt de indeling
 // voor scholieren (indeling.js).
-let klasFout="",klasBezig=false,klasWeg="",klasGeladen=false;
+let klasFout="",klasBezig=false,klasWeg="",klasGeladen=false,benBeheer=false;
 const klassen=()=>Array.isArray(store.p.klas)?store.p.klas:[];
 const inKlas=()=>klassen().some(k=>k.rol==="leerling");
 const docentUrl=()=>(SITE||"https://app.boaparaat.nl/").replace(/\/?$/,"/")+"docent/";
+const beheerUrl=()=>(SITE||"https://app.boaparaat.nl/").replace(/\/?$/,"/")+"beheer/";
 function klasZet(lijst){const oud=JSON.stringify(klassen());
   const nw=(lijst||[]).map(k=>({id:str(k.id,40),naam:str(k.naam,80),start:str(k.start,40),rol:k.rol==="docent"?"docent":"leerling",doc:(Array.isArray(k.docenten)?k.docenten:k.doc||[]).map(x=>str(x,60)).slice(0,5)}));
   if(nw.length)store.p.klas=nw;else delete store.p.klas;
@@ -15,10 +16,14 @@ function klasZet(lijst){const oud=JSON.stringify(klassen());
 // bij het openen van Profiel: klopt de lijst nog (bijvoorbeeld na een klas verlaten op een ander apparaat)?
 // alleen met een geldig toegangsbewijs: vernieuwen laten we aan het synchroniseren over
 async function klasLaden(){const s=sesGet();if(klasGeladen||!cloudKan()||!s||s.x-Date.now()<60000||!navigator.onLine)return;klasGeladen=true;
+  // beheerder? dan staat in Profiel de weg naar het beheeroverzicht (de database controleert dat daar opnieuw)
+  rest("POST","rpc/ben_ik_beheerder",{}).then(b=>{if((b===true)!==benBeheer){benBeheer=b===true;if(route()==="profiel")render()}},()=>{});
   try{const j=await rest("POST","rpc/mijn_klassen",{});if(Array.isArray(j)&&klasZet(j)&&route()==="profiel")render()}catch(e){klasGeladen=false}}
 function klasSectie(){if(!cloudKan()||!sesGet())return "";setTimeout(klasLaden,0);
   const ls=klassen().filter(k=>k.rol==="leerling"),ds=klassen().filter(k=>k.rol==="docent");
-  return `<div class="section stack" id="klas"><div><h2>Klas</h2><p class="small">Volg je een opleiding? Vul de code van je klas in.</p></div>
+  return `${benBeheer?`<div class="section stack" id="beheer"><div><h2>Beheer</h2><p class="small">Alleen voor de beheerder van Boa Paraat.</p></div>
+    <div class="panel stack"><p class="small">Zie wie de app gebruikt en waar ze mee bezig zijn, en welke codes je aan opleiders en studenten hebt uitgegeven.</p>
+    <div class="row"><a class="btn" href="${esc(beheerUrl())}">Open het beheer</a></div></div></div>`:""}<div class="section stack" id="klas"><div><h2>Klas</h2><p class="small">Volg je een opleiding? Vul de code van je klas in.</p></div>
     ${ls.map(k=>`<div class="panel stack"><div class="stack" style="gap:2px"><b>${esc(k.naam)}</b><span class="small">${k.start?"Gestart "+esc(k.start)+" · ":""}${k.doc.length?"Docent: "+k.doc.map(esc).join(", "):"Nog geen docent gekoppeld"}</span></div>
       <p class="small">Je docent ziet je oefenresultaten: welke vragen je goed en fout had, je oefenexamens en je casussen. Je profiel en je verslagen ziet je docent niet.</p>
       ${klasWeg===k.id?`<div class="confirm stack" style="gap:10px"><span><b>Klas verlaten?</b> Je docent ziet je resultaten dan niet meer. Je voortgang blijft bewaard.</span><div class="row"><button class="btn danger" data-act="klas-weg-ja" data-id="${esc(k.id)}">Klas verlaten</button><button class="btn ghost" data-act="klas-weg-nee">Annuleren</button></div></div>`

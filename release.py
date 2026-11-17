@@ -118,6 +118,12 @@ DOCENT = compact(DOCENT)
 os.makedirs(os.path.join(WWW, 'docent'), exist_ok=True)
 open(os.path.join(WWW, 'docent', 'index.html'), 'w', encoding='utf-8').write(DOCENT)
 if '/*__' in DOCENT: fout('docentenomgeving: niet alle onderdelen ingevuld (/*__…*/ staat er nog in)')
+# kort adres voor het beheer: app.boaparaat.nl/beheer → het overzicht in de docentenomgeving
+os.makedirs(os.path.join(WWW, 'beheer'), exist_ok=True)
+open(os.path.join(WWW, 'beheer', 'index.html'), 'w', encoding='utf-8').write(
+    '<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="robots" content="noindex"><title>Boa Paraat Beheer</title>'
+    '<meta http-equiv="refresh" content="0;url=../docent/#overzicht"><script>location.replace("../docent/#overzicht")</script></head>'
+    '<body><p><a href="../docent/#overzicht">Naar het beheer van Boa Paraat</a></p></body></html>\n')
 ok('docentenomgeving: www/docent/index.html (%.0f kB, %d casussen en gesprekken)' % (len(DOCENT.encode()) / 1024, len(_casus)))
 if not SITE.get('contact') or not SITE.get('beheerder'): let_op('website: vul beheerder en contact in bron/site.json in voor de privacyverklaring')
 bron_bytes = len((head + body).encode())

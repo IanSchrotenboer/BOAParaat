@@ -51,6 +51,17 @@ const RPC={
     const ll=Array.from({length:b.aantal},(_,i)=>'KLAS-T'+String(i).padStart(3,'0')+'-ABCD');return {id,naam:b.naam,docent:'DOC-NIEU-WCOD',leerlingen:ll}},
   beheer_klassen:(uid)=>db.beheerders.has(uid)?Object.values(db.klassen).map(k=>({...k,leerlingcodes:20,leerlingcodes_gebruikt:4,docenten:[],docentcode_open:true})):{__fout:403},
   beheer_codes_erbij:(uid,b)=>db.beheerders.has(uid)?{rol:b.rol,codes:b.rol==='docent'?['DOC-EXTR-AAAA']:['KLAS-X1','KLAS-X2','KLAS-X3','KLAS-X4','KLAS-X5']}:{__fout:403},
+  beheer_overzicht:(uid)=>{if(!db.beheerders.has(uid))return {__fout:403};db.overzicht=(db.overzicht||0)+1;const iso=t=>new Date(t).toISOString();
+    return {nu:iso(Date.now()),kpi:{gebruikers:3,nu_actief:1,actief_vandaag:2,actief_7d:2,nieuw_7d:1,klassen:1,leerlingcodes:20,leerlingcodes_gebruikt:4,docentcodes:1,docentcodes_gebruikt:1,licentiecodes:3,licentiecodes_gebruikt:0},
+      activiteit:Array.from({length:30},(_,i)=>({dag:iso(Date.now()-(29-i)*DAG).slice(0,10),gebruikers:i%3,vragen:i*2})),
+      modules:[{module:'rtgb',sessies:4,gebruikers:3,gem_score:71},{module:'rk',sessies:2,gebruikers:1,gem_score:null}],
+      gebruikers:[{naam:'Lisa Leerling',email:'lisa@example.com',inlog:'google',rol:'scholier',domein:'1',sinds:iso(NU-9*DAG),laatst:iso(Date.now()-5*6e4),vragen:40,pct_goed:75,week:12,examens:1,bezig:{t:'Oefenexamen BOA Rechtskennis',m:'rk',k:'examen',d:Date.now()-5*6e4,g:30,n:50},klas:'BOA Basis · groep A',licentie:'',versie:'1.13.0'},
+        {naam:'Piet Werkend',email:'piet@example.com',inlog:'email',rol:'werkend',domein:'4',sinds:iso(NU-30*DAG),laatst:iso(NU-3*DAG),vragen:10,pct_goed:80,week:10,examens:0,bezig:null,klas:'',licentie:'NS',versie:'1.12.0'},
+        {naam:'Jan Docent',email:'docent@opleiding.nl',inlog:'google',rol:'docent',domein:'',sinds:iso(NU-2*DAG),laatst:null,vragen:0,pct_goed:null,week:0,examens:0,bezig:null,klas:'BOA Basis · groep A',licentie:'',versie:''}],
+      codes:[{soort:'docent',aan:'BOA Basis · groep A',hint:'BBBB',aangemaakt:iso(NU-9*DAG),gebruikt_op:iso(NU-8*DAG),door:'Jan Docent',email:'docent@opleiding.nl'},
+        {soort:'leerling',aan:'BOA Basis · groep A',hint:'DDDD',aangemaakt:iso(NU-9*DAG),gebruikt_op:null,door:'',email:''},
+        {soort:'licentie',aan:'NS · Proefversie',hint:'S3GB',aangemaakt:iso(NU-12*DAG),gebruikt_op:null,door:'',email:''}],
+      klassen:[{naam:'BOA Basis · groep A',start:'nov 2026',aangemaakt:iso(NU-9*DAG),leerlingcodes:20,leerlingcodes_gebruikt:4,leerlingen:4,actief_7d:2,docenten:['Jan Docent']}]}},
   beheer_klas_verwijderen:(uid,b)=>{if(!db.beheerders.has(uid))return {__fout:403};delete db.klassen[b.klas];return {ok:true}}};
 let SUPA='',APP='';
 const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);req.on('end',()=>{
@@ -87,7 +98,7 @@ const tekst=p=>p.evaluate(()=>document.body.innerText);
   t(db.redirect===APP+'/docent/','inloggen: Google stuurt terug naar de docentenomgeving');
   t(/Je hebt nog geen klassen/.test(await tekst(p))&&await p.locator('#docCode').count()===1,'zonder klassen: welkom en een veld voor de docentcode');
   t(await p.evaluate(()=>!location.search),'na inloggen staat de code niet meer in de adresbalk');
-  t(await p.locator('a[href="#beheer"]').count()===0,'geen beheerder: geen beheer');
+  t(await p.locator('a[href="#beheer"]').count()===0&&await p.locator('a[href="#overzicht"]').count()===0,'geen beheerder: geen beheer en geen overzicht');
   // ---------- 2. klas toevoegen ----------
   await p.fill('#docCode','KLAS-CCCC-DDDD');await p.click('#addForm button');await w(400);
   t(/Dit is een leerlingcode/.test(await tekst(p))&&!db.klascodes[hashC('KLAS-CCCC-DDDD')].door,'leerlingcode in de docentenomgeving: duidelijke melding, code blijft ongebruikt');
@@ -157,6 +168,28 @@ const tekst=p=>p.evaluate(()=>document.body.innerText);
   const pb=await pagina(b,{},`localStorage.setItem('boa-sessie',${JSON.stringify(JSON.stringify(sessie('u-beh')))})`);
   await pb.goto(APP+'/docent/');await w(700);
   t(await pb.locator('a[href="#beheer"]').count()===1,'beheerder: link naar beheer');
+  // overzicht: wie er bezig is en welke codes er zijn uitgegeven
+  t(/#overzicht$/.test(pb.url())&&/Overzicht/.test(await pb.textContent('main h1'))&&(await pb.textContent('#rolchip'))==='Beheer','beheerder zonder eigen klassen: komt meteen op het overzicht');
+  t(await pb.locator('#ovTiles .tile').count()===4&&/Nu bezig/.test(await pb.textContent('#ovTiles')),'overzicht: kerncijfers met wie er nu bezig is');
+  t(/Opleiders[\s\S]*1\/1[\s\S]*Studenten[\s\S]*4\/20[\s\S]*Organisaties[\s\S]*0\/3/.test(await pb.textContent('#ovLic')),'overzicht: uitgegeven codes voor opleiders, studenten en organisaties');
+  t(/Ambtsinstructie \(RTGB\)/.test(await pb.textContent('#ovMods'))&&await pb.locator('.dagen span').count()===30,'overzicht: modules en activiteit per dag');
+  t(await pb.locator('#ovRijen tbody tr').count()===3&&/Oefenexamen BOA Rechtskennis/.test(await pb.textContent('#ovRijen'))&&/nu bezig/i.test(await pb.textContent('#ovRijen')),'overzicht: gebruikers met waar ze mee bezig zijn');
+  await pb.fill('#ovZoek','piet');await w(150);
+  t(await pb.locator('#ovRijen tbody tr').count()===1&&await pb.evaluate(()=>document.activeElement.id)==='ovZoek','overzicht: zoeken, cursor blijft in het zoekveld');
+  await pb.fill('#ovZoek','');await pb.selectOption('#ovRol','scholier');await w(150);
+  t(await pb.locator('#ovRijen tbody tr').count()===1&&/Lisa/.test(await pb.textContent('#ovRijen')),'overzicht: filter op rol');
+  await pb.click('[data-ovtab="codes"]');await w(150);
+  t(await pb.locator('#ovRijen tbody tr').count()===3&&/…S3GB/.test(await pb.textContent('#ovRijen'))&&!/DOC-AAAA/.test(await tekst(pb)),'overzicht: codes, alleen de laatste vier tekens');
+  await pb.selectOption('#ovVoor','licentie');await w(150);
+  t(await pb.locator('#ovRijen tbody tr').count()===1,'overzicht: codes filteren op organisatie');
+  await pb.selectOption('#ovVoor','');await pb.selectOption('#ovStatus','gebruikt');await w(150);
+  t(await pb.locator('#ovRijen tbody tr').count()===1&&/Jan Docent/.test(await pb.textContent('#ovRijen')),'overzicht: codes filteren op gebruikt');
+  await pb.click('[data-ovtab="klassen"]');await w(150);
+  t(/BOA Basis · groep A/.test(await pb.textContent('#ovTab'))&&/Jan Docent/.test(await pb.textContent('#ovTab')),'overzicht: klassen');
+  const voor=db.overzicht;await pb.click('[data-act="ov-vernieuw"]');await w(300);
+  t(db.overzicht===voor+1&&await pb.locator('[data-ovtab="klassen"][aria-selected="true"]').count()===1,'overzicht: vernieuwen haalt opnieuw op en blijft op hetzelfde tabblad');
+  const kort=fs.readFileSync(path.join(ROOT,'www/beheer/index.html'),'utf8');
+  t(/url=\.\.\/docent\/#overzicht/.test(kort)&&/location\.replace\("\.\.\/docent\/#overzicht"\)/.test(kort),'app.boaparaat.nl/beheer: stuurt door naar het overzicht');
   await pb.click('a[href="#beheer"]');await w(500);
   t(/Alle klassen/.test(await tekst(pb))&&await pb.locator('#beheerLijst .kaart').count()===1,'beheer: lijst met klassen');
   await pb.fill('#kNaam','');await pb.click('#klasForm button[type="submit"]');await w(200);
@@ -202,6 +235,11 @@ const tekst=p=>p.evaluate(()=>document.body.innerText);
   db.klascodes[hashC('DOC-AAAA-BBBB')].door=null;
   await pa.evaluate(()=>location.hash='profiel');await w(400);await pa.fill('#klasCode','DOC-AAAA-BBBB');await pa.click('#klasForm button');await w(800);
   t(await pa.locator('#klas a[href$="/docent/"]').count()===1,'app: met een docentcode een knop naar de docentenomgeving');
+  t(await pa.locator('#beheer').count()===0,'app: geen beheerder, dan ook geen knop naar het beheer');
+  const pbe=await pagina(b,{viewport:{width:390,height:844},isMobile:true,hasTouch:true},`if(!sessionStorage.getItem('init')){sessionStorage.setItem('init','1');localStorage.setItem('boa-sessie',${JSON.stringify(JSON.stringify(sessie('u-beh')))});localStorage.setItem('phb-trainer-v1',${JSON.stringify(JSON.stringify(store))})}`);
+  db.als='u-beh';await pbe.goto(APP+'/app.html#profiel');await w(1000);
+  t(await pbe.locator('#beheer a[href$="/beheer/"]').count()===1,'app: beheerder ziet in Profiel een knop naar het beheer');
+  t(!pbe._errs.length,'app beheerder: geen JS-fouten'+(pbe._errs.length?': '+pbe._errs.join(' | '):''));await pbe.context().close();
   t(!pa._errs.length,'app: geen JS-fouten'+(pa._errs.length?': '+pa._errs.join(' | '):''));
   await b.close();supa.close();app.close();
   console.log(out.join('\n'));const f=out.filter(x=>x.startsWith('FAIL')).length;console.log(`\n${out.length-f} geslaagd, ${f} mislukt`);process.exit(f?1:0)})();
