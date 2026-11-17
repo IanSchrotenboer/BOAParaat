@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Boa Paraat Beheer</title>
+<link rel="icon" type="image/png" href="../icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=IBM+Plex+Mono:wght@500;600&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Beheer van Boa Paraat (app.boaparaat.nl/beheer): wie de app gebruikt, waar ze mee bezig zijn en welke codes er zijn uitgegeven.
+   Alleen voor beheerders (de database controleert dat). Zelfde huisstijl als de app. */
+:root{color-scheme:light;accent-color:var(--navy);padding-top:env(safe-area-inset-top,0px);
+  --paper:#f4f6f9;--surface:#ffffff;--sunk:#f7f8fb;--ink:#1c2533;--muted:#5b6676;--line:#dce1e8;--track:#e3e8ef;
+  --navy:#2c4a73;--navy-ink:#ffffff;--tint:#e7edf5;--hivis:#a0823a;--ring:rgba(44,74,115,.22);
+  --ok:#2f6b4f;--ok-bg:#e6f1ea;--bad:#a0564c;--bad-bg:#f6eae7;--warn:#7a5c12;--warn-bg:#f6f1e4;
+  --f-display:"Archivo","Arial Narrow",Arial,sans-serif;--f-body:"Public Sans","Segoe UI",Roboto,Helvetica,Arial,sans-serif;--f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:12px}
+@media (prefers-color-scheme: dark){:root{color-scheme:dark;
+  --paper:#10151c;--surface:#171e28;--sunk:#131922;--ink:#e3e8ef;--muted:#9ba7b6;--line:#273140;--track:#232c39;
+  --navy:#9db8e0;--navy-ink:#0f1a2b;--tint:#1d2939;--hivis:#cfab5c;--ring:rgba(157,184,224,.32);
+  --ok:#79c79e;--ok-bg:#14271d;--bad:#e8968b;--bad-bg:#2f1b19;--warn:#e3c37a;--warn-bg:#272418}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 var(--f-body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+h1,h2,h3{font-family:var(--f-display);font-stretch:88%;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:28px;font-weight:750}h2{font-size:20px;font-weight:700}h3{font-size:16px;font-weight:700}
+p{margin:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ring);outline-offset:2px}
+.eyebrow{font:600 11px/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.small{font-size:13px;color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:14px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.brand svg{width:34px;height:34px;flex:none}
+.m-sh{fill:var(--navy)}.m-rim{fill:none;stroke:#c9a24a;stroke-width:1.8}.m-ck{fill:none;stroke:var(--navy-ink);stroke-width:5.4;stroke-linecap:round;stroke-linejoin:round}.m-bl{fill:#c9a24a}
+.brand b{font:750 18px/1 var(--f-display);font-stretch:88%;display:block}
+.brand span{font-size:12px;color:var(--muted)}
+.rolchip{font:600 11px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;background:var(--tint);color:var(--navy);border-radius:999px;padding:6px 10px}
+.wie{margin-left:auto;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--muted);min-width:0;text-align:right}
+.wie b{color:var(--ink);font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:28ch}
+@media (max-width:560px){.wie .wnaam{display:none}}
+.wrap{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:280px minmax(0,1fr);gap:24px;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr)}.wrap.beheer aside{order:2}}
+.wrap.enkel{grid-template-columns:minmax(0,1fr);max-width:560px}
+.wrap.vol{grid-template-columns:minmax(0,1fr)}
+aside{display:flex;flex-direction:column;gap:12px;min-width:0}
+main{min-width:0;display:flex;flex-direction:column;gap:18px}
+main:focus{outline:none}
+.lijst{display:flex;flex-direction:column;gap:8px}
+.klasknop{display:flex;flex-direction:column;gap:6px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;cursor:pointer;width:100%;text-decoration:none;color:var(--ink)}
+.klasknop:hover{border-color:var(--navy)}
+.klasknop[aria-current="page"]{border-color:var(--navy);box-shadow:inset 3px 0 0 var(--navy)}
+.klasknop .kn{font-weight:650}
+.klasknop .km{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12.5px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:600;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--navy)}
+.btn:disabled{opacity:.6;cursor:default}
+.btn.hi{background:var(--navy);border-color:var(--navy);color:var(--navy-ink)}
+.btn.danger{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.btn.sm{min-height:36px;font-size:13.5px;padding:0 12px}
+.btn.vol{width:100%}
+.linkbtn{background:none;border:0;color:var(--navy);cursor:pointer;font-weight:600;padding:6px 0;text-decoration:underline;text-underline-offset:3px}
+form.vak{display:flex;flex-direction:column;gap:8px;background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:12px 14px}
+.veld{display:flex;flex-direction:column;gap:4px}
+label{font-weight:600;font-size:13.5px}
+input[type=text],input[type=email],input[type=search],input[type=number],select{font:inherit;font-size:16px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;min-height:44px;padding:0 12px;width:100%}
+input:focus,select:focus{border-color:var(--navy);outline:3px solid var(--ring);outline-offset:0}
+.melding{font-size:13.5px;border-radius:8px;padding:8px 10px}
+.melding.ok{background:var(--ok-bg);color:var(--ok)}.melding.fout{background:var(--bad-bg);color:var(--bad)}.melding.info{background:var(--tint);color:var(--ink)}
+.kop{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.kop .stack{display:flex;flex-direction:column;gap:6px;min-width:0}
+.terug{align-self:flex-start}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.tile .v{font:700 26px/1.1 var(--f-display);font-stretch:90%;font-variant-numeric:tabular-nums}
+.tile .l{font-size:12.5px;color:var(--muted)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;min-height:44px}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--navy)}
+.paneel{display:flex;flex-direction:column;gap:12px}
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.filters input,.filters select{width:auto;min-width:200px;flex:1 1 200px;max-width:340px}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}
+caption{text-align:left;padding:10px 12px;caption-side:top}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font:600 11px/1.2 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--sunk);white-space:nowrap}
+th button{all:unset;cursor:pointer;display:inline-flex;gap:4px;align-items:center}
+th button:focus-visible{outline:3px solid var(--ring)}
+td.r,th.r{text-align:right}
+tbody tr:last-child td{border-bottom:0}
+tbody tr.klik{cursor:pointer}
+tbody tr.klik:hover td{background:var(--tint)}
+.naam{font-weight:600;color:var(--ink);background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.pill{display:inline-block;font-size:12px;font-weight:600;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.bad{background:var(--bad-bg);color:var(--bad)}.pill.warn{background:var(--warn-bg);color:var(--warn)}.pill.neu{background:var(--track);color:var(--muted)}
+.meter{display:flex;align-items:center;gap:8px}
+.meter i{display:block;height:7px;border-radius:4px;background:var(--track);flex:1 1 60px;min-width:50px;position:relative;overflow:hidden}
+.meter i b{position:absolute;inset:0 auto 0 0;background:var(--navy);border-radius:4px}
+.vraag{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.vraag summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:start;padding:12px 14px}
+.vraag summary::-webkit-details-marker{display:none}
+.vraag .rang{font:700 15px/1.4 var(--f-mono);color:var(--muted);min-width:2ch}
+.vraag .vt{font-weight:600}
+.vraag .vm{display:flex;flex-wrap:wrap;gap:6px 10px;margin-top:6px;font-size:12.5px;color:var(--muted)}
+.vraag .score{text-align:right;min-width:92px}
+.vraag .score b{font:700 20px/1 var(--f-display);color:var(--bad);font-variant-numeric:tabular-nums}
+.vraag .body{border-top:1px solid var(--line);padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px}
+.juist{background:var(--ok-bg);color:var(--ok);border-radius:8px;padding:8px 10px;font-weight:600}
+.chip{font:500 12px/1.3 var(--f-mono);background:var(--track);color:var(--muted);border-radius:6px;padding:3px 7px;align-self:flex-start}
+.bars{display:flex;flex-direction:column;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.barrow{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,2fr) 76px;gap:12px;align-items:center;font-size:14px}
+@media (max-width:640px){.barrow{grid-template-columns:minmax(0,1fr) 76px}.barrow .bt{grid-column:1/-1;order:3}}
+.barrow .bt{height:10px;background:var(--track);border-radius:5px;position:relative;overflow:hidden}
+.barrow .bt b{position:absolute;inset:0 auto 0 0;background:var(--bad);border-radius:5px;opacity:.85}
+.barrow .bv{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.twee{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:760px){.twee{grid-template-columns:minmax(0,1fr)}}
+.kaart{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.modrow{display:grid;grid-template-columns:minmax(0,1fr) 120px 44px;gap:10px;align-items:center;font-size:14px}
+.examrow{display:flex;justify-content:space-between;gap:10px;font-size:14px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.examrow:last-child{border-bottom:0;padding-bottom:0}
+.groep{display:flex;flex-direction:column;gap:8px}
+.groep h3{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline}
+.leeg{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:18px;color:var(--muted);text-align:center}
+.voet{font-size:12.5px;color:var(--muted)}
+.inlog{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:14px}
+.codes{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.codes code{font:600 14px var(--f-mono);background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:8px 10px;text-align:center}
+.codes code.doc{border-color:var(--navy);color:var(--navy)}
+.confirm{background:var(--bad-bg);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+textarea{font:13px var(--f-mono);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;width:100%;padding:8px}
+.dagen{display:grid;grid-template-columns:repeat(30,minmax(0,1fr));gap:3px;align-items:end;height:140px;border-bottom:1px solid var(--line)}
+.dagen span{background:var(--navy);border-radius:3px 3px 0 0;min-height:2px}
+.dagen span:hover{opacity:.75}
+.dagas{display:flex;justify-content:space-between}
+.barrow.ov .bt b{background:var(--navy)}
+td code{font-family:var(--f-mono)}
+@media (prefers-reduced-motion:no-preference){.klasknop,.btn,tbody tr.klik td{transition:background .15s,border-color .15s}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <a class="brand" href="./" aria-label="Boa Paraat Beheer"><svg viewBox="0 0 64 64" aria-hidden="true"><path class="m-sh" d="M32 4 L54 11 V30 C54 44.5 44.5 54.5 32 60 C19.5 54.5 10 44.5 10 30 V11 Z"/><path class="m-rim" d="M32 8.5 L50.5 14.3 V30 C50.5 42.3 42.6 50.9 32 55.8 C21.4 50.9 13.5 42.3 13.5 30 V14.3 Z"/><path class="m-ck" d="M21.5 28.5 L28.5 35.5 L43 21"/><g class="m-bl"><rect x="21" y="42" width="4.6" height="3.4" rx="1"/><rect x="27.1" y="42" width="4.6" height="3.4" rx="1"/><rect x="33.2" y="42" width="4.6" height="3.4" rx="1"/><rect x="39.3" y="42" width="4.6" height="3.4" rx="1"/></g></svg>
+    <span><b>Boa Paraat</b><span>De Examentrainer</span></span></a>
+  <span class="rolchip">Beheer</span>
+  <div class="wie" id="wie"></div>
+</div></header>
+<noscript><p style="padding:24px">Het beheer heeft JavaScript nodig.</p></noscript>
+<div class="wrap enkel" id="wrap"><main id="main" tabindex="-1"></main></div>
+<script>
+"use strict";
+const CLOUD=/*__CLOUD__*/null;
+const APPURL=/*__SITE__*/"";
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct=(a,b)=>b?Math.round(100*a/b):0;
+const DAG=864e5;
+const wanneer=t=>{if(!t)return "nog nooit";const d=Math.floor((Date.now()-t)/DAG);return d<=0?"vandaag":d===1?"gisteren":d<7?d+" dagen geleden":d<14?"vorige week":d<60?Math.floor(d/7)+" weken geleden":"meer dan 2 maanden geleden"};
+const datum=t=>new Date(t).toLocaleDateString("nl-NL",{day:"numeric",month:"short"});
+
+// ---------- inloggen (zelfde account en sessie als de app op dit adres) ----------
+const SES="boa-sessie",PKCE="boa-pkce";
+function sesGet(){try{const s=JSON.parse(localStorage.getItem(SES)||"null");return s&&s.r&&s.u&&s.u.id?s:null}catch(e){return null}}
+function sesSet(s){try{if(s)localStorage.setItem(SES,JSON.stringify(s));else localStorage.removeItem(SES)}catch(e){}}
+const b64url=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+function randStr(n){const a=new Uint8Array(n);crypto.getRandomValues(a);return b64url(a).slice(0,n)}
+async function authFetch(pad,body){
+  const r=await fetch(CLOUD.url+"/auth/v1/"+pad,{method:"POST",headers:{apikey:CLOUD.key,"Content-Type":"application/json"},body:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(j.error_description||j.msg||j.error||("HTTP "+r.status));e.status=r.status;throw e}return j}
+function sesVan(j){const m=(j.user&&j.user.user_metadata)||{};
+  return {a:j.access_token,r:j.refresh_token,x:Date.now()+((j.expires_in||3600)*1000),u:{id:j.user.id,email:j.user.email||"",naam:String(m.full_name||m.name||"").slice(0,60)}}}
+let tokBezig=null;   // verzoeken tegelijk vernieuwen het toegangsbewijs maar één keer
+async function token(nieuw){const s=sesGet();if(!s)throw Object.assign(new Error("niet ingelogd"),{status:401});
+  if(!nieuw&&s.x-Date.now()>60000)return s.a;
+  if(!tokBezig)tokBezig=(async()=>{try{const j=await authFetch("token?grant_type=refresh_token",{refresh_token:s.r});const n=sesVan(j);sesSet(n);return n.a}
+    catch(e){if(e.status===400||e.status===401){sesSet(null);D={};st.ov=null;toon()}throw e}finally{tokBezig=null}})();
+  return tokBezig}
+async function rpc(naam,body,opnieuw){const t=await token(opnieuw);
+  const r=await fetch(CLOUD.url+"/rest/v1/rpc/"+naam,{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+t,"Content-Type":"application/json"},body:JSON.stringify(body||{})});
+  if(r.status===401&&!opnieuw)return rpc(naam,body,true);
+  if(!r.ok){const j=await r.json().catch(()=>({}));const e=new Error(j.message||("HTTP "+r.status));e.status=r.status;throw e}
+  const tx=await r.text();return tx?JSON.parse(tx):null}
+let inlog={bezig:"",fout:"",mail:0,adres:"",t:0};
+async function googleStart(){inlog.fout="";inlog.bezig="Google wordt geopend…";toon();
+  try{const v=randStr(64);const ch=b64url(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v)));try{localStorage.setItem(PKCE,v)}catch(e){}
+    location.assign(CLOUD.url+"/auth/v1/authorize?provider=google&redirect_to="+encodeURIComponent(location.origin+location.pathname)+"&code_challenge="+ch+"&code_challenge_method=s256&prompt=select_account")}
+  catch(e){inlog.bezig="";inlog.fout="Inloggen kon niet worden gestart. Probeer het opnieuw.";toon()}}
+async function terugVanGoogle(){const q=new URLSearchParams(location.search);const code=q.get("code"),err=q.get("error_description")||q.get("error");
+  if(!code&&!err)return;try{history.replaceState(null,"",location.pathname)}catch(e){}
+  if(err){inlog.fout="Inloggen is niet gelukt. Probeer het opnieuw.";return}
+  let v="";try{v=localStorage.getItem(PKCE)||""}catch(e){}
+  if(!v){inlog.fout="Inloggen is verlopen. Probeer het opnieuw.";return}
+  inlog.bezig="Bezig met inloggen…";toon();
+  try{const j=await authFetch("token?grant_type=pkce",{auth_code:code,code_verifier:v});try{localStorage.removeItem(PKCE)}catch(e){}sesSet(sesVan(j));inlog.bezig=""}
+  catch(e){inlog.bezig="";inlog.fout="Inloggen is niet gelukt. Probeer het opnieuw."}}
+async function mailStuur(adres){adres=String(adres||"").trim().toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(adres)){inlog.fout="Vul een geldig e-mailadres in.";inlog.adres=adres;toon();focus("#mIn");return}
+  inlog.fout="";inlog.bezig="De code wordt verstuurd…";toon();
+  try{await authFetch("otp",{email:adres,create_user:true});inlog={bezig:"",fout:"",mail:2,adres,t:Date.now()};toon();focus("#mCode")}
+  catch(e){inlog.bezig="";inlog.fout=e.status===429?"Je hebt net al een code gekregen. Wacht een minuut en probeer het opnieuw.":"De code kon niet worden verstuurd. Controleer je e-mailadres.";inlog.adres=adres;toon()}}
+async function mailCheck(code){code=String(code||"").replace(/\D/g,"");if(code.length<6){inlog.fout="Vul de code uit de mail in.";toon();focus("#mCode");return}
+  inlog.fout="";inlog.bezig="Bezig met inloggen…";toon();
+  try{const j=await authFetch("verify",{type:"email",email:inlog.adres,token:code});sesSet(sesVan(j));inlog={bezig:"",fout:"",mail:0,adres:"",t:0};laden()}
+  catch(e){inlog.bezig="";inlog.fout="Deze code klopt niet of is verlopen. Controleer de code of vraag een nieuwe aan.";toon();focus("#mCode")}}
+function inlogView(){const mailAan=CLOUD&&CLOUD.email,beh=true;
+  return `<div class="inlog"><span class="eyebrow">${beh?"Beheer":"Docentenomgeving"}</span><h1>${beh?"Beheer van Boa Paraat":"Bekijk de voortgang van je klassen"}</h1>
+    <p>${beh?"Log in met je beheerdersaccount, hetzelfde account als in de app. Daarna zie je wie de app gebruikt, waar ze mee bezig zijn en welke codes je hebt uitgegeven.":"Log in met hetzelfde account als in de app. Daarna zie je per klas welke vragen je leerlingen fout hebben en welke vragen de klas het vaakst fout heeft."}</p>
+    ${inlog.bezig?`<p class="melding info" role="status">${esc(inlog.bezig)}</p>`:""}
+    ${inlog.fout?`<p class="melding fout" role="alert">${esc(inlog.fout)}</p>`:""}
+    ${inlog.mail===1?`<form class="veld" id="mForm" novalidate><label for="mIn">E-mailadres</label><input type="email" id="mIn" autocomplete="email" value="${esc(inlog.adres)}" placeholder="naam@opleiding.nl"><button class="btn hi vol" type="submit">Stuur mij een code</button><button class="linkbtn" type="button" data-act="mail-terug">Terug</button></form>`
+    :inlog.mail===2?`<form class="veld" id="mCodeForm" novalidate><p class="small">We hebben een code gestuurd naar <b>${esc(inlog.adres)}</b>. Kijk ook bij ongewenste mail.</p><label for="mCode">Code uit de mail</label><input type="text" id="mCode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="123456"><button class="btn hi vol" type="submit">Inloggen</button><button class="linkbtn" type="button" data-act="mail-terug">Ander e-mailadres</button></form>`
+    :`<button class="btn hi vol" data-act="google">Inloggen met Google</button>${mailAan?`<button class="btn vol" data-act="mail">Inloggen met e-mail</button>`:""}`}
+    ${beh?"":`<p class="small">Nog geen docentcode? Die krijg je van de beheerder van Boa Paraat, samen met de codes voor je leerlingen.</p>`}</div>`}
+
+
+// ---------- gegevens en weergave ----------
+let D={};   // D.beheer: of je beheerder bent (de database controleert dat bij elke vraag opnieuw)
+const st={ov:null,ovFout:"",ovTijd:0,ovTab:"gebruikers",ovZoek:"",ovRol:"",ovVoor:"",ovStatus:""};
+const main=document.getElementById("main"),wrap=document.getElementById("wrap");
+function focus(sel){const el=document.querySelector(sel);if(el)el.focus()}
+function wieBalk(){const s=sesGet();document.getElementById("wie").innerHTML=s?`<span class="wnaam"><b>${esc(s.u.naam||s.u.email)}</b>${esc(s.u.naam?s.u.email:"")}</span><button class="btn sm" data-act="uitloggen">Uitloggen</button>`:""}
+async function laden(){if(!sesGet()){toon();return}
+  D.laden=true;toon();
+  try{D.beheer=(await rpc("ben_ik_beheerder"))===true;D.fout=""}
+  catch(e){D.fout=e.status===401?"":"De gegevens konden niet worden geladen. Controleer je internetverbinding en probeer het opnieuw."}
+  D.laden=false;toon();if(D.beheer&&!st.ov)ovLaden()}
+function toon(){wieBalk();const vol=!!(sesGet()&&D.beheer);wrap.classList.toggle("enkel",!vol);wrap.classList.toggle("vol",vol);
+  if(!CLOUD){main.innerHTML=`<div class="leeg">Het beheer werkt alleen op de website van Boa Paraat.</div>`;return}
+  if(!sesGet()){main.innerHTML=inlogView();return}
+  if(D.laden){main.innerHTML=`<div class="leeg" role="status">Bezig met laden…</div>`;return}
+  if(D.fout){main.innerHTML=`<p class="melding fout" role="alert">${esc(D.fout)}</p><div><button class="btn" data-act="opnieuw">Opnieuw proberen</button></div>`;return}
+  if(!D.beheer){main.innerHTML=`<div class="kaart"><h1>Alleen voor de beheerder</h1><p>Dit account is geen beheerder van Boa Paraat. Log uit en log in met je beheerdersaccount.</p>
+    <p class="small"><a href="${esc(APPURL||"../")}">Naar de app</a></p></div>`;return}
+  overzichtView()}
+document.addEventListener("click",async e=>{const t=e.target.closest("[data-act],[data-ovtab]");if(!t)return;const a=t.dataset.act;
+  if(a==="google"){googleStart();return}
+  if(a==="mail"){inlog.mail=1;inlog.fout="";toon();focus("#mIn");return}
+  if(a==="mail-terug"){inlog.mail=inlog.mail===2?1:0;inlog.fout="";toon();return}
+  if(a==="uitloggen"){const s=sesGet();if(s)fetch(CLOUD.url+"/auth/v1/logout",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+s.a}}).catch(()=>{});sesSet(null);D={};st.ov=null;clearTimeout(ovTimer);ovTimer=0;toon();return}
+  if(a==="opnieuw"){laden();return}
+  if(a==="ov-vernieuw"){t.disabled=true;await ovLaden(!!st.ov);return}
+  if(t.dataset.ovtab){st.ovTab=t.dataset.ovtab;document.querySelectorAll("[data-ovtab]").forEach(b=>b.setAttribute("aria-selected",String(b===t)));document.getElementById("ovTab").innerHTML="";ovTabel()}});
+document.addEventListener("input",e=>{if(e.target.id==="ovZoek"){st.ovZoek=e.target.value;ovTabel();return}
+  if(e.target.id==="mCode"){const v=e.target.value.replace(/\D/g,"");if(v!==e.target.value)e.target.value=v;if(v.length===6&&!inlog.bezig)mailCheck(v)}});
+document.addEventListener("change",e=>{if(["ovRol","ovVoor","ovStatus"].includes(e.target.id)){st[e.target.id]=e.target.value;ovTabel()}});
+document.addEventListener("submit",e=>{e.preventDefault();const f=e.target.id;
+  if(f==="mForm")return mailStuur(document.getElementById("mIn").value);
+  if(f==="mCodeForm")return mailCheck(document.getElementById("mCode").value)});
+// terug op het tabblad na een tijd weg: meteen verversen
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&D.beheer&&sesGet()&&!ovTimer)ovLaden(true)});
+
+// ---------- beheer: overzicht van wie de app gebruikt en welke codes er zijn uitgegeven (alleen de beheerder) ----------
+// De gegevens komen uit één functie in de database (supabase/migrations/…_beheer_overzicht.sql), die eerst controleert
+// of je beheerder bent. Zolang de pagina openstaat en zichtbaar is, wordt het overzicht elke minuut ververst.
+const OVMOD={phb1:"PHB 1 · Wet- en regelgeving",phb2:"Bejegening (PHB 2)",phb3:"Waarneming en verslaglegging (PHB 3)",phb4:"PHB 4 · Keuzemodule",rtgb:"Ambtsinstructie (RTGB)",
+  rk:"BOA Rechtskennis",wr:"Wet- en regelgeving (opleiding)",mo:"Melding opnemen en verwerken"};
+const ovMod=m=>OVMOD[m]||(m&&m!=="?"?m:"Onbekend");
+const ROLNAAM={scholier:"Scholier",werkend:"Werkende boa",docent:"Docent","":"Onbekend"};
+const SOORT={docent:["Docentcode","Opleider"],leerling:["Leerlingcode","Student"],licentie:["Organisatielicentie","Organisatie"]};
+const INLOG={google:"Google",email:"E-mail",apple:"Apple"};
+let ovTimer=0;
+function ovGeleden(iso){const t=iso?Date.parse(iso):0;if(!t)return "nog nooit";const m=Math.floor((Date.now()-t)/6e4);
+  if(m<2)return "zojuist";if(m<60)return m+" min geleden";
+  if(new Date(t).toDateString()===new Date().toDateString())return "vandaag "+new Date(t).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"});return wanneer(t)}
+function ovPill(iso){const t=iso?Date.parse(iso):0,d=t?(Date.now()-t)/DAG:1e9;
+  return `<span class="pill ${d<15/1440?"ok":d<7?"ok":d<14?"warn":"neu"}">${esc(d<15/1440?"Nu bezig":d<7?"Actief":d<14?"1–2 weken":"Stil")}</span>`}
+async function ovLaden(stil){clearTimeout(ovTimer);
+  try{st.ov=await rpc("beheer_overzicht");st.ovFout="";st.ovTijd=Date.now()}catch(e){st.ovFout=e.status===403?"Dit overzicht is alleen voor de beheerder.":"Het overzicht kon niet worden geladen. Controleer je internetverbinding."}
+  if(!sesGet())return;if(!stil||!document.getElementById("ovTab"))overzichtView();else ovVul();
+  ovTimer=setTimeout(()=>{if(document.visibilityState==="visible")ovLaden(true);else ovTimer=0},60000)}
+function overzichtView(){
+  if(!st.ov&&!st.ovFout){main.innerHTML=`<div class="leeg" role="status">Het overzicht wordt geladen…</div>`;ovLaden();return}
+  if(!st.ov){main.innerHTML=`<p class="melding fout" role="alert">${esc(st.ovFout)}</p><div><button class="btn" data-act="ov-vernieuw">Opnieuw proberen</button></div>`;return}
+  main.innerHTML=`<div class="kop"><div class="stack"><span class="eyebrow">Beheer</span><h1>Overzicht</h1></div>
+    <span class="row"><span class="small" id="ovTijd"></span><button class="btn sm" data-act="ov-vernieuw">Vernieuwen</button></span></div>
+  ${st.ovFout?`<p class="melding fout" role="alert">${esc(st.ovFout)}</p>`:""}
+  <div class="tiles" id="ovTiles"></div>
+  <div class="twee"><div class="kaart"><h2>Uitgegeven codes</h2><div id="ovLic"></div></div>
+    <div class="kaart"><h2>Waar ze mee bezig zijn</h2><p class="small">Oefensessies per module of vak, laatste 30 dagen</p><div id="ovMods"></div></div></div>
+  <div class="kaart"><div class="kop"><h2>Activiteit</h2><span class="small">laatste 30 dagen</span></div><div id="ovDagen"></div></div>
+  <div class="tabs" role="tablist">${[["gebruikers","Gebruikers"],["codes","Codes en licenties"],["klassen","Klassen"]].map(([k,n])=>`<button role="tab" id="ovtab-${k}" data-ovtab="${k}" aria-selected="${(st.ovTab||"gebruikers")===k}">${n}</button>`).join("")}</div>
+  <div class="paneel" id="ovTab" role="tabpanel"></div>
+  <p class="voet">Actief betekent: ingelogd, gesynchroniseerd of vragen beantwoord. De app synchroniseert tijdens het oefenen, dus ‘nu bezig’ betekent actief in de laatste 15 minuten. Wie zonder account oefent, staat hier niet in. Van codes zie je alleen de laatste vier tekens.</p>`;
+  ovVul()}
+function ovVul(){const o=st.ov,k=o.kpi||{};const el=id=>document.getElementById(id);if(!el("ovTiles"))return;
+  el("ovTijd").textContent="Bijgewerkt "+new Date(st.ovTijd).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"});
+  el("ovTiles").innerHTML=[[k.nu_actief,"Nu bezig","laatste 15 minuten"],[k.actief_vandaag,"Vandaag actief",""],[k.actief_7d,"Actief deze week","laatste 7 dagen"],[k.gebruikers,"Gebruikers",(k.nieuw_7d||0)+" nieuw deze week"]]
+    .map(([v,l,s])=>`<div class="tile"><span class="v num">${esc(v??0)}</span><span class="l">${esc(l)}${s?`<br>${esc(s)}`:""}</span></div>`).join("");
+  el("ovLic").innerHTML=[["Opleiders","docentcodes",k.docentcodes_gebruikt,k.docentcodes],["Studenten","leerlingcodes",k.leerlingcodes_gebruikt,k.leerlingcodes],["Organisaties","licentiecodes",k.licentiecodes_gebruikt,k.licentiecodes]]
+    .map(([n,s,g,t])=>`<div class="modrow"><span><b>${n}</b><br><span class="small">${s}</span></span><span class="meter" aria-hidden="true"><i><b style="width:${pct(g,t)}%"></b></i></span><span class="num small" style="text-align:right">${g||0}/${t||0}</span></div>`).join("")
+    +`<p class="small">gebruikt van uitgegeven${k.klassen?` · ${k.klassen} ${k.klassen===1?"klas":"klassen"}`:""}</p>`;
+  const ms=o.modules||[],mx=Math.max(1,...ms.map(m=>m.sessies));
+  el("ovMods").innerHTML=ms.length?`<div class="lijst">${ms.map(m=>`<div class="barrow ov"><span>${esc(ovMod(m.module))}<br><span class="small">${m.gebruikers} ${m.gebruikers===1?"gebruiker":"gebruikers"}${m.gem_score!=null?" · gem. "+m.gem_score+"% goed":""}</span></span><span class="bt"><b style="width:${pct(m.sessies,mx)}%"></b></span><span class="bv">${m.sessies}</span></div>`).join("")}</div>`
+    :`<p class="small">Nog geen oefensessies in de laatste 30 dagen.</p>`;
+  const ds=o.activiteit||[],dm=Math.max(1,...ds.map(d=>d.vragen)),tot=ds.reduce((a,d)=>a+(+d.vragen||0),0);
+  const dl=d=>new Date(d+"T12:00").toLocaleDateString("nl-NL",{day:"numeric",month:"short"});
+  el("ovDagen").innerHTML=`<p class="small num">${tot} vragen beantwoord · drukste dag ${dm>1||tot?dm:0} vragen</p>
+    <div class="dagen" role="img" aria-label="Beantwoorde vragen per dag, laatste 30 dagen, in totaal ${tot}">${ds.map(d=>`<span title="${esc(dl(d.dag))}: ${d.vragen} vragen, ${d.gebruikers} ${d.gebruikers===1?"gebruiker":"gebruikers"}" style="height:${Math.max(2,Math.round(100*d.vragen/dm))}%"></span>`).join("")}</div>
+    <div class="dagas small"><span>${ds[0]?esc(dl(ds[0].dag)):""}</span><span>vandaag</span></div>`;
+  ovTabel()}
+function ovTabel(){const el=document.getElementById("ovTab");if(!el)return;const o=st.ov,tab=st.ovTab||"gebruikers";
+  if(tab==="gebruikers"){const z=(st.ovZoek||"").toLowerCase();
+    const ls=(o.gebruikers||[]).filter(g=>(!st.ovRol||g.rol===st.ovRol)&&(!z||(g.naam+" "+g.email+" "+g.klas).toLowerCase().includes(z)));
+    if(!document.getElementById("ovZoek"))el.innerHTML=`<div class="filters"><input type="search" id="ovZoek" placeholder="Zoek op naam, e-mail of klas" aria-label="Zoek gebruiker" value="${esc(st.ovZoek||"")}">
+      <select id="ovRol" aria-label="Filter op rol"><option value="">Iedereen</option>${["werkend","scholier","docent"].map(r=>`<option value="${r}"${st.ovRol===r?" selected":""}>${ROLNAAM[r]}</option>`).join("")}</select></div><div id="ovRijen"></div>`;
+    document.getElementById("ovRijen").innerHTML=`<div class="tbl"><table><caption class="small">${ls.length} van ${(o.gebruikers||[]).length} gebruikers</caption>
+      <thead><tr><th>Naam</th><th>Rol</th><th>Laatst actief</th><th>Bezig met</th><th class="r">Vragen</th><th class="r">Goed</th><th class="r">Deze week</th><th>Klas of licentie</th><th>App</th></tr></thead>
+      <tbody>${ls.map(g=>{const b=g.bezig;return `<tr><td><b>${esc(g.naam)}</b><br><span class="small">${esc(g.email)}${g.inlog?" · "+esc(INLOG[g.inlog]||g.inlog):""}</span></td>
+        <td>${esc(ROLNAAM[g.rol]||g.rol)}${g.domein==="4"?`<br><span class="small">domein IV</span>`:g.domein?`<br><span class="small">domein I–III</span>`:""}</td>
+        <td>${ovPill(g.laatst)}<br><span class="small">${esc(ovGeleden(g.laatst))}</span></td>
+        <td>${b&&b.t?`${esc(b.t)}<br><span class="small">${esc(ovMod(b.m))}${b.n?` · ${b.g||0}/${b.n} goed`:""}${b.d?" · "+esc(ovGeleden(new Date(b.d).toISOString())):""}</span>`:`<span class="small">nog geen oefening</span>`}</td>
+        <td class="r num">${g.vragen||0}</td><td class="r num">${g.pct_goed!=null?g.pct_goed+"%":"–"}</td><td class="r num">${g.week||0}</td>
+        <td>${esc([g.klas,g.licentie].filter(Boolean).join(" · ")||"–")}</td><td class="small">${esc(g.versie||"–")}</td></tr>`}).join("")||`<tr><td colspan="9" class="small">Niemand gevonden.</td></tr>`}</tbody></table></div>`;return}
+  if(tab==="codes"){const ls=(o.codes||[]).filter(c=>(!st.ovVoor||c.soort===st.ovVoor)&&(!st.ovStatus||(st.ovStatus==="open")===!c.gebruikt_op));
+    if(!document.getElementById("ovVoor"))el.innerHTML=`<div class="filters"><select id="ovVoor" aria-label="Filter op soort"><option value="">Alle soorten</option>${Object.entries(SOORT).map(([s,[n,v]])=>`<option value="${s}"${st.ovVoor===s?" selected":""}>${v} (${n.toLowerCase()})</option>`).join("")}</select>
+      <select id="ovStatus" aria-label="Filter op status"><option value="">Open en gebruikt</option><option value="open"${st.ovStatus==="open"?" selected":""}>Open</option><option value="gebruikt"${st.ovStatus==="gebruikt"?" selected":""}>Gebruikt</option></select></div><div id="ovRijen"></div>`;
+    document.getElementById("ovRijen").innerHTML=`<div class="tbl"><table><caption class="small">${ls.length} van ${(o.codes||[]).length} codes</caption>
+      <thead><tr><th>Voor</th><th>Uitgegeven aan</th><th>Code</th><th>Aangemaakt</th><th>Status</th><th>Gebruikt door</th></tr></thead>
+      <tbody>${ls.map(c=>{const s=SOORT[c.soort]||[c.soort,""];return `<tr><td><b>${esc(s[1])}</b><br><span class="small">${esc(s[0])}</span></td><td>${esc(c.aan)}</td><td><code class="small">…${esc(c.hint)}</code></td>
+        <td class="small">${c.aangemaakt?esc(datum(Date.parse(c.aangemaakt))):""}</td><td><span class="pill ${c.gebruikt_op?"ok":"neu"}">${c.gebruikt_op?"Gebruikt":"Open"}</span></td>
+        <td>${c.gebruikt_op?`${esc(c.door)}<br><span class="small">${esc(c.email)} · ${esc(datum(Date.parse(c.gebruikt_op)))}</span>`:`<span class="small">–</span>`}</td></tr>`}).join("")||`<tr><td colspan="6" class="small">Geen codes gevonden.</td></tr>`}</tbody></table></div>
+`;return}
+  const ks=o.klassen||[];
+  el.innerHTML=ks.length?`<div class="tbl"><table><thead><tr><th>Klas</th><th>Docenten</th><th class="r">Leerlingen</th><th class="r">Codes gebruikt</th><th class="r">Actief deze week</th></tr></thead>
+    <tbody>${ks.map(k=>`<tr><td><b>${esc(k.naam)}</b><br><span class="small">${k.start?"gestart "+esc(k.start)+" · ":""}aangemaakt ${esc(datum(Date.parse(k.aangemaakt)))}</span></td><td>${esc((k.docenten||[]).join(", ")||"nog geen")}</td>
+      <td class="r num">${k.leerlingen}</td><td class="r num">${k.leerlingcodes_gebruikt}/${k.leerlingcodes}</td><td class="r num">${k.actief_7d}</td></tr>`).join("")}</tbody></table></div>`
+    :`<div class="leeg">Nog geen klassen.</div>`}
+
+(async()=>{if(CLOUD){await terugVanGoogle()}if(CLOUD&&sesGet())laden();else toon()})();
+</script>
+</body>
+</html>

@@ -201,3 +201,7 @@ Een push naar een tak die met `proef-` begint, bouwt een proefversie die naast d
 - Weergave: onder **Profiel → Gegevens → Weergave** kies je **Systeem** (volgt licht/donker van je telefoon of computer), **Licht** of **Donker**.
 - Voortgang en profiel worden per telefoon of browser bewaard. Met **Profiel → Voortgang overzetten** neem je ze mee naar een ander apparaat.
 - App-naam: Boa Paraat. App-ID: `nl.boa.phbtrainer`. Dit staat in `capacitor.config.json`.
+
+## Beheer
+
+Op `app.boaparaat.nl/beheer` (bron: `bron/beheer.html`, gebouwd naar `www/beheer/index.html`) ziet de beheerder wie de app gebruikt, waar ze mee bezig zijn, de activiteit per dag en alle uitgegeven codes (alleen de laatste vier tekens). Inloggen gaat met hetzelfde account als de app; in de app staat voor beheerders een knop bij Profiel → Account. De gegevens komen uit `beheer_overzicht()` in Supabase, die eerst controleert of je beheerder bent (zie `supabase/config.md`). Test: `tests/beheer.js`.

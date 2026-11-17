@@ -36,3 +36,8 @@ De knop "Inloggen met e-mail" verschijnt pas als in `bron/cloud.json` `"email": 
 2. Supabase → Authentication → Emails → SMTP Settings: host `smtp.resend.com`, poort `465`, gebruikersnaam `resend`, wachtwoord de API-sleutel van Resend, afzender `inloggen@boaparaat.nl`, naam `Boa Paraat`.
 3. Supabase → Authentication → Sign In / Providers → Email: aan, Email OTP Length `6`.
 4. Supabase → Authentication → Emails → Templates: in **Magic Link** én **Confirm signup** de code tonen met `{{ .Token }}` (geen link).
+
+## Beheer
+
+- **Beheerders** staan in `public.beheerders` (nu de twee accounts van Ian). Een beheerder toevoegen: `insert into public.beheerders (user_id) select id from auth.users where email = '…';`
+- **Beheeroverzicht:** `beheer_overzicht()` (migratie `20261117090000_beheer_overzicht.sql`, al toegepast) geeft de beheerder in één keer de kerncijfers, activiteit per dag, oefensessies per module, alle gebruikers met hun laatste oefening, alle uitgegeven codes (laatste vier tekens) en de klassen. Weigert iedereen die niet in `public.beheerders` staat; `anon` mag hem niet aanroepen. Te zien op app.boaparaat.nl/beheer (bron `bron/beheer.html`, test `tests/beheer.js`).

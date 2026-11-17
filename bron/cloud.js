@@ -108,10 +108,14 @@ function mailTikker(){clearInterval(mailTik);mailTik=setInterval(()=>{const b=do
 document.addEventListener("input",e=>{if(e.target&&e.target.id==="mailCode"){const v=e.target.value.replace(/\D/g,"");if(v!==e.target.value)e.target.value=v;
   if(v.length===6&&!cloudBezig)mailCheck(v)}});
 // geldig toegangsbewijs; vernieuwt het zo nodig. Verlopen of ingetrokken: opnieuw inloggen
-async function token(nieuw){let s=sesGet();if(!s)throw new Error("niet ingelogd");
+// Meerdere verzoeken tegelijk vernieuwen het toegangsbewijs maar één keer (een vernieuwcode is eenmalig).
+let tokBezig=null;
+async function token(nieuw){const s=sesGet();if(!s)throw new Error("niet ingelogd");
   if(!nieuw&&s.x-Date.now()>60000)return s.a;
-  try{const j=await authFetch("token?grant_type=refresh_token",{refresh_token:s.r});s=sesVan(j);sesSet(s);return s.a}
-  catch(e){if(e.status===400||e.status===401){sesSet(null);render();toast("Je bent uitgelogd. Log opnieuw in om je voortgang te bewaren.")}throw e}}
+  if(!tokBezig)tokBezig=(async()=>{try{const j=await authFetch("token?grant_type=refresh_token",{refresh_token:s.r});const n=sesVan(j);sesSet(n);return n.a}
+    catch(e){if(e.status===400||e.status===401){sesSet(null);render();toast("Je bent uitgelogd. Log opnieuw in om je voortgang te bewaren.")}throw e}
+    finally{tokBezig=null}})();
+  return tokBezig}
 async function rest(method,pad,body,extra,opnieuw){const t=await token(opnieuw);
   const r=await fetch(CLOUD.url+"/rest/v1/"+pad,{method,headers:Object.assign({apikey:CLOUD.key,Authorization:"Bearer "+t,"Content-Type":"application/json"},extra||{}),body:body==null?undefined:JSON.stringify(body)});
   if(r.status===401&&!opnieuw)return rest(method,pad,body,extra,true); // toegang eerder verlopen dan verwacht: één keer vernieuwen
@@ -173,7 +177,7 @@ async function accountWeg(){
     const s=sesGet();if(s)fetch(CLOUD.url+"/auth/v1/logout",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+s.a}}).catch(()=>{});
     wisLokaal();cloudBezig="";cloudDel=false;location.hash="home";render();toast("Je account en je voortgang zijn verwijderd")}
   catch(e){cloudBezig="";cloudFout="Verwijderen is niet gelukt. Controleer je internetverbinding en probeer het opnieuw.";render()}}
-function wisLokaal(){sesSet(null);clearTimeout(syncT);store=blank();try{localStorage.removeItem(KEY)}catch(e){}confirmUitOffline=false;cloudUit=false;applyTheme()}
+function wisLokaal(){sesSet(null);benBeheer=false;beheerGevraagd=false;clearTimeout(syncT);store=blank();try{localStorage.removeItem(KEY)}catch(e){}confirmUitOffline=false;cloudUit=false;applyTheme()}
 // ----- schermen -----
 function viewLogin(){
   return `<div class="welcome login">
@@ -186,9 +190,16 @@ function viewLogin(){
       ${!navigator.onLine&&!cloudBezig?`<p class="small">Je bent nu offline. De eerste keer inloggen kan alleen met internet; daarna werkt de app ook offline.</p>`:""}
       <p class="small">We bewaren alleen je e-mailadres, je naam en je oefenvoortgang, in een beveiligde database in de EU. Niemand anders kan ze zien. Je kunt je account en al je gegevens altijd verwijderen via Profiel.${SITE?` <a href="${SITE}privacy.html" target="_blank" rel="noopener" data-ext>Privacyverklaring</a>`:""}</p>
     </div></div>`}
+// beheerder? dan staat bij Account de weg naar app.boaparaat.nl/beheer (de database controleert dat daar opnieuw)
+let benBeheer=false,beheerGevraagd=false;
+const beheerUrl=()=>(SITE||"https://app.boaparaat.nl/").replace(/\/?$/,"/")+"beheer/";
+function beheerVraag(){const s=sesGet();if(beheerGevraagd||!s||s.x-Date.now()<60000||!navigator.onLine)return;beheerGevraagd=true;
+  // los verzoek met het huidige toegangsbewijs: vernieuwen en uitloggen laten we aan het synchroniseren over
+  fetch(CLOUD.url+"/rest/v1/rpc/ben_ik_beheerder",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+s.a,"Content-Type":"application/json"},body:"{}"})
+    .then(r=>r.ok?r.json():Promise.reject(r.status)).then(b=>{if((b===true)!==benBeheer){benBeheer=b===true;if(route()==="profiel")render()}},()=>{beheerGevraagd=false})}
 function viewAccount(){
   if(!cloudKan())return `<div class="section stack"><h2>Account</h2><p class="small">Voortgang staat op dit apparaat. Inloggen kan in de app en op de website.</p></div>`;
-  const s=sesGet();if(!s)return "";
+  const s=sesGet();if(!s)return "";setTimeout(beheerVraag,0);
   const st=cloudSync.bezig?"Bezig met bijwerken…":!cloudSync.t?"Nog niet bijgewerkt":cloudSync.ok?"Bewaard in je account, laatst bijgewerkt om "+fmtTime(new Date(cloudSync.t)):"Offline: je voortgang wordt bewaard zodra je weer verbinding hebt";
   return `<div class="section stack" id="account"><h2>Account</h2>
     <div class="panel stack"><div class="acc"><span class="ava">${esc(initials(s.u.naam||store.p.naam||s.u.email))}</span><div class="stack" style="gap:2px;min-width:0"><b class="accmail">${esc(s.u.email)}</b><span class="small${cloudSync.ok?"":" accoff"}">${esc(st)}</span></div></div>
@@ -198,7 +209,7 @@ function viewAccount(){
       cloudDel?`<div class="confirm stack" style="gap:10px"><span><b>Account verwijderen?</b> Je account en al je voortgang, examens en verslagen worden definitief verwijderd, ook van dit apparaat. Dit kan niet ongedaan worden gemaakt.</span><div class="row"><button class="btn danger" data-act="acc-del-yes">Ja, definitief verwijderen</button><button class="btn" data-act="acc-del-no">Annuleren</button></div></div>`:
       `<div class="row"><button class="btn" data-act="sync">Nu bijwerken</button><button class="btn" data-act="logout">Uitloggen</button><button class="btn danger" data-act="acc-del">Account verwijderen</button></div>`}
     ${SITE?`<p class="small"><a href="${SITE}privacy.html" target="_blank" rel="noopener" data-ext>Privacyverklaring</a></p>`:""}
-    </div></div>`}
+    </div>${benBeheer?`<div class="panel stack" id="beheer"><b>Beheer</b><p class="small">Zie wie de app gebruikt en waar ze mee bezig zijn, en welke codes je hebt uitgegeven.</p><div class="row"><a class="btn" href="${esc(beheerUrl())}">Open het beheer</a></div></div>`:""}</div>`}
 function cloudAct(act){
   if(act==="login"){loginStart("google");return true}
   if(act==="login-apple"){loginStart("apple");return true}
