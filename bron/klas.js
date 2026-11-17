@@ -1,20 +1,17 @@
 // ---------- klas: leerlingcode of docentcode van de opleiding ----------
 // Een leerling vult in Profiel de code van zijn klas in (KLAS-…). Daarna ziet zijn docent op app.boaparaat.nl/docent
-// zijn oefenresultaten; dat staat er vooraf duidelijk bij. In een klas heten de modules 'Module 1' t/m 'Module 5'
-// in plaats van PHB 1–4 en RTGB. Een docent kan hier ook zijn docentcode (DOC-…) invullen; de klas verschijnt dan in
+// zijn oefenresultaten; dat staat er vooraf duidelijk bij. Een docent kan hier ook zijn docentcode (DOC-…) invullen; de klas verschijnt dan in
 // de docentenomgeving. De klassen staan in store.p.klas (ook offline bekend) en worden bij het openen van Profiel
-// met de database vergeleken (supabase/migrations/…_klassen_docenten.sql).
-const KLASMOD={phb1:"Module 1",phb2:"Module 2",phb3:"Module 3",phb4:"Module 4",rtgb:"Module 5"};
-MODS.forEach(m=>{m.code0=m.code});
+// met de database vergeleken (supabase/migrations/…_klassen_docenten.sql). Wie in een klas zit, krijgt de indeling
+// voor scholieren (indeling.js).
 let klasFout="",klasBezig=false,klasWeg="",klasGeladen=false;
 const klassen=()=>Array.isArray(store.p.klas)?store.p.klas:[];
 const inKlas=()=>klassen().some(k=>k.rol==="leerling");
-function klasNamen(){const k=inKlas();MODS.forEach(m=>{m.code=k&&KLASMOD[m.id]?KLASMOD[m.id]:m.code0})}
 const docentUrl=()=>(SITE||"https://app.boaparaat.nl/").replace(/\/?$/,"/")+"docent/";
 function klasZet(lijst){const oud=JSON.stringify(klassen());
   const nw=(lijst||[]).map(k=>({id:str(k.id,40),naam:str(k.naam,80),start:str(k.start,40),rol:k.rol==="docent"?"docent":"leerling",doc:(Array.isArray(k.docenten)?k.docenten:k.doc||[]).map(x=>str(x,60)).slice(0,5)}));
   if(nw.length)store.p.klas=nw;else delete store.p.klas;
-  if(JSON.stringify(klassen())!==oud){save();klasNamen();return true}return false}
+  if(JSON.stringify(klassen())!==oud){save();indelingToepassen();return true}return false}
 // bij het openen van Profiel: klopt de lijst nog (bijvoorbeeld na een klas verlaten op een ander apparaat)?
 // alleen met een geldig toegangsbewijs: vernieuwen laten we aan het synchroniseren over
 async function klasLaden(){const s=sesGet();if(klasGeladen||!cloudKan()||!s||s.x-Date.now()<60000||!navigator.onLine)return;klasGeladen=true;
@@ -50,4 +47,4 @@ function klasAct(act,el){
     rest("POST","rpc/klas_verlaten",{klas:id}).then(()=>{klasZet(klassen().filter(k=>k.id!==id));render();toast("Je hebt de klas verlaten")},
       ()=>{toast("Dat lukte niet. Controleer je internetverbinding en probeer het opnieuw.");render()});return true}
   return false}
-klasNamen();
+indelingToepassen();

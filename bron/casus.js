@@ -181,7 +181,7 @@ function kzResults(id){return (store.k||[]).filter(r=>r.cs===id)}
 function viewCasusLijst(){
   const ts=kzTypes();const D4=dom()==="4";
   return `<div class="stack">${modChips("phb2")}
-    <div class="stack" style="gap:8px"><a class="small" href="#phb2">← PHB 2 Bejegening</a><span class="eyebrow">Praktijk · domein ${D4?"IV":"I–III"}</span><h1>Gesprekken oefenen</h1>
+    <div class="stack" style="gap:8px"><a class="small" href="#phb2">← ${esc(modTitel("phb2"))}</a><span class="eyebrow">Praktijk · domein ${D4?"IV":"I–III"}</span><h1>Gesprekken oefenen</h1>
     <p class="lede">Gesprek met een acteur · ${D4?"aanwijzing en strafbaar feit":"calamiteit, aanwijzing en balie"} · 30 min</p></div>
     <div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}</div>
     <div class="section stack"><div><h2>Kies je antwoord</h2><p class="small">Jij kiest wat je zegt, de persoon reageert</p></div>
@@ -275,7 +275,7 @@ function viewKz(r){
   if(r.indexOf("gesprek-")===0)return viewGesprek(r.slice(8));
   return viewCasusLijst()}
 // kaart op de pagina van PHB 2
-function kzKaart(){const n=GESPREK.filter(g=>KZT[g.t].dom===dom()).length,c=KZ.filter(x=>KZT[x.t].dom===dom()).length;const l=(store.k||[])[0];
+function kzKaart(){const n=GESPREK.filter(g=>KZT[g.t].dom===dom()).length,c=KZ.filter(x=>KZT[x.t].dom===dom()).length;const l=(store.k||[]).find(r=>KZBY[r.cs]||GBY[r.cs]);
   return `<div class="exam wvcard"><div class="big" aria-hidden="true"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-4-3h-3"/></svg></div><div class="stack" style="gap:10px">
     <div><h2>Gesprekken oefenen</h2><p class="small">${n} keuzegesprekken · ${c} casussen met de rubric${l?` · laatst: ${l.p}/${l.m}`:""}</p></div>
     <div class="row"><a class="btn hi" href="#casus">Gesprekken oefenen</a></div></div></div>`}

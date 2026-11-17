@@ -8,7 +8,7 @@ function viewWelcome(){
   const err=k=>obErr[k]?`<p class="ferr" id="err-${k}">${esc(obErr[k])}</p>`:"";
   const inv=k=>obErr[k]?` aria-invalid="true" aria-describedby="err-${k}"`:"";
   const opt=(arr,val)=>arr.map(([v,l])=>`<option value="${v}"${v===val?" selected":""}>${esc(l)}</option>`).join("");
-  const modsFor=(d==="4"?[["phb1","PHB 1 Wet- en regelgeving (domein IV)"]]:[["phb1","PHB 1 Wet- en regelgeving"]]).concat(MODS.slice(1).map(m=>[m.id,m.code+" "+m.name]));
+  const modsFor=exMods(rol==="scholier"||inKlas()).filter(e=>e[0]!=="anders"&&e[0]!=="basis").map(e=>e[0]==="phb1"&&d==="4"?[e[0],e[1]+" (domein IV)"]:e);
   return `<div class="welcome">
     <div class="whead"><span class="wmark" aria-hidden="true">${WMARK}</span>
       <div><h1>Welkom bij Boa Paraat</h1><p class="lede">Vul je gegevens in, dan richten we de app voor je in.</p></div></div>
@@ -23,7 +23,7 @@ function viewWelcome(){
       <div class="obexam">
         <label class="check"><input type="checkbox" id="obHas" ${obExam?"checked":""}><span>Ik heb al een examen gepland bij ExTH <span class="small" style="font-weight:400">(optioneel)</span></span></label>
         ${obExam?`<div class="fields">
-          <div class="field"><label for="obMod">Module</label><select id="obMod">${opt(modsFor,"phb1")}</select></div>
+          <div class="field"><label for="obMod">Module</label><select id="obMod">${opt(modsFor,modsFor[0][0])}</select></div>
           <div class="field"><label for="obSoort">Soort examen</label><select id="obSoort">${opt([["Theorie","Theorie"],["Praktijk","Praktijk"]],"Theorie")}</select></div>
           <div class="field"><label for="obDatum">Datum</label><input id="obDatum" type="date"${inv("datum")}>${err("datum")}</div>
           <div class="field"><label for="obTijd">Tijd</label><input id="obTijd" type="time"></div>
@@ -49,7 +49,7 @@ function obSubmit(){
   if(obExam&&!f.datum)obErr.datum="Vul de datum van je examen in, of zet het vinkje uit.";
   if(Object.keys(obErr).length){render();const first=document.querySelector('[aria-invalid="true"], #err-dom');if(first){first.scrollIntoView({block:"center"});if(first.focus)first.focus()}return}
   store.p.naam=f.naam.slice(0,60);store.p.werk=f.werk.slice(0,60);store.p.gezien=APP_VERSIE;store.p.rol=f.rol;store.p.akte=f.rol==="werkend"?f.akte:"";store.p.dom=obDom;store.p.ob=1;
-  if(obExam&&f.datum)store.x.push({id:Date.now().toString(36)+"ob",mod:f.mod||"phb1",soort:f.soort||"Theorie",datum:f.datum,tijd:f.tijd,loc:f.loc.slice(0,80),status:"gepland",score:"",note:""});
+  if(obExam&&f.datum)store.x.push({id:Date.now().toString(36)+"ob",mod:f.mod||MODS[0].id,soort:f.soort||"Theorie",datum:f.datum,tijd:f.tijd,loc:f.loc.slice(0,80),status:"gepland",score:"",note:""});
   save();obErr={};obDraft=null;const first=f.naam.split(/\s+/)[0];
   if(location.hash&&location.hash!=="#home")location.hash="home";else render();window.scrollTo(0,0);
   const d=store.p.akte?daysTo(store.p.akte):0;toast(d<0?`Welkom, ${first}. Let op: je akte is verlopen.`:`Welkom, ${first}!`);
@@ -295,7 +295,7 @@ function homeSide(wrong){
   return `<aside class="homeside" aria-label="Samenvatting">
     <section class="sidecard"><h2>Jouw voortgang</h2><dl class="sidestats">${st(pool.filter(q=>seen(q.id)).length,"vragen geoefend")}${st(a==null?"–":pct(a),"goed beantwoord")}${st(ex.filter(x=>x.p).length+"/"+ex.length,"examens gehaald")}${st(wrong?`<a href="#profiel-fouten">${wrong}</a>`:0,"fouten open")}</dl><a class="small" href="#profiel">Alles in je profiel →</a></section>
     ${pcInstall?`<section class="sidecard"><h2>Installeren op deze computer</h2><p class="small">Boa Paraat opent dan in een eigen venster, met een icoon in het startmenu of het dock, en werkt ook zonder internet.</p><div><button class="btn go" data-act="install">Installeren</button></div></section>`:""}
-    <section class="sidecard keyscard"><h2>Sneltoetsen</h2><ul class="keys">${keyRows([["H","Overzicht"],["1 2 3 4","PHB 1 t/m 4"],["5 of R","RTGB"],["S","Studiestof"],["P","Profiel"]])}</ul><div><button class="linkbtn" data-act="keys">Alle sneltoetsen <span class="kbd">?</span></button></div></section>
+    <section class="sidecard keyscard"><h2>Sneltoetsen</h2><ul class="keys">${keyRows([["H","Overzicht"],["1 t/m "+MODS.length,isScholier()?"De vakken":"PHB 1 t/m 4 en RTGB"],["R",modTitel("rtgb")],["S","Studiestof"],["P","Profiel"]])}</ul><div><button class="linkbtn" data-act="keys">Alle sneltoetsen <span class="kbd">?</span></button></div></section>
   </aside>`;
 }
 const keyRows=rows=>rows.map(([k,l])=>`<li><span>${l}</span><span>${k.split(" ").map(x=>`<span class="kbd">${x}</span>`).join(" ")}</span></li>`).join("");
@@ -309,7 +309,7 @@ function openDlg(html){
 function openKeys(){
   openDlg(`<div role="dialog" aria-modal="true" aria-labelledby="kdlgT">
     <div class="row" style="justify-content:space-between"><h2 id="kdlgT">Sneltoetsen</h2><button class="btn ghost sm" data-act="keys-close">Sluiten</button></div>
-    <div class="kcols"><section><h3>Overal</h3><ul class="keys">${keyRows([["H","Overzicht"],["1 2 3 4","PHB 1 t/m 4"],["5 of R","RTGB"],["S","Studiestof"],["P","Profiel"],["E","Mijn examens"],["F","Foutenanalyse"],["?","Deze hulp"]])}</ul></section>
+    <div class="kcols"><section><h3>Overal</h3><ul class="keys">${keyRows([["H","Overzicht"],["1 t/m "+MODS.length,isScholier()?"De vakken":"PHB 1 t/m 4 en RTGB"],["R",modTitel("rtgb")],["S","Studiestof"],["P","Profiel"],["E","Mijn examens"],["F","Foutenanalyse"],["?","Deze hulp"]])}</ul></section>
     <section><h3>Tijdens het oefenen</h3><ul class="keys">${keyRows([["A B C D","Antwoord kiezen"],["1 2 3 4","Antwoord kiezen"],["Enter","Volgende vraag"],["← →","Vorige of volgende vraag (toets en examen)"],["Esc","Stoppen of melding sluiten"]])}</ul></section></div>
     <p class="small">Tijdens een oefensessie of de praktijkoefening gelden alleen de toetsen voor het oefenen. In een tekstveld werken de sneltoetsen niet, zodat je gewoon kunt typen.</p></div>`);
 }
@@ -353,7 +353,7 @@ document.addEventListener("keydown",e=>{
   if(typing||needsWelcome())return;
   if(e.key==="?"){e.preventDefault();openKeys();return}
   if(busy||e.shiftKey)return;
-  const go={h:"home",s:"stof",p:"profiel",e:"profiel-examens",r:"rtgb",f:"profiel-fouten","1":"phb1","2":"phb2","3":"phb3","4":"phb4","5":"rtgb"}[e.key.toLowerCase()];
+  const k=e.key.toLowerCase();const go=/^[1-9]$/.test(k)?(MODS[+k-1]||{}).id:{h:"home",s:"stof",p:"profiel",e:"profiel-examens",r:"rtgb",f:"profiel-fouten"}[k];
   if(go){e.preventDefault();if(r!==go)location.hash=go}
 });
 function pcAfterRender(v){
@@ -396,7 +396,7 @@ function oefenTekst(i,geenExamen){
   if(i===0&&st>=2)return ["Houd je reeks vast",`Je oefende ${st} dagen op rij. Doe je er vandaag weer een paar?`];
   return [["Even oefenen?","Tijd voor een paar vragen?","Blijf in vorm"][i%3],["Tien vragen duren zo'n vijf minuten. Je gaat verder waar je was.","Een paar minuten per dag werkt beter dan alles op het laatst.","Pak een onderwerp dat je nog niet helemaal beheerst."][i%3]];
 }
-function verderRoute(){let lm=null,ts=0;for(const q of ALL){const r=store.s[q.id];if(r&&r[3]>ts){ts=r[3];lm=q.m}}return lm&&MODBY[lm]?lm:"phb1"}
+function verderRoute(){let lm=null,ts=0;for(const q of ALL){const r=store.s[q.id];if(r&&r[3]>ts){ts=r[3];lm=q.m}}return lm&&MODBY[lm]?lm:MODS[0].id}
 async function mldPlan(){
   const LN=LNp();if(!LN)return;
   try{

@@ -83,12 +83,12 @@ function viewWVTemplate(sc,W2,ro){
   </div>`;
 }
 function viewWV(){
-  if(!W){return `<div class="stack"><h2>Geen oefening bezig</h2><p class="lede">Start een praktijkoefening vanaf de pagina van PHB 3.</p><div class="row"><a class="btn hi" href="#phb3">Naar PHB 3</a></div></div>`}
-  const sc=wvGet(W.sc,W.seed);if(!sc){W=null;store.wd=null;save();return `<div class="stack"><h2>Deze video bestaat niet meer</h2><div class="row"><a class="btn hi" href="#phb3">Naar PHB 3</a></div></div>`}
+  if(!W){return `<div class="stack"><h2>Geen oefening bezig</h2><p class="lede">Start een praktijkoefening vanaf de pagina van ${esc(modTitel("phb3"))}.</p><div class="row"><a class="btn hi" href="#phb3">Naar ${esc(MODBY.phb3.code)}</a></div></div>`}
+  const sc=wvGet(W.sc,W.seed);if(!sc){W=null;store.wd=null;save();return `<div class="stack"><h2>Deze video bestaat niet meer</h2><div class="row"><a class="btn hi" href="#phb3">Naar ${esc(MODBY.phb3.code)}</a></div></div>`}
   const stop=wvAskStop?`<div class="confirm stack" style="gap:10px"><span><b>Oefening onderbreken?</b> Je kunt pauzeren en later verdergaan (de tijd loopt wel door), of helemaal stoppen.</span><div class="row"><button class="btn hi" data-act="wv-stop-no">Doorgaan</button><button class="btn" data-act="wv-pause">Pauzeren, later verder</button><button class="btn danger" data-act="wv-stop-yes">Stoppen zonder bewaren</button></div></div>`:"";
   const steps=[["brief","Briefing"],["film1","Film 1"],["pauze","Pauze"],["film2","Film 2"],["verslag","Verslag"]];const cur=steps.findIndex(s=>s[0]===W.phase);
   const stepper=`<ol class="wvsteps">${steps.map(([k,l],i)=>`<li class="${i<cur?"done":i===cur?"cur":""}">${l}</li>`).join("")}</ol>`;
-  const head=`<div class="stack" style="gap:6px"><span class="eyebrow">PHB 3 · praktijkoefening · ${esc(sc.titel)}</span>${stepper}</div>${stop}`;
+  const head=`<div class="stack" style="gap:6px"><span class="eyebrow">${esc(MODBY.phb3.code)} · praktijkoefening · ${esc(sc.titel)}</span>${stepper}</div>${stop}`;
   const notes=(ro)=>`<div class="wvnotes"><label for="wvNotes"><b>Aantekeningen</b> <span class="small">mag tijdens en tussen de films</span></label><textarea id="wvNotes" rows="${ro?6:8}" placeholder="Steekwoorden: tijd, plaats, personen, kleding, wat werd er gezegd…">${esc(W.notes||"")}</textarea></div>`;
   if(W.phase==="brief"){const b=sc.brief;return `<div class="stack">${head}
     <h1>Schriftelijke briefing</h1>
@@ -121,7 +121,7 @@ function wvAfterRender(){
 function viewWVResult(id){
   const rec=(store.w||[]).find(x=>x.id===id);if(!rec)return `<div class="stack"><h2>Verslag niet gevonden</h2><div class="row"><a class="btn" href="#profiel-phb3">Naar mijn verslagen</a></div></div>`;
   const sc=wvGet(rec.sc,rec.seed);
-  if(!sc)return `<div class="stack"><span class="eyebrow">PHB 3 · praktijkoefening · ${esc(rec.titel||"")}</span><h2>De video van dit verslag is verwijderd</h2>${viewWVTemplate({dom:rec.dom||wvDom()},rec,true)}<div class="row"><a class="btn" href="#profiel-phb3">Mijn verslagen</a></div></div>`;
+  if(!sc)return `<div class="stack"><span class="eyebrow">${esc(MODBY.phb3.code)} · praktijkoefening · ${esc(rec.titel||"")}</span><h2>De video van dit verslag is verwijderd</h2>${viewWVTemplate({dom:rec.dom||wvDom()},rec,true)}<div class="row"><a class="btn" href="#profiel-phb3">Mijn verslagen</a></div></div>`;
   const r=wvScore(sc,rec.txt,rec.hdr);
   const bar=(got,max)=>`<div class="meter"><i style="width:${Math.round(got/max*100)}%;background:${got>=max/2?"var(--ok)":"var(--bad)"}"></i></div>`;
   const algRows=Object.values(r.alg).map(a=>`<tr><td><b>${esc(a.label)}</b><div class="small">${esc(a.info)}</div></td><td style="width:28%">${a.got==null?"":bar(a.got,a.max)}</td><td class="n">${a.got==null?"–":a.got+"/"+a.max}</td></tr>`).join("");
@@ -130,18 +130,18 @@ function viewWVResult(id){
   let head,actions;
   if(!r.content){
     head=`<div class="verdict pass"><div class="score">${r.alg40}<span style="font-size:28px">/${r.algMax}</span></div><div class="stack" style="gap:4px"><h2>Algemene criteria</h2><p>Bij deze video zijn geen kernpunten ingevuld, dus de app kan niet controleren wat je hebt waargenomen. Bekijk de video nog eens en vergelijk zelf.</p></div></div>`;
-    actions=`<button class="btn hi" data-act="wv-new" data-sc="yt" data-seed="${esc(rec.seed)}">Deze video opnieuw</button><button class="btn go" data-act="yt-edit" data-id="${esc(rec.seed)}">Kernpunten toevoegen</button><a class="btn" href="#phb3">Naar PHB 3</a>`;
+    actions=`<button class="btn hi" data-act="wv-new" data-sc="yt" data-seed="${esc(rec.seed)}">Deze video opnieuw</button><button class="btn go" data-act="yt-edit" data-id="${esc(rec.seed)}">Kernpunten toevoegen</button><a class="btn" href="#phb3">Naar ${esc(MODBY.phb3.code)}</a>`;
   }else{
     const verdict=r.good?"Geslaagd · goed":r.pass?"Geslaagd":"Nog niet geslaagd";
     const why=!r.pass?(r.total<WV_PASS?`Je hebt ${r.total} punten; je hebt er minimaal ${WV_PASS} nodig.`:"")+(r.partsOk?"":" Je moet op aanvangssituatie, gebeurtenissen en specificaties elk minimaal de helft van de punten halen."):r.good?`Vanaf ${WV_GOOD} punten is de beoordeling 'goed'.`:`Vanaf ${WV_GOOD} punten krijg je de beoordeling 'goed'.`;
     head=`<div class="verdict ${r.pass?"pass":"fail"}"><div class="score">${r.total}<span style="font-size:28px">/100</span></div><div class="stack" style="gap:4px"><h2>${verdict}</h2><p>${esc(why.trim())}</p><p class="small mono">algemeen ${r.alg40}/${r.algMax} · waarnemingen ${Math.round(r.spec60)}/${r.specMax}${r.aftrek?` · aftrek −${r.aftrek}`:""}</p></div></div>`;
-    if(sc.yt){actions=`<button class="btn hi" data-act="wv-new" data-sc="yt" data-seed="${esc(rec.seed)}">Deze video opnieuw</button><a class="btn" href="#phb3">Naar PHB 3</a><a class="btn ghost" href="#profiel-phb3">Mijn verslagen</a>`}
+    if(sc.yt){actions=`<button class="btn hi" data-act="wv-new" data-sc="yt" data-seed="${esc(rec.seed)}">Deze video opnieuw</button><a class="btn" href="#phb3">Naar ${esc(MODBY.phb3.code)}</a><a class="btn ghost" href="#profiel-phb3">Mijn verslagen</a>`}
     else if(r.pass){actions=`<button class="btn hi" data-act="wv-next">Nieuw examen met een nieuwe film</button><button class="btn" data-act="wv-new" data-sc="${rec.sc}" data-seed="${rec.seed}">Deze film nog eens</button><a class="btn ghost" href="#profiel-phb3">Mijn verslagen</a>`}
     else{actions=`<button class="btn hi" data-act="wv-new" data-sc="${rec.sc}" data-seed="${rec.seed}">Herkansing met dezelfde film</button>${isLatest?`<button class="btn go" disabled aria-disabled="true" title="Haal eerst een voldoende op deze film">Nieuw examen</button>`:""}<a class="btn ghost" href="#profiel-phb3">Mijn verslagen</a>`}
   }
   const lock=r.content&&!r.pass&&!sc.yt&&isLatest?`<div class="lockbox stack" style="gap:6px"><b>Eerst een voldoende op deze film</b><p class="small">Haal minimaal ${WV_PASS} punten, met de helft van de punten op aanvangssituatie, gebeurtenissen en specificaties. Daarna krijg je een volledig nieuw examen met een nieuwe film: andere plek, andere personen en andere gebeurtenissen.</p></div>`:
     (r.pass&&!sc.yt?`<p class="small">Je volgende examen krijgt een nieuwe film, met een andere plek, andere personen en andere details.</p>`:"");
-  return `<div class="stack"><span class="eyebrow">PHB 3 · praktijkoefening · ${esc(sc.titel)} · ${fmtDate(rec.d)} ${fmtTime(rec.d)}</span>
+  return `<div class="stack"><span class="eyebrow">${esc(MODBY.phb3.code)} · praktijkoefening · ${esc(sc.titel)} · ${fmtDate(rec.d)} ${fmtTime(rec.d)}</span>
     ${head}
     ${r.content?`<p class="note">De app kijkt je verslag automatisch na op trefwoorden, volgorde en woordkeus. Dat is een indicatie: een examinator van ExTH beoordeelt ook hoe je iets formuleert. Lees daarom ook zelf na wat je gemist hebt.</p>`:""}
     ${lock}
@@ -195,7 +195,7 @@ function wvCard(){
 let wvDel=null;
 function wvProfileList(){
   const recs=store.w||[];
-  if(!recs.length)return `<div class="wvprof"><h4>Verslagen waarneming</h4><p class="small">Nog geen verslagen. Maak een praktijkoefening op de pagina van PHB 3.</p></div>`;
+  if(!recs.length)return `<div class="wvprof"><h4>Verslagen waarneming</h4><p class="small">Nog geen verslagen. Maak een praktijkoefening op de pagina van ${esc(modTitel("phb3"))}.</p></div>`;
   return `<div class="wvprof" id="wvprof"><h4>Verslagen waarneming (${recs.length})</h4><ul class="wvlist">${recs.map(r=>{const t=r.titel||(wvGet(r.sc,r.seed)||{}).titel||"Verslag";return `<li><details><summary><span><b>${esc(t)}</b><span class="small mono">${wvRecDom(r)==="4"?"OV":"Domein I–III"} · ${fmtDate(r.d)} · ${fmtTime(r.d)} · ${(r.txt||"").trim().split(/\s+/).filter(Boolean).length} woorden</span></span>${r.score==null?`<span class="pill">${r.alg}/40</span>`:`<span class="pill ${r.pass?"pass":"fail"}">${r.score}/100</span>`}</summary>
       <div class="tbody">${esc(r.txt||"").replace(/\n/g,"<br>")||`<span class="tmiss">Geen tekst</span>`}</div>
       <div class="row"><a class="btn sm" href="#verslag-${r.id}">Beoordeling en sjabloon</a>${wvDel===r.id?`<span class="small">Verslag verwijderen?</span><button class="btn hi sm" data-act="wv-del-yes" data-id="${r.id}">Ja</button><button class="btn sm" data-act="wv-del-no">Nee</button>`:`<button class="btn ghost sm" data-act="wv-del" data-id="${r.id}">Verwijderen</button>`}</div></details></li>`}).join("")}</ul></div>`;
@@ -214,7 +214,7 @@ function wvClick(act,d){
   if(act==="wv-submit"){wvSubmit(false);return true}
   if(act==="wv-stop-yes"){stopFilm();W=null;store.wd=null;save();clearInterval(wvTick);wvAskStop=false;location.hash="phb3";return true}
   if(act==="wv-stop-no"){wvAskStop=false;render();return true}
-  if(act==="wv-pause"){wvCollect();wvSaveDraft();stopFilm();W=null;clearInterval(wvTick);wvAskStop=false;location.hash="phb3";toast("Je oefening is bewaard. Ga verder via PHB 3.");return true}
+  if(act==="wv-pause"){wvCollect();wvSaveDraft();stopFilm();W=null;clearInterval(wvTick);wvAskStop=false;location.hash="phb3";toast("Je oefening is bewaard. Ga verder via "+MODBY.phb3.code+".");return true}
   if(act==="wv-del"){wvDel=d.id;render();return true}
   if(act==="wv-del-no"){wvDel=null;render();return true}
   if(act==="wv-del-yes"){store.w=(store.w||[]).filter(x=>x.id!==d.id);wegZet("w",d.id);wvDel=null;save();render();toast("Verslag verwijderd");return true}

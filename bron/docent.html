@@ -158,11 +158,14 @@ function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(
 const QB=[].concat(Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9).map(r=>[r[5]||hash(r[1]),r[0],r[1],r[2][0],r[3],r[4]||""]);
 const CASUS=/*__CASUS__*/{};
 const VERSIE=/*__VERSIE__*/"";
-// ---------- vragen en modules (in een klas: Module 1 t/m 5) ----------
-const MODNAAM={phb1:"Module 1 · Wet- en regelgeving",phb2:"Module 2 · Bejegening",phb3:"Module 3 · Waarneming en verslaglegging",phb4:"Module 4 · Keuzemodule",rtgb:"Module 5 · Ambtsinstructie en geweldsbeheersing"};
-const MODKORT={phb1:"Module 1",phb2:"Module 2",phb3:"Module 3",phb4:"Module 4",rtgb:"Module 5"};
+// ---------- vragen en vakken (leerlingen in een klas zien de vakken van de opleiding) ----------
+// de vakken van de opleiding (zelfde indeling als de app voor scholieren, bron/indeling.js)
+const MODNAAM={rk:"BOA Rechtskennis",wr:"Wet- en regelgeving",phb2:"Bejegening",mo:"Melding opnemen en verwerken",phb3:"Waarneming en verslaglegging",rtgb:"Ambtsinstructie en geweldsbeheersing"};
+const MODKORT={rk:"Rechtskennis",wr:"Wet & regels",phb2:"Bejegening",mo:"Melding",phb3:"Waarneming",rtgb:"Ambtsinstructie"};
+const SCH_CAT={rk:["sr","ro","boa","pol","avg","str","vd","bev","kl","vrij","fou","bes","pl","sch","amb"],wr:["gem","bst","apv","wvw","bijz","wp","bp","ovt","spw"],phb2:["com","agr","prof","jgd","cult"],mo:["mo1","mo2","mo3","wijk"],phb3:["waa","pv"],rtgb:["aig","ais","aim","aiw","aif","air"]};
+const SCH_VAN=Object.fromEntries(Object.entries(SCH_CAT).flatMap(([m,cs])=>cs.map(c=>[c,m])));
 const MODS=Object.keys(MODNAAM);
-const Q=QB.map(r=>({id:r[0],c:r[1],m:CATS[r[1]]?CATS[r[1]][0]:"phb1",cat:CATS[r[1]]?CATS[r[1]][1]:r[1],q:r[2],a:r[3],e:r[4],r:r[5]}));
+const Q=QB.filter(r=>SCH_VAN[r[1]]).map(r=>({id:r[0],c:r[1],m:SCH_VAN[r[1]],cat:CATS[r[1]]?CATS[r[1]][1]:r[1],q:r[2],a:r[3],e:r[4],r:r[5]}));
 const QBY=Object.fromEntries(Q.map(q=>[q.id,q]));
 const PERMOD={};MODS.forEach(m=>PERMOD[m]=0);Q.forEach(q=>PERMOD[q.m]++);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -243,9 +246,9 @@ function verwerk(j){const ls=(j.leerlingen||[]).map(l=>{const s=l.s||{};let pog=
     for(const [id,v] of Object.entries(s)){const q=QBY[id];if(!q||!Array.isArray(v))continue;gemaakt++;pog+=v[0]||0;ok+=v[1]||0;perMod[q.m].gemaakt++;if(v[2])perMod[q.m].beheerst++;else fout.push(q);if(v[3]>laatst)laatst=v[3]}
     const h=(l.h||[]).filter(x=>x&&typeof x.d==="number");h.forEach(x=>{if(x.d>laatst)laatst=x.d});
     const ex=h.filter(x=>x.k==="examen"||x.k==="toets").map(x=>({naam:String(x.t||"Oefenexamen"),m:x.m,d:x.d,score:pct(x.g,x.n),p:!!x.p}));
-    const ex1=ex.filter(x=>x.m==="phb1"&&/examen/i.test(x.naam));
-    const ks=(l.k||[]).filter(x=>x&&typeof x.p==="number").map(x=>({naam:CASUS[x.cs]||"Casus",gesprek:/^g-/.test(x.cs||""),p:x.p,m:x.m,o:x.o,d:x.d}));
-    const cas=ks.filter(x=>!x.gesprek);
+    const ex1=ex.filter(x=>(x.m==="rk"||x.m==="phb1")&&/examen/i.test(x.naam));
+    const ks=(l.k||[]).filter(x=>x&&typeof x.p==="number").map(x=>({naam:CASUS[x.cs]||"Casus",soort:/^g-/.test(x.cs||"")?"Gesprek":/^mo-/.test(x.cs||"")?"Melding":"Casus",p:x.p,m:x.m,o:x.o,d:x.d}));
+    const cas=ks.filter(x=>x.soort==="Casus");
     const week=Object.entries(l.d||{}).filter(([k])=>Date.now()-Date.parse(k)<7*DAG).reduce((a,[,v])=>a+(+v||0),0);
     return {id:l.id,naam:l.naam||"Onbekend",email:l.email||"",s,pog,ok,goed:pct(ok,pog),gemaakt,fout,perMod,laatst,ex,beste:ex1.length?Math.max(...ex1.map(x=>x.score)):null,
       casus:ks,casusBeste:cas.length?cas.reduce((b,x)=>!b||x.p/x.m>b.p/b.m?x:b,null):null,week}});
@@ -292,7 +295,7 @@ function klasView(k){const s=klasStats(k);
     <div class="tile"><span class="v num">${k.ls.length}</span><span class="l">leerlingen</span></div>
     <div class="tile"><span class="v num">${s.actief}</span><span class="l">deze week actief</span></div>
     <div class="tile"><span class="v num">${s.gem}%</span><span class="l">gemiddeld goed</span></div>
-    <div class="tile"><span class="v num">${s.boven}/${s.ex}</span><span class="l">beste oefenexamen module 1 voldoende</span></div>
+    <div class="tile"><span class="v num">${s.boven}/${s.ex}</span><span class="l">beste oefenexamen Rechtskennis voldoende</span></div>
   </div>
   ${k.ls.length?`<div class="tabs" role="tablist" aria-label="Klasoverzicht">${[["leerlingen","Leerlingen"],["fout","Meest fout gemaakt"]].map(([t,n])=>`<button role="tab" id="tab-${t}" aria-controls="paneel" aria-selected="${st.tab===t}" data-tab="${t}">${n}</button>`).join("")}</div>
   <section class="paneel" id="paneel" role="tabpanel" aria-labelledby="tab-${st.tab}">${st.tab==="fout"?foutPaneel(k):leerlingenPaneel(k)}</section>`
@@ -340,7 +343,7 @@ function leerlingView(k,x){const fout=x.fout.filter(q=>!st.lmod||q.m===st.lmod);
       <p class="small">Deel van alle vragen in de module dat de leerling bij de laatste poging goed had.</p></div>
     <div class="kaart"><h2>Oefenexamens, casussen en gesprekken</h2>
       ${x.ex.length||x.casus.length?[...x.ex.map(e=>`<div class="examrow"><span>${esc(e.naam)} <span class="small">· ${datum(e.d)}</span></span><span class="pill ${e.p?"ok":"bad"} num">${e.score}%</span></div>`),
-        ...x.casus.map(c=>`<div class="examrow"><span>${c.gesprek?"Gesprek":"Casus"} ${esc(c.naam)} <span class="small">· Module 2${c.d?" · "+datum(c.d):""}</span></span><span class="pill ${c.o==="Onvoldoende"?"bad":"ok"} num">${c.p}/${c.m}</span></div>`)].join(""):`<p class="small">Nog geen oefenexamens, casussen of gesprekken.</p>`}</div>
+        ...x.casus.map(c=>`<div class="examrow"><span>${c.soort} ${esc(c.naam)} <span class="small">· ${c.soort==="Melding"?"Melding":"Bejegening"}${c.d?" · "+datum(c.d):""}</span></span><span class="pill ${c.o==="Onvoldoende"?"bad":"ok"} num">${c.p}/${c.m}</span></div>`)].join(""):`<p class="small">Nog geen oefenexamens, casussen of gesprekken.</p>`}</div>
   </div>
   <div class="kop"><h2>Vragen die nu nog fout zijn</h2><div class="filters">${modSelect("lmodFilter",st.lmod)}${fout.length?`<button class="btn sm" data-kopieer="leerling">Kopieer als lesopdracht</button>`:""}</div></div>
   <div id="kopieMelding" role="status" class="small"></div>

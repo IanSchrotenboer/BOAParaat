@@ -34,7 +34,7 @@ def lees(*p): return open(os.path.join(*p), encoding='utf-8').read()
 kop('1. Bouwen en compact maken')
 head = lees(BRON, 'v2_head.html'); body_src = lees(BRON, 'v2_body.html')
 data = '\n'.join(lees(BRON, f) for f in ['q1.js', 'q2.js', 'q3.js', 'q4.js', 'q5.js', 'q6.js', 'q7.js', 'q8.js', 'q9.js', 'stof.js', 'matrijs.js'])
-extra = ''.join(lees(BRON, f) for f in ['wv.js', 'wv_ui.js', 'ui_extra.js', 'fouten.js', 'licentie.js', 'fold.js', 'cloud.js', 'klas.js', 'balk.js', 'casus.js', 'zoek.js'])
+extra = ''.join(lees(BRON, f) for f in ['wv.js', 'wv_ui.js', 'ui_extra.js', 'fouten.js', 'licentie.js', 'fold.js', 'indeling.js', 'cloud.js', 'klas.js', 'balk.js', 'casus.js', 'melding.js', 'zoek.js'])
 # Supabase: projectadres en publishable key (openbaar; de beveiliging zit in de database-regels, zie supabase/)
 CLOUD = json.load(open(os.path.join(BRON, 'cloud.json'))) if os.path.exists(os.path.join(BRON, 'cloud.json')) else {}
 extra = extra.replace('/*__SITE__*/""', json.dumps(json.load(open(os.path.join(BRON, 'site.json'))).get('adres', '')))
@@ -107,7 +107,7 @@ for naam in ('over.html', 'privacy.html'):
 # docentenomgeving: www/docent/index.html (zelfde vragen, inloggen en Supabase als de app)
 _cats = re.search(r'const CATS = \{.*?\n\};', body_src, re.S)
 if not _cats: fout('docentenomgeving: categorieën (const CATS) niet gevonden in v2_body.html')
-_casus = dict(re.findall(r'\{id:"([^"]+)"[^{}]*?titel:"([^"]+)"', lees(BRON, 'casus.js')))
+_casus = dict(re.findall(r'\{id:"([^"]+)"[^{}]*?titel:"([^"]+)"', lees(BRON, 'casus.js') + lees(BRON, 'melding.js')))
 _qdata = '\n'.join(lees(BRON, 'q%d.js' % i) for i in range(1, 10))
 _cl = {'url': CLOUD['url'].rstrip('/'), 'key': CLOUD['key']} if CLOUD.get('url') else None
 if _cl and CLOUD.get('email'): _cl['email'] = True
@@ -248,7 +248,7 @@ if not SNEL:
     env = dict(os.environ, BOA_URL='file://' + os.path.join(UIT, 'Boa-Paraat.html'), BOA_SHOTS=os.path.join(UIT, 'schermen'))
     os.makedirs(env['BOA_SHOTS'], exist_ok=True)
     env['CHAOS_SEED'] = os.environ.get('CHAOS_SEED', str(int(time.time()) % 100000)); ok('chaostest met zaad %s' % env['CHAOS_SEED'])
-    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'rtgb.js', 'matrijs.js', 'tablet.js', 'tabbalk.js', 'vouw.js', 'fouten.js', 'licentie.js', 'verbeter.js', 'groot.js', 'stress.js', 'cloud.js', 'docent.js', 'chaos.js']: draai(t, env)
+    for t in ['suite.js', 'back.js', 'var.js', 'pc.js', 'stijl.js', 'welkom.js', 'meldingen.js', 'veeg.js', 'rtgb.js', 'matrijs.js', 'tablet.js', 'tabbalk.js', 'vouw.js', 'fouten.js', 'licentie.js', 'verbeter.js', 'groot.js', 'stress.js', 'cloud.js', 'docent.js', 'scholier.js', 'chaos.js']: draai(t, env)
     if os.path.exists(os.path.join(ROOT, 'desktop', 'node_modules', 'electron')): draai('desktop.js', env)
     else: let_op('desktop.js: Electron is hier niet geïnstalleerd; de desktoptest draait op GitHub (Desktop-app bouwen)')
 else:

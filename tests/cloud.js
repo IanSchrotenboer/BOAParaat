@@ -66,7 +66,8 @@ async function inloggen(p){await p.click('[data-act="login"]');await p.waitForUR
 async function kies(p,id,label){await p.click('#'+id+'-cs');await w(120);await p.locator('.cs-list li',{hasText:label}).first().click();await w(150)}
 async function welkom(p){await p.fill('#obWerk','Gemeente Utrecht');await kies(p,'obRol','Scholier');await p.click('[data-act="ob-dom"][data-v="1"]');await p.click('.wgo');await w(2200);
   await p.evaluate(()=>{const b=document.querySelector('.kdlg [data-act], .kdlg button');if(b)b.click()});await w(200)}
-async function oefen(p,cat,n){await p.evaluate(c=>location.hash=c,'phb1');await w(250);await p.click(`#app .cat [data-act="oefen"][data-cat="${cat}"]`);await w(300);
+// naar het vak of de module waar de categorie bij hoort (scholieren hebben andere vakken dan PHB 1–4)
+async function oefen(p,cat,n){for(const m of ['phb1','rk']){await p.evaluate(m=>location.hash=m,m);await w(250);if(await p.locator(`#app .cat [data-act="oefen"][data-cat="${cat}"]`).count())break}await p.click(`#app .cat [data-act="oefen"][data-cat="${cat}"]`);await w(300);
   for(let i=0;i<n;i++){await p.locator('.opt').first().click();await w(120);const nx=p.locator('[data-act="next"]');if(await nx.count())await nx.first().click();await w(120)}
   await p.evaluate(()=>{const s=document.getElementById('stopBtn');s&&s.click()});await w(200);
   await p.evaluate(()=>{const y=document.querySelector('[data-act="stop-yes"],[data-act="finish"]');y&&y.click()});await w(300);await p.evaluate(()=>location.hash='home');await w(250)}

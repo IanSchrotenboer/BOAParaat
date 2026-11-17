@@ -358,6 +358,28 @@ const STOF = [
 <li>Neem opvallende <b>uitspraken letterlijk</b> op, tussen aanhalingstekens.</li>
 <li>Bij het examen (ExTH) beschrijf je de <b>aanvangssituatie</b>, de <b>gebeurtenissen</b> (wie deed wat, hoe, waarmee, wie zei wat, met welke gevolgen) en de <b>specificaties</b> (signalementen, voertuigen, voorwerpen). Elk onderdeel moet minstens de helft van de punten halen. Oefen dit met de praktijkoefening bij PHB 3.</li>
 </ul>`},
+{id:"meldaan", deel:"Melding opnemen en verwerken", titel:"Een melding aannemen en vastleggen", html:`
+<ul>
+<li>Een <b>melding</b> is een signaal of klacht: overlast, iets kapot in de openbare ruimte, een zorg over iemand. Een <b>aangifte</b> is een officiële mededeling van een strafbaar feit, waar een proces-verbaal van wordt opgemaakt. Iedereen die weet van een strafbaar feit mag aangifte doen (artikel 161 Wetboek van Strafvordering).</li>
+<li>Meldingen komen binnen via de <b>telefoon</b>, de <b>balie</b>, <b>op straat</b> of <b>digitaal</b> (app of website van de gemeente).</li>
+<li><b>Bij spoed eerst de veiligheid</b>: waar is het, zijn er gewonden of wapens, is het nog gaande? Zorg dat 112 wordt gebeld. Gegevens van de melder komen daarna.</li>
+<li>Vraag uit met <b>wie, wat, waar, wanneer, hoe en waarom</b>. Werk met <b>luisteren, samenvatten en doorvragen</b>. Vraag bij een oordeel ('verdacht', 'gestoord') naar het gedrag dat de melder zag.</li>
+<li><b>Signalement</b> van algemeen naar bijzonder: geslacht, leeftijd, lengte, postuur, daarna kleding van boven naar beneden en opvallende kenmerken. Bij een voertuig: kenteken (teruglezen), merk, type, kleur en rijrichting.</li>
+<li>Noteer naam en telefoonnummer van de melder, zodat je kunt doorvragen en terugkoppelen. Wie anoniem wil blijven, kan melden bij <b>Meld Misdaad Anoniem (0800-7000)</b>.</li>
+<li><b>Vastleggen</b>: feitelijk en objectief, met tijdstip van binnenkomst en van het voorval, plaats, betrokkenen, wat de melder zag en hoorde, en wat jij hebt gedaan. Bedreigingen en opvallende uitspraken letterlijk, tussen aanhalingstekens.</li>
+<li><b>Privacy</b>: leg alleen vast wat nodig is (AVG, dataminimalisatie), bewaar niet langer dan nodig en deel gegevens alleen via de systemen van je werk. De naam van de melder blijft vertrouwelijk.</li>
+</ul>`},
+{id:"melddoor", deel:"Melding opnemen en verwerken", titel:"Beoordelen, doorzetten en terugkoppelen", html:`
+<ul>
+<li><b>Prioriteren</b>: eerst gevaar en letsel voor mensen, dan zaken met veel impact of die steeds terugkomen, dan de rest. Een melding die als eerste binnenkwam, gaat niet automatisch voor.</li>
+<li><b>112</b>: spoed, levensgevaar, heterdaad. <b>0900-8844</b>: politie zonder spoed. <b>144</b>: dieren in nood.</li>
+<li><b>Veilig Thuis (0800-2000)</b>: huiselijk geweld en kindermishandeling, voor advies of een melding. <b>Meldpunt zorgwekkend gedrag (0800-1205)</b>: zorgen over iemand met verward gedrag zonder direct gevaar.</li>
+<li><b>Gemeente</b>: onderhoud van de openbare ruimte (losse stoeptegel, kapotte lantaarnpaal, zwerfvuil) gaat naar de afdeling beheer. Overtredingen van de APV pakt handhaving zelf op.</li>
+<li><b>Signalen van ondermijning</b> (afgeplakte ramen, veel wisselend bezoek, stroomkabels) onderzoek je niet zelf: leg ze vast en geef ze door aan de politie.</li>
+<li><b>Doorzetten</b>: leg vast naar wie, wanneer en met welk kenmerk. Bij zorgsignalen kies je een <b>warme overdracht</b>: persoonlijk overdragen en checken dat het wordt opgepakt.</li>
+<li><b>Terugkoppelen</b>: vertel de melder wat er is gedaan of wat hij kan verwachten. Beloof niets wat je niet zeker weet en deel geen privégegevens van anderen.</li>
+<li>Koppel meldingen over hetzelfde adres of dezelfde plek aan elkaar. Zo wordt een patroon zichtbaar en kun je met partners de oorzaak aanpakken.</li>
+</ul>`},
 {id:"wijk", deel:"Functiegerichte trainingen (PHB 4)", titel:"Wijkgericht werken", html:`
 <ul>
 <li>Bij <b>wijkgericht werken</b> ben je zichtbaar en aanspreekbaar in een vaste wijk. Je kent de bewoners, ondernemers en partners en pakt problemen samen met hen aan.</li>
@@ -589,4 +611,4 @@ const STOF_ART = [
 ];
 // Standaard-sectie per categorie als de bronverwijzing niets specifieks oplevert
 const STOF_CAT = {sr:"staat",ro:"rechtspraak",boa:"boa",pol:"politie",str:"recht",vd:"verhoor",bev:"bevoegd",kl:"aangifte",vrij:"aanhouden",fou:"fouilleren",bes:"fouilleren",pl:"woning",sch:"strafbaar",amb:"tegenambt",
-  wp:"ovopsp",bp:"ovbewijs",ovt:"ovtoezicht",spw:"spoor",com:"bejeg",agr:"bejeg",prof:"bejeg",waa:"waarneming",pv:"pv",gem:"ruimte",bst:"bestuur",apv:"ruimte",wvw:"ruimte",bijz:"ruimte",jgd:"jeugd",wijk:"wijk",cult:"cult",aig:"ambts",ais:"rtgbrecht",aim:"geweldmelding",aiw:"rtgbmiddel",aif:"rtgbmiddel",air:"rtgbexamen",avg:"privacy"};
+  wp:"ovopsp",bp:"ovbewijs",ovt:"ovtoezicht",spw:"spoor",com:"bejeg",agr:"bejeg",prof:"bejeg",waa:"waarneming",pv:"pv",gem:"ruimte",bst:"bestuur",apv:"ruimte",wvw:"ruimte",bijz:"ruimte",jgd:"jeugd",wijk:"wijk",mo1:"meldaan",mo2:"meldaan",mo3:"melddoor",cult:"cult",aig:"ambts",ais:"rtgbrecht",aim:"geweldmelding",aiw:"rtgbmiddel",aif:"rtgbmiddel",air:"rtgbexamen",avg:"privacy"};

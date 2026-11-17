@@ -45,7 +45,7 @@ const CATS = {
   com:["phb2","Communicatie"], agr:["phb2","Agressie en de-escalatie"], prof:["phb2","Professionele houding"],
   waa:["phb3","Waarnemen"], pv:["phb3","Proces-verbaal en verslag"],
   gem:["phb1","Gemeente, samenwerking en ketenpartners"], bst:["phb1","Bestuursrecht en bestuurlijke sancties"], apv:["phb1","Algemene plaatselijke verordening (APV)"], wvw:["phb1","Verkeer: WVW 1994 en RVV 1990"], bijz:["phb1","Bijzondere wetten"],
-  avg:["phb4","AVG en Wpg"], wijk:["phb4","Wijkgericht werken"], cult:["phb4","Cultureel vakmanschap"], jgd:["phb4","Jeugd en communicatie met jeugdigen"],
+  avg:["phb4","AVG en Wpg"], wijk:["phb4","Wijkgericht werken"], mo1:["mo","Melding aannemen"], mo2:["mo","Melding vastleggen"], mo3:["mo","Melding beoordelen en doorzetten"], cult:["phb4","Cultureel vakmanschap"], jgd:["phb4","Jeugd en communicatie met jeugdigen"],
   aig:["rtgb","Geweld: begrip en voorwaarden"], ais:["rtgb","Grondrechten en strafuitsluitingsgronden"], aim:["rtgb","Melden en registreren"], aiw:["rtgb","Geweldmiddelen en handboeien"], aif:["rtgb","Veiligheids- en vervoersfouillering"], air:["rtgb","RTGB-toetsen, toetsing en nazorg"]
 };
 const D4 = new Set(["wp","bp","ovt","spw"]);
@@ -139,7 +139,7 @@ const lastWrong = id => store.s[id] && store.s[id][2]===0;
 const inCat = c => ALL.filter(q=>q.c===c);
 // uitklapblok met steekwoorden (minder tekst op het scherm)
 const info=(t,l)=>`<details class="info"><summary>${esc(t)}</summary><ul>${(l||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul></details>`;
-const inMod = m => ALL.filter(q=>q.m===m&&(m!=="phb1"||(dom()==="4"?!D1.has(q.c):!D4.has(q.c)))&&(m!=="phb4"||dom()!=="4"||!NOT4.has(q.c)));
+const inMod = m => ALL.filter(q=>q.m===m&&(m!=="phb1"&&m!=="wr"||(dom()==="4"?!D1.has(q.c):!D4.has(q.c)))&&(m!=="phb4"||dom()!=="4"||!NOT4.has(q.c)));
 function catsOf(m){let cats=[...new Set(inMod(m.id).map(q=>q.c))];if(m.id==="phb1"&&dom()==="4")cats=["wp","bp","ovt","spw"].concat(cats.filter(c=>!D4.has(c)));return cats}
 // toetsmatrijs van het eigen domein (domein I–III volgt de matrijs van domein I); per toetsterm de vragen
 const MTX=()=>MATRIJS[dom()==="4"?"4":"1"];
@@ -195,7 +195,7 @@ const ICON = {
   // Studiestof: blad met samenvatting
   doc:'<svg viewBox="0 0 24 24"><path d="M6 3h8l5 5v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M8.5 12.5h7"/><path d="M8.5 16h7"/></svg>'
 };
-const MODICON={phb1:"book",phb2:"talk",phb3:"eye",phb4:"sign",rtgb:"cuffs"};
+const MODICON={phb1:"book",phb2:"talk",phb3:"eye",phb4:"sign",rtgb:"cuffs",rk:"book",wr:"sign",mo:"doc"};
 
 // ---------- navigatie ----------
 function route(){return (location.hash||"#home").slice(1)||"home"}
@@ -250,7 +250,7 @@ function score(){
 let pageAnim=false;
 $("#app").addEventListener("animationend",e=>{if(e.target.id==="app")e.target.classList.remove("enter","swl","swr")});
 function render(){
-  const r=route();const app=$("#app");csClose(false);klasNamen();
+  const r=route();const app=$("#app");csClose(false);indelingToepassen();
   if(needsLogin()){swipeAbort();app.dataset.v="login";app.innerHTML=viewLogin();paintNav();return}
   if(needsWelcome()){swipeAbort();app.dataset.v="welkom";app.innerHTML=viewWelcome();paintNav();enhanceSelects(app);tuneInputs(app);obAfterRender();return}
   let v="home",h;
@@ -260,6 +260,7 @@ function render(){
   else if(r==="profiel"||r==="profiel-examens"||r==="profiel-phb3"||r==="profiel-fouten"||r==="fouten"){v="profiel";h=viewProfile(r==="profiel-examens"?"examens":r==="profiel-fouten"||r==="fouten"?"fouten":"voortgang")}
   else if(r==="stof"||r.indexOf("stof-")===0){v="stof";h=viewStof()}
   else if(r==="casus"||r.indexOf("casus-")===0||r.indexOf("gesprek-")===0){v="casus";store.p.lm="phb2";h=viewKz(r)}
+  else if((r==="melding"||r.indexOf("melding-")===0)&&MODBY.mo){v="melding";store.p.lm="mo";h=viewMelding(r)}
   else if(MODBY[r]){v="module";store.p.lm=r;h=viewModule(MODBY[r])}
   else h=viewHome();
   tabTransition(app);app.dataset.v=v;app.innerHTML=h;
@@ -309,21 +310,21 @@ function viewHome(){
   const nx=nextExam();
   let lastMod=null,lastTs=0;for(const q of ALL){const r=store.s[q.id];if(r&&r[3]>lastTs){lastTs=r[3];lastMod=q.m}}
   if(store.h[0]&&store.h[0].d>lastTs&&MODBY[store.h[0].m])lastMod=store.h[0].m;
-  const tgt=nx&&nx.mod&&MODBY[nx.mod]?nx.mod:(lastMod&&MODBY[lastMod]?lastMod:"phb1");const tm=MODBY[tgt];
+  const tgt=nx&&nx.mod&&MODBY[nx.mod]?nx.mod:(lastMod&&MODBY[lastMod]?lastMod:MODS[0].id);const tm=MODBY[tgt];
   const started=!!lastMod;const topic=nextTopic(tm);
   const sub=nx?`${countdownText(nx.datum)} tot je examen ${esc(exLabel(nx))}.`.replace(/^Vandaag tot je examen/,"Vandaag is je examen").replace(/^Morgen tot je examen/,"Morgen is je examen")
-    :store.p.naam?"Kies een module of ga verder.":`Oefen per onderwerp en doe oefenexamens. <a href="#profiel">Vul je profiel in</a> voor je domein en voortgang.`;
-  const hero=`<div class="hero"><div class="stack" style="gap:4px"><span class="eyebrow">${nx?"Oefenen voor je examen":started?"Verder waar je was":"Begin hier"}</span><h2>${esc(tm.code)} · ${esc(tm.name)}</h2>${topic?`<span class="small">${started?"Volgend onderwerp":"Eerste onderwerp"}: ${esc(topic.charAt(0).toLowerCase()+topic.slice(1))}</span>`:""}</div><a class="btn hi" href="#${tgt}">${started?"Verder oefenen":"Start met oefenen"}</a></div>`;
+    :store.p.naam?(isScholier()?"Kies een vak of ga verder.":"Kies een module of ga verder."):`Oefen per onderwerp en doe oefenexamens. <a href="#profiel">Vul je profiel in</a> voor je domein en voortgang.`;
+  const hero=`<div class="hero"><div class="stack" style="gap:4px"><span class="eyebrow">${nx?"Oefenen voor je examen":started?"Verder waar je was":"Begin hier"}</span><h2>${esc(tm.sch?tm.name:tm.code+" · "+tm.name)}</h2>${topic?`<span class="small">${started?"Volgend onderwerp":"Eerste onderwerp"}: ${esc(topic.charAt(0).toLowerCase()+topic.slice(1))}</span>`:""}</div><a class="btn hi" href="#${tgt}">${started?"Verder oefenen":"Start met oefenen"}</a></div>`;
   return `<div class="homegrid"><div class="stack home">
-    <div class="stack" style="gap:6px"><h1>${naam?`Hoi ${esc(naam)}`:"Klaar voor je PHB?"}</h1>
+    <div class="stack" style="gap:6px"><h1>${naam?`Hoi ${esc(naam)}`:(isScholier()?"Klaar voor je opleiding?":"Klaar voor je PHB?")}</h1>
     <p class="lede">${sub}</p></div>
     ${hero}
     ${foutKaart("home")}
     ${homeNudges(tgt)}
     ${weekStrip()}
-    <section class="stack" style="gap:8px"><h2 class="secttl">Modules</h2>
+    <section class="stack" style="gap:8px"><h2 class="secttl">${isScholier()?"Vakken":"Modules"}</h2>
     <ul class="hlist" aria-label="Modules">${MODS.map(m=>{const ms=mastery(inMod(m.id));return `
-      <li><a href="#${m.id}"><span class="hcode">${m.id==="rtgb"?ICON.cuffs:m.code.replace("PHB ","")}</span><span class="hname"><b>${esc(m.name)}</b><span class="hmeter" role="img" aria-label="${pct(ms)} beheerst"><i style="width:${pct(ms)}"></i></span></span><span class="hpct mono">${pct(ms)}</span></a></li>`}).join("")}</ul></section>
+      <li><a href="#${m.id}"><span class="hcode">${m.sch||m.id==="rtgb"?ICON[MODICON[m.id]]:m.code.replace("PHB ","")}</span><span class="hname"><b>${esc(m.name)}</b><span class="hmeter" role="img" aria-label="${pct(ms)} beheerst"><i style="width:${pct(ms)}"></i></span></span><span class="hpct mono">${pct(ms)}</span></a></li>`}).join("")}</ul></section>
     <div class="hlinks"><a href="#stof">Studiestof</a>${Object.keys(store.s).length?`<a href="#profiel-fouten">Foutenanalyse</a>`:""}<a href="#profiel-examens">Mijn examens</a></div>
   </div>${homeSide(wrong)}</div>`;
 }
@@ -339,9 +340,9 @@ function viewModule(m){
   const list=inMod(m.id);const wrong=list.filter(q=>lastWrong(q.id)).length;const cats=catsOf(m);
   return `<div class="stack">${modChips(m.id)}
     <div class="stack" style="gap:8px"><span class="eyebrow">${m.code} · ${list.length} vragen</span><h1>${esc(m.name)}</h1><p class="lede">${esc(m.desc)}</p></div>
-    ${["phb1","phb2","phb3"].includes(m.id)?`<div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}</div>`:""}
+    ${["phb1","wr","phb2","phb3"].includes(m.id)?`<div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}</div>`:""}
     ${m.info?info("Over het examen",m.info[dom()]||m.info.all||m.info["1"]):""}
-    ${m.id==="phb3"?wvCard():""}${m.id==="phb2"?kzKaart():""}
+    ${m.id==="phb3"?wvCard():""}${m.id==="phb2"?kzKaart():""}${m.id==="mo"?moKaart():""}
     ${m.exam?`<div class="exam"><div class="big">${m.exam.n}</div><div class="stack" style="gap:10px"><div><h2>${m.exam.naam||"Oefenexamen"}${m.id==="phb1"&&dom()==="4"?" domein IV":""}</h2><p class="small">${m.exam.n} vragen · ${m.exam.min} min · max. ${m.exam.maxWrong} fout · uitleg na inleveren</p></div><div class="row"><button class="btn hi" data-act="examen" data-mod="${m.id}">Start ${examCount(m.id)?"nieuwe ":""}${m.exam.naam?"oefentoets":"oefenexamen"}</button>${examCount(m.id)?`<span class="small">Nr. ${examCount(m.id)+1} · nieuwe vragen</span>`:""}</div></div></div>`:""}
     ${m.id==="phb1"?viewMtx():""}
     <div class="section stack"><div><h2>Oefenen per onderwerp</h2><p class="small">Direct uitleg na elke vraag</p></div>
@@ -353,13 +354,14 @@ function viewModule(m){
 }
 // ---------- examens (ExTH) ----------
 const EXTH_URL="https://mijn.exth.nl/";
-function exMods(){return [["phb1","PHB 1 Wet- en regelgeving"],["phb2","PHB 2 Bejegening"],["phb3","PHB 3 Waarneming en verslaglegging"],["phb4",dom()==="4"?"PHB 4 Functiegerichte training":"PHB 4 Keuzemodule"],["rtgb","RTGB-toets geweldsbeheersing"],["basis","Basisbekwaamheid boa"],["anders","Ander examen"]]}
+function exMods(sch){if(sch===undefined?isScholier():sch)return [["rk","BOA Rechtskennis (BOA basis)"],["wr","Wet- en regelgeving"],["phb2","Bejegening"],["phb3","Waarneming en verslaglegging"],["mo","Melding opnemen en verwerken"],["rtgb","RTGB-toets geweldsbeheersing"],["anders","Ander examen"]];
+  return [["phb1","PHB 1 Wet- en regelgeving"],["phb2","PHB 2 Bejegening"],["phb3","PHB 3 Waarneming en verslaglegging"],["phb4",dom()==="4"?"PHB 4 Functiegerichte training":"PHB 4 Keuzemodule"],["rtgb","RTGB-toets geweldsbeheersing"],["basis","Basisbekwaamheid boa"],["anders","Ander examen"]]}
 const EXSTAT={gepland:["Gepland","plan"],gehaald:["Gehaald","pass"],niet:["Niet gehaald","fail"],afgemeld:["Afgemeld","todo"]};
 let exEdit=null,exDel=null;
 function today(){const d=new Date();d.setHours(0,0,0,0);return d}
 function daysTo(iso){if(!iso)return null;const d=new Date(iso+"T00:00");return Math.round((d-today())/86400000)}
 function countdownText(iso){const d=daysTo(iso);return d>1?`Nog ${d} dagen`:d===1?"Morgen":d===0?"Vandaag":`${-d} dagen geleden`}
-function exLabel(x){const m=exMods().find(e=>e[0]===x.mod);return (m?m[1]:"Examen")+(x.soort?" · "+x.soort:"")}
+function exLabel(x){const m=exMods().find(e=>e[0]===x.mod)||(MODBY[x.mod]?[x.mod,MODBY[x.mod].titel]:null)||(PHB_MODS.find(p=>p.id===x.mod)?[x.mod,PHB_MODS.find(p=>p.id===x.mod).titel]:null);return (m?m[1]:"Examen")+(x.soort?" · "+x.soort:"")}
 function nextExam(){return store.x.filter(x=>x.status==="gepland"&&daysTo(x.datum)!=null&&daysTo(x.datum)>=0).sort((a,b)=>a.datum<b.datum?-1:1)[0]||null}
 function exRow(x){
   const st=EXSTAT[x.status]||EXSTAT.gepland;const late=x.status==="gepland"&&daysTo(x.datum)<0;
@@ -428,7 +430,7 @@ function viewExams(){
   const form=`<form class="panel stack exform" id="exForm" autocomplete="off">
         <div class="row" style="justify-content:space-between"><h3>${exEdit?"Examen wijzigen":"Nieuw examen"}</h3><button class="btn ghost sm" type="button" data-act="ex-cancel">Annuleren</button></div>
         <div class="fields">
-          <div class="field"><label for="exMod">Module</label><select id="exMod">${opt(exMods(),e.mod||"phb1")}</select></div>
+          <div class="field"><label for="exMod">Module</label><select id="exMod">${opt(exMods(),e.mod||MODS[0].id)}</select></div>
           <div class="field"><label for="exSoort">Soort examen</label><select id="exSoort">${opt([["Theorie","Theorie"],["Praktijk","Praktijk"]],e.soort||"Theorie")}</select></div>
           <div class="field"><label for="exDatum">Datum</label><input id="exDatum" type="date" required value="${esc(e.datum||"")}"></div>
           <div class="field"><label for="exTijd">Tijd</label><input id="exTijd" type="time" value="${esc(e.tijd||"")}"></div>
@@ -450,7 +452,7 @@ function viewExams(){
     ${nx?`<div class="exam"><div class="big">${daysTo(nx.datum)}</div><div class="stack" style="gap:6px"><span class="eyebrow">Volgend examen · ${daysTo(nx.datum)===1?"dag":"dagen"} te gaan</span><h2>${esc(exLabel(nx))}</h2><p class="small">${fmtDate(nx.datum+"T00:00")}${nx.tijd?" om "+esc(nx.tijd):""}${nx.loc?" · "+esc(nx.loc):""}</p><div class="row">${nx.mod&&MODBY[nx.mod]?`<a class="btn hi sm" href="#${nx.mod}">Oefenen voor ${MODBY[nx.mod].code}</a>`:""}<button class="btn sm" data-act="ex-cal" data-id="${nx.id}">In agenda zetten</button></div></div></div>`:""}
     <div class="section stack"><h2>Gepland</h2>${planned.length?`<ul class="exlist">${exLijst(planned)}</ul>`:`<p class="small">Nog geen geplande examens. Voeg je examen toe zodra je de bevestiging van ExTH hebt.</p>`}</div>
     <div class="section stack"><h2>Uitslagen</h2>${done.length?`<ul class="exlist">${exLijst(done)}</ul>`:`<p class="small">Nog geen uitslagen ingevuld. Neem je uitslag over uit Mijn ExTH.</p>`}</div>
-    <div class="section stack"><div><h2>PHB-cyclus</h2><p class="small">${nOk} van 4 modules gehaald${p.rol==="scholier"?" · je cyclus start na je beëdiging":akte?" · "+akte:" · vul bij Voortgang je akte in"}</p></div>
+    <div class="section stack"><div><h2>${isScholier()?"Examens van je opleiding":"PHB-cyclus"}</h2><p class="small">${isScholier()?nOk+" van 4 examens gehaald · na je beëdiging start de PHB-cyclus":nOk+" van 4 modules gehaald"+(akte?" · "+akte:" · vul bij Voortgang je akte in")}</p></div>
       <div class="meter" role="img" aria-label="${nOk} van 4 modules gehaald"><i style="width:${nOk*25}%"></i></div>
       <ul class="exlist">${cyc.map(c=>c.html).join("")}</ul></div>`;
 }
@@ -659,6 +661,7 @@ document.addEventListener("click",e=>{
   if(act.indexOf("wv-")===0&&wvClick(act,{...d}))return;
   if(act.indexOf("kz-")===0&&casusClick(act,{...d}))return;
   if(act.indexOf("zoek-")===0&&zoekClick(act))return;
+  if(act.indexOf("mo-")===0&&moClick(act))return;
   if(act.indexOf("yt-")===0&&ytClick(act,{...d}))return;
   if(["login","login-apple","login-mail","mail-terug","mail-ander","mail-opnieuw","sync","logout","logout-no","acc-del","acc-del-no","acc-del-yes"].includes(act)&&cloudAct(act))return;
   if((act.indexOf("lic-")===0||act==="ob-lic")&&licAct(act))return;
