@@ -1,4 +1,4 @@
-// Tabbalk op telefoon en tablet: Overzicht · Oefenen · Studiestof · Profiel. Oefenen opent de laatst gebruikte
+// Tabbalk op telefoon en tablet: Overzicht · Oefenen · Leerpad · Studiestof · Profiel. Oefenen opent de laatst gebruikte
 // module; bovenaan elke module staan alle modules als knoppen. Op de pc de bovenbalk met alle modules.
 const fs=require('fs'),path=require('path'),os=require('os');
 const {chromium}=require('playwright');
@@ -19,7 +19,7 @@ async function open(b,opts){const ctx=await b.newContext(Object.assign({viewport
   const b=await chromium.launch();
   let p=await open(b);
   let tb=await tabs(p);
-  t(tb.map(x=>x.l).join()==='Overzicht,Oefenen,Studiestof,Profiel'&&await cur(p)==='home','vier tabbladen: Overzicht, Oefenen, Studiestof, Profiel');
+  t(tb.map(x=>x.l).join()==='Overzicht,Oefenen,Leerpad,Studiestof,Profiel'&&await cur(p)==='home','vijf tabbladen: Overzicht, Oefenen, Leerpad (in het midden), Studiestof, Profiel');
   t(await pastAlles(p)&&await p.locator('#profBtn').isHidden(),'alles past; geen dubbele profielknop bovenin (Profiel staat in de tabbalk)');
   t(tb.find(x=>x.id==='oef').h==='#phb1'&&tb.find(x=>x.id==='oef').al==='Oefenen: PHB 1','Oefenen opent de eerste keer PHB 1 (schermlezer noemt de module)');
   await p.click('#tabbar a[data-tab="oef"]');await w(400);
@@ -29,6 +29,7 @@ async function open(b,opts){const ctx=await b.newContext(Object.assign({viewport
   t((await p.evaluate(()=>location.hash))==='#rtgb'&&await cur(p)==='oef'&&await p.evaluate(()=>{const a=document.querySelector('#app .modrow a[aria-current="page"]'),r=a.getBoundingClientRect();return a.textContent==='RTGB'&&r.right<=innerWidth+1&&r.left>=0}),'knop RTGB: naar RTGB, en die knop schuift in beeld');
   await ga(p,'home');tb=await tabs(p);t(tb.find(x=>x.id==='oef').h==='#rtgb','Oefenen onthoudt de laatst gebruikte module');
   await ga(p,'stof-boa');t(await cur(p)==='stof','studiestof: tabblad Studiestof actief');
+  await ga(p,'pad-rtgb');t(await cur(p)==='pad','leerpad van een module: tabblad Leerpad actief');
   await ga(p,'fouten');t(await cur(p)==='profiel','foutenanalyse: tabblad Profiel actief');
   await ga(p,'profiel-examens');t(await cur(p)==='profiel','mijn examens: tabblad Profiel actief');
   await ga(p,'wv');t(await cur(p)==='oef','praktijkoefening: tabblad Oefenen actief');
@@ -52,7 +53,7 @@ async function open(b,opts){const ctx=await b.newContext(Object.assign({viewport
   await p.context().close();
   // tablet staand: zelfde tabbalk, knoppen bovenaan
   p=await open(b,{viewport:{width:820,height:1180}});await ga(p,'phb2');
-  t((await tabs(p)).length===4&&await p.locator('#app .modrow').isVisible()&&await pastAlles(p),'tablet: dezelfde tabbalk en de modules als knoppen');
+  t((await tabs(p)).length===5&&await p.locator('#app .modrow').isVisible()&&await pastAlles(p),'tablet: dezelfde tabbalk en de modules als knoppen');
   await p.context().close();
   // pc
   p=await open(b,{viewport:{width:1280,height:800},isMobile:false,hasTouch:false});await ga(p,'phb1');

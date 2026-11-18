@@ -47,7 +47,7 @@ jobs:
           c['appId']='nl.boa.phbtrainer.proef';c['appName']='Boa Paraat Proef'
           json.dump(c,open(p,'w'),indent=2);print(c['appId'],c['appName'])
           PY
-          grep -c "const BETAALMUUR=true" www/index.html
+          grep -c "const PROEF=true" www/index.html
 
       - name: Android-project maken
         run: |
@@ -80,6 +80,16 @@ jobs:
           open(p,'w').write(s);print('deeplink toegevoegd')
           PY
           grep -n "nl.boa.phbtrainer\|launchMode" android/app/src/main/AndroidManifest.xml
+
+      - name: Microfoon (opnemen en terugluisteren bij Gesprekken oefenen, PHB 2)
+        run: |
+          python3 - <<'PY'
+          p='android/app/src/main/AndroidManifest.xml';s=open(p).read()
+          for perm in ['android.permission.RECORD_AUDIO','android.permission.MODIFY_AUDIO_SETTINGS']:
+              if perm not in s: s=s.replace('<application','<uses-permission android:name="%s" />\n    <application'%perm,1)
+          open(p,'w').write(s);print('microfoon-rechten toegevoegd')
+          PY
+          grep -n "RECORD_AUDIO" android/app/src/main/AndroidManifest.xml
 
       - name: App-iconen maken
         continue-on-error: true
@@ -160,7 +170,7 @@ jobs:
           body: |
             Proefversie, niet voor gebruikers. Tak `${{ github.ref_name }}`, commit ${{ github.sha }}.
 
-            - `Boa-Paraat-Proef.apk`: installeert naast de gewone app als **Boa Paraat Proef** (met inloggen, betaalmuur en eenmalige licentiecodes).
+            - `Boa-Paraat-Proef.apk`: installeert naast de gewone app als **Boa Paraat Proef** (met inloggen, 7 dagen gratis proberen, abonnementen en eenmalige licentiecodes).
             - `Boa-Paraat-Proef-Windows.exe`, `Boa-Paraat-Proef-Mac.dmg`, `Boa-Paraat-Proef-Linux.deb` en `.AppImage`: de proefversie als programma voor de computer, **Boa Paraat Proef**, naast de gewone desktop-app (komen er een paar minuten later bij).
             - `Boa-Paraat-proef.html`: los bestand, zonder inloggen (abonnement alleen op dat apparaat, codes werken niet).
           files: |

@@ -118,7 +118,7 @@ De webversie is dezelfde app als website. Op een scherm vanaf ongeveer 1100 pixe
 
 Publiceren kan op twee manieren:
 
-1. **GitHub Pages (aanbevolen).** Doe route B. De link (bijvoorbeeld `https://jouwnaam.github.io/boa-paraat/`) werkt op de pc in Chrome, Edge, Firefox en Safari.
+1. **GitHub Pages (aanbevolen).** Doe route B. De link (bijvoorbeeld `https://jouwnaam.github.io/boa-paraat/`; Boa Paraat zelf staat via een eigen subdomein op `https://app.boaparaat.nl`) werkt op de pc in Chrome, Edge, Firefox en Safari.
 2. **Eigen webruimte.** Pak `Boa-Paraat-web.zip` uit en zet de inhoud in een map op je website (bijvoorbeeld via FTP). Er is geen server-software of database nodig. Gebruik https, anders werkt offline gebruik en installeren niet.
 
 **Installeren op de pc:** in Chrome en Edge verschijnt op het overzicht de knop **Installeren** (of klik in de adresbalk op het installeer-icoon). Boa Paraat opent dan in een eigen venster, met een icoon in het startmenu of dock, en werkt ook zonder internet. In Safari op de Mac: **Archief → Voeg toe aan Dock**.
@@ -151,7 +151,7 @@ Elke ronde gebruikt een ander zaad (het staat bovenaan de uitvoer). Vindt de tes
 
 ### Vragen toevoegen of aanpassen
 
-Vragen staan in `bron/q1.js` tot en met `bron/q7.js`; welke vraag bij welke toetsterm van ExTH hoort, staat in `bron/matrijs.js`. Schrijf ze volgens `bron/SCHRIJFWIJZER.md` (examentaal, vier aannemelijke antwoorden, uitleg en bron). Het releasescript controleert de regels die automatisch te controleren zijn. Laat bij een herschreven vraag het zesde veld (de vaste code) staan, dan blijft de voortgang van gebruikers bewaard.
+Vragen staan in `bron/q1.js` tot en met `bron/q8.js`; welke vraag bij welke toetsterm van ExTH hoort, staat in `bron/matrijs.js`. Schrijf ze volgens `bron/SCHRIJFWIJZER.md` (examentaal, vier aannemelijke antwoorden, uitleg en bron). Het releasescript controleert de regels die automatisch te controleren zijn. Laat bij een herschreven vraag het zesde veld (de vaste code) staan, dan blijft de voortgang van gebruikers bewaard.
 
 ### Een nieuwe versie uitbrengen
 
@@ -168,7 +168,7 @@ Nodig voor de browsertests: Node.js 20 of nieuwer en Playwright (`npm install --
 
 Vanaf versie 1.9 log je in de app en op de website in met je Google-account. De voortgang staat dan in Supabase, zodat je hem niet kwijtraakt en op meerdere apparaten verder kunt.
 
-- **Code:** `bron/cloud.js`. Inloggen gaat via Supabase Auth met Google (PKCE). In de Android-app opent Google in de browser van de telefoon en keert de app terug via `nl.boa.phbtrainer://login`; de GitHub-taak zet die koppeling in het Android-project.
+- **Code:** `bron/cloud.js`. Inloggen gaat via Supabase Auth met Google of Apple (PKCE). De knop voor Apple verschijnt alleen als in `bron/cloud.json` `"apple": true` staat; zie `supabase/config.md` voor het instellen (en het geheim dat elke 6 maanden verloopt). Wie geen Google-account heeft, logt in met een code per e-mail (knop alleen met `"email": true` in `bron/cloud.json`; mail via Resend, zie `supabase/config.md`). In de Android-app opent Google in de browser van de telefoon en keert de app terug via `nl.boa.phbtrainer://login`; de GitHub-taak zet die koppeling in het Android-project.
 - **Instellingen:** `bron/cloud.json` met het projectadres (`url`) en de publishable key (`key`). Beide zijn openbaar: de beveiliging zit in de database-regels. Zonder dit bestand werkt de app zonder inloggen, zoals vroeger.
 - **Database:** `supabase/migrations/`. Eén tabel `voortgang` met één rij per gebruiker. Row level security zorgt dat iedereen alleen zijn eigen rij ziet. De Edge Function `supabase/functions/verwijder-account` verwijdert het account en de voortgang (AVG).
 - **Samenvoegen:** oefenresultaten, geschiedenis, oefendagen, verslagen en examens van twee apparaten worden samengevoegd. Profiel en instellingen volgen de laatste wijziging. Iets wat je verwijdert, komt niet terug, en na 'Alles wissen' komt oude voortgang niet terug.
@@ -182,9 +182,19 @@ Op de tak `proef-betaalmuur` staat een proefversie. Gebruikers merken er niets v
 
 **Wat de proefversie doet**
 
-- **Gratis:** PHB 1, PHB 2 en de studiestof.
-- **Boa Paraat Plus (€ 5,99 per maand):** PHB 3 (met de praktijkoefening), PHB 4 en RTGB (met de RTGB-samenvattingen). Op slot staan een slotje in de tabbalk, een slotscherm per module en de Plus-pagina met een bevestigingsstap.
-- **Betalen is nagebootst:** met een account via de databasefunctie `proef_abonnement` (geldt op al je apparaten), zonder account (los bestand) alleen op dat apparaat. Opzeggen kan in Profiel → Abonnement; je houdt toegang tot het einde van de maand.
+- **7 dagen gratis:** de eerste week kun je alles gebruiken. Het overzicht toont hoeveel dagen je nog hebt (de laatste dag opvallender). Met een account begint de proefweek de eerste keer dat het account deze versie opent en geldt hij één keer per account (tabel `proefperiodes`); zonder account op dat apparaat.
+- **Daarna een abonnement:** zonder abonnement blijven alleen Profiel (account, licentie, abonnement) en de prijslijst open; elk ander scherm toont de abonnementen. De voortgang blijft bewaard.
+- **Prijslijst** (inclusief btw, hoe langer hoe goedkoper per maand):
+
+  | Abonnement | Prijs | Per maand | Korting |
+  |---|---|---|---|
+  | 1 maand | € 5,99 | € 5,99 | – |
+  | 3 maanden | € 15,99 | € 5,33 | 11% |
+  | 6 maanden | € 28,99 | € 4,83 | 19% |
+  | 1 jaar | € 47,99 | € 4,00 | 33% |
+
+- **Geen abonnement nodig** met een licentie van de werkgever (bijvoorbeeld NS) of als lid van een klas van een opleider.
+- **Betalen is nagebootst:** met een account via de databasefunctie `proef_abonnement(actie, maanden)` (geldt op al je apparaten), zonder account (los bestand) alleen op dat apparaat. Een abonnement verlengt zich met hetzelfde plan. Een ander plan kiezen terwijl het loopt: het nieuwe plan gaat in als de huidige periode afloopt. Opzeggen kan in Profiel → Abonnement; je houdt toegang tot het einde van de periode.
 - **Eenmalige licentiecodes:** een code werkt één keer. Bij het inwisselen koppelt de database hem aan het Google-account; daarna kan niemand anders hem gebruiken. Op een ander apparaat log je in met hetzelfde account en de licentie gaat vanzelf mee. Hooguit 10 onjuiste codes per uur per gebruiker. Een organisatielicentie (bijvoorbeeld NS) geeft alles, zonder abonnement.
 
 **Codes maken** (alleen de beheerder), in Supabase → SQL Editor:
@@ -195,7 +205,7 @@ select * from public.licentiecodes_maken('ns', 10, 'NS proef november');
 
 De codes staan alleen in die uitkomst; de database bewaart alleen een controlegetal. Welke codes gebruikt zijn: `select hint, notitie, gebruikt_op from public.licentiecodes order by aangemaakt desc;`
 
-**Bouwen en testen.** `python3 release.py` maakt naast de gewone app ook `uit/Boa-Paraat-proef.html` en `uit/proef-www-index.html` (schakelaar `BETAALMUUR`). `tests/betaalmuur.js` test de slotjes, het nagebootste abonnement, opzeggen en verlopen, en de eenmalige codes over meerdere apparaten en gebruikers, en controleert dat de gewone app er niets van merkt. Een push naar een tak die met `proef-` begint, bouwt op GitHub een **test-APK** (`Boa Paraat Proef`, app-ID `nl.boa.phbtrainer.proef`, naast de gewone app te installeren) en zet die als pre-release op de pagina Releases. Bij het inloggen kan Android vragen welke app moet openen: kies **Boa Paraat Proef**. Dezelfde push bouwt ook de **proef-desktopversie** voor Windows, Mac en Linux (`Boa-Paraat-Proef-Windows.exe`, `-Mac.dmg`, `-Linux.deb` en `-Linux.AppImage`), die bij dezelfde pre-release `proef-<commit>` komt. Die heet **Boa Paraat Proef**, heeft een eigen app-ID (`nl.boa.phbtrainer.proef`) en eigen opslag, en staat dus naast de gewone desktop-app. Inloggen gaat via de browser, die daarna terugkeert naar een tijdelijk adres op de computer zelf (`http://127.0.0.1:<poort>/login`). Zo blijft `nl.boa.phbtrainer://` van de gewone app en kunnen beide tegelijk geïnstalleerd zijn. Lokaal bouwen: `cd desktop && BOA_PROEF=1 npm run bouw` (dit past `desktop/package.json` aan; zet dat bestand daarna terug met `git checkout desktop/package.json`).
+**Bouwen en testen.** `python3 release.py` maakt naast de gewone app ook `uit/Boa-Paraat-proef.html` en `uit/proef-www-index.html` (schakelaar `BETAALMUUR`). `tests/betaalmuur.js` test de proefweek, de muur daarna, de prijslijst, de vier abonnementen (kiezen, wijzigen, verlengen, opzeggen en verlopen), toegang via licentie of klas, en de eenmalige codes over meerdere apparaten en gebruikers, en controleert dat de gewone app er niets van merkt. Een push naar een tak die met `proef-` begint, bouwt op GitHub een **test-APK** (`Boa Paraat Proef`, app-ID `nl.boa.phbtrainer.proef`, naast de gewone app te installeren) en zet die als pre-release op de pagina Releases. Bij het inloggen kan Android vragen welke app moet openen: kies **Boa Paraat Proef**. Dezelfde push bouwt ook de **proef-desktopversie** voor Windows, Mac en Linux (`Boa-Paraat-Proef-Windows.exe`, `-Mac.dmg`, `-Linux.deb` en `-Linux.AppImage`), die bij dezelfde pre-release `proef-<commit>` komt. Die heet **Boa Paraat Proef**, heeft een eigen app-ID (`nl.boa.phbtrainer.proef`) en eigen opslag, en staat dus naast de gewone desktop-app. Inloggen gaat via de browser, die daarna terugkeert naar een tijdelijk adres op de computer zelf (`http://127.0.0.1:<poort>/login`). Zo blijft `nl.boa.phbtrainer://` van de gewone app en kunnen beide tegelijk geïnstalleerd zijn. Lokaal bouwen: `cd desktop && BOA_PROEF=1 npm run bouw` (dit past `desktop/package.json` aan; zet dat bestand daarna terug met `git checkout desktop/package.json`).
 
 **Voordat dit live kan**
 
@@ -214,9 +224,27 @@ Met een licentiecode van de werkgever krijgt de app de kleuren en het logo van d
 - **Codes:** in `bron/v2_body.html` (`LIC`) staan alleen controlegetallen van geldige codes, niet de codes zelf. Een nieuwe code voeg je toe met het controlegetal van `hash("boa-lic:" + CODE)`, met CODE in hoofdletters zonder streepjes of spaties. Dit is geen echte beveiliging; toegang per gebruiker volgt met de accounts.
 - **Test:** `tests/licentie.js`.
 
+### Proefversies
+
+Een push naar een tak die met `proef-` begint, bouwt een proefversie die naast de gewone app staat: een test-APK (**Boa Paraat Proef**, app-ID `nl.boa.phbtrainer.proef`), het proefprogramma voor Windows, Mac en Linux en een los proefbestand. Ze komen als pre-release `proef-<commit>` op GitHub en tellen niet als nieuwste versie, dus gebruikers en de updatemelding merken er niets van. In de proefbouw staat "proef" in de kopbalk (schakelaar `PROEF`).
+
+### Gesprekken oefenen (PHB 2) en zoeken
+
+- `bron/casus.js`: de casustrainer voor het examen Bejegening. Criteria (`KZC`) en soorten casussen (`KZT`, met maximum en cesuur) zijn in eigen woorden samengevat uit de rubrics Bejegening Domein I v1.5 en Domein IV v1.1 van ExTH. Casussen (`KZ`) en gesprekken als keuzeboom (`GESPREK`) zijn eigen voorbeelden. Resultaten staan in `store.k` en gaan mee met de cloudopslag.
+- `bron/zoek.js`: zoeken in studiestof en vragen, in de app zelf (ook offline).
+- Test: `tests/groot.js`.
+
 ## Goed om te weten
 
 - Meldingen: onder **Profiel → Meldingen** zet je de oefenherinnering (dagelijks op een gekozen tijd, alleen als je nog niet hebt geoefend) en de examenherinnering (7, 3 en 1 dag ervoor, om 18:00) aan of uit. Meldingen buiten de app werken in de Android- en iOS-app; in de browser verschijnen ze als kaart op het overzicht.
 - Weergave: onder **Profiel → Gegevens → Weergave** kies je **Systeem** (volgt licht/donker van je telefoon of computer), **Licht** of **Donker**.
 - Voortgang en profiel worden per telefoon of browser bewaard. Met **Profiel → Voortgang overzetten** neem je ze mee naar een ander apparaat.
 - App-naam: Boa Paraat. App-ID: `nl.boa.phbtrainer`. Dit staat in `capacitor.config.json`.
+
+## Beheer
+
+Op `app.boaparaat.nl/beheer` (bron: `bron/beheer.html`, gebouwd naar `www/beheer/index.html`) ziet de beheerder wie de app gebruikt, waar ze mee bezig zijn, de activiteit per dag en alle uitgegeven codes (alleen de laatste vier tekens). Inloggen gaat met hetzelfde account als de app; in de app staat voor beheerders een knop bij Profiel → Account. De gegevens komen uit `beheer_overzicht()` in Supabase, die eerst controleert of je beheerder bent (zie `supabase/config.md`). Test: `tests/beheer.js`.
+
+## Leerpad (proef, `bron/pad.js`)
+
+Tabblad in het midden van de tabbalk (`#pad`, `#pad-<module>`, les: `#pad-les`). Per module een pad in de volgorde van `blocksOf(m)`: per onderwerp eerst 'Lees de stof' (`STOF_CAT`), dan 2–5 lessen met de vragen van dat onderwerp, gesorteerd van makkelijk naar moeilijk (`padMoeite`: lengte, situatie, ontkenning, wetsartikel, lengte van de antwoorden; per vraag te overschrijven in `PAD_MOEITE`). Elk deel eindigt met een toets (10 vragen uit de moeilijkere helft, 8 goed); die halen telt de lessen van dat deel als gedaan. Les: 3 levens, fout = vraag komt terug, sterren 3/2/1. Eerste pogingen gaan via `record()` in `store.s`; voortgang in `store.pad` (`"<module>:<onderwerp>:<les>"` en `"<module>:T:<deel>"` → `[sterren, tijd]`), samengevoegd in `mergeStore` (meeste sterren). Herinnering: `store.p.mld.pad` (Profiel → Meldingen, of de vraag op het leerpad); `mldPlan` in `ui_extra.js` plant dan dagelijks één melding met `padHerinnering()` (volgende stap, reeks, examen) en route `pad-<module>`; in de browser een kaart op het overzicht met **Volgende les**. Test: `tests/pad.js`, `tests/meldingen.js`.

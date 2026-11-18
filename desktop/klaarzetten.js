@@ -5,11 +5,11 @@ const ROOT=path.resolve(__dirname,'..'),APP=path.join(__dirname,'app'),BUILD=pat
 const www=path.join(ROOT,'www');
 if(!fs.existsSync(path.join(www,'index.html')))throw new Error('www/index.html ontbreekt: draai eerst python3 release.py');
 fs.rmSync(APP,{recursive:true,force:true});fs.mkdirSync(path.join(APP,'icons'),{recursive:true});
-// BOA_PROEF=1: proefversie met betaalmuur, als apart programma 'Boa Paraat Proef' (naast de gewone app)
+// BOA_PROEF=1: proefbouw als apart programma 'Boa Paraat Proef' (naast de gewone app)
 const PROEF=process.env.BOA_PROEF==='1';
 let html=fs.readFileSync(path.join(www,'index.html'),'utf8');
-if(PROEF){if(html.split('/*__BETAALMUUR__*/false').length!==2)throw new Error('schakelaar BETAALMUUR niet gevonden in www/index.html');
-  html=html.replace('/*__BETAALMUUR__*/false','true').replace('<title>Boa Paraat','<title>Boa Paraat (proef)')}
+if(PROEF){if(html.split('/*__PROEF__*/false').length!==2)throw new Error('schakelaar PROEF niet gevonden in www/index.html');
+  html=html.replace('/*__PROEF__*/false','true').replace('/*__BETAALMUUR__*/false','true').replace('<title>Boa Paraat','<title>Boa Paraat (proef)')}
 fs.writeFileSync(path.join(APP,'index.html'),html);
 for(const f of fs.readdirSync(path.join(www,'icons')))fs.copyFileSync(path.join(www,'icons',f),path.join(APP,'icons',f));
 fs.mkdirSync(BUILD,{recursive:true});fs.copyFileSync(path.join(ROOT,'assets','icon-only.png'),path.join(BUILD,'icon.png'));

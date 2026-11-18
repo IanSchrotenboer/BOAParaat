@@ -4,12 +4,13 @@ const fs=require('fs'),path=require('path');
 const B=f=>fs.readFileSync(path.resolve(__dirname,'../bron',f),'utf8');
 const body=B('v2_body.html');
 const cfg=body.slice(body.indexOf('const CATS ='),body.indexOf('const MODBY'));
-const src=['q1.js','q2.js','q3.js','q4.js','q5.js','q6.js','q7.js','stof.js','matrijs.js'].map(B).join('\n')+'\n'+cfg+
-  ';return {Q:[].concat(Q1,Q2,Q3,Q4,Q5,Q6,Q7),CATS,MODS,D4,STOF,STOF_CAT,STOF_ART,MATRIJS}';
+const src=['q1.js','q2.js','q3.js','q4.js','q5.js','q6.js','q7.js','q8.js','q9.js','stof.js','matrijs.js'].map(B).join('\n')+'\n'+cfg+
+  ';return {Q:[].concat(Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9),CATS,MODS,D4,STOF,STOF_CAT,STOF_ART,MATRIJS}';
 const {Q,CATS,MODS,STOF,STOF_CAT,STOF_ART,MATRIJS}=new Function(src)();
 const bad=[],warn=[];
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return "q"+(h>>>0).toString(36)}
 const ids=new Map(),teksten=new Map();const perCat={};
+const ABS=/\b(altijd|nooit|alles|iedereen|elke|elk|geen enkele|uitsluitend|zonder meer|in alle gevallen|onbeperkt)\b/i;let absN=0;
 Q.forEach((r,i)=>{
   const at=`vraag #${i} (${String(r[1]).slice(0,50)})`;
   if(!Array.isArray(r)||r.length<4){bad.push(at+': verkeerd formaat');return}
@@ -17,8 +18,9 @@ Q.forEach((r,i)=>{
   if(!CATS[c])bad.push(at+': onbekende categorie '+c);
   if(!q||!q.trim())bad.push(at+': lege vraag');
   if(!e||e.trim().length<10)bad.push(at+': uitleg ontbreekt');
-  if(!Array.isArray(o)||o.length!==4)bad.push(at+': niet precies 4 antwoorden');
-  else{const n=o.map(x=>String(x).trim().toLowerCase());if(n.some(x=>!x))bad.push(at+': leeg antwoord');if(new Set(n).size!==4)bad.push(at+': dubbel antwoord')}
+  // 4 antwoorden, of 3 bij vragen in examenstijl van ExTH (bron/q9.js)
+  if(!Array.isArray(o)||!(o.length===4||(o.length===3&&String(r[5]).startsWith('qx9'))))bad.push(at+': niet precies 4 antwoorden (of 3 in examenstijl)');
+  else{const n=o.map(x=>String(x).trim().toLowerCase());if(n.some(x=>!x))bad.push(at+': leeg antwoord');if(new Set(n).size!==o.length)bad.push(at+': dubbel antwoord')}
   if(!r[5])bad.push(at+': vaste vraagcode (6e veld) ontbreekt; voortgang zou verloren gaan bij herschrijven');
   const h=r[5]||hash(q);if(ids.has(h))bad.push(at+': zelfde vraagcode als #'+ids.get(h));ids.set(h,i);
   if(teksten.has(q))bad.push(at+': zelfde vraagtekst als #'+teksten.get(q));teksten.set(q,i);
@@ -30,9 +32,13 @@ Q.forEach((r,i)=>{
     if(/^[a-zà-ÿ]/.test(x))bad.push(at+`: antwoord ${k+1} begint niet met een hoofdletter`);
     if(/\b(art|max|bijv)\.\s|\bOvJ\b|\bpv\b/.test(x))bad.push(at+`: afkorting in antwoord ${k+1} (schrijf voluit)`)});
   if(/\b(OvJ|hulpOvJ|RC|pv|OM|CdK|PG|WID)\b|\bpv's/.test(String(e)+' '+String(r[4]||'')))bad.push(at+': afkorting in de uitleg of bron (schrijf voluit)');
+  if(!r[4]||!String(r[4]).trim())bad.push(at+': bron ontbreekt (wetsartikel of document, zie de schrijfwijzer)');
+  // afleiders: woorden als 'altijd' of 'nooit' alleen in foute antwoorden verraden het juiste antwoord
+  if(Array.isArray(o)&&!ABS.test(o[0])&&o.slice(1).some(x=>ABS.test(x)))absN++;
   perCat[c]=(perCat[c]||0)+1;
 });
-for(const c of Object.keys(CATS)){if(!perCat[c])bad.push('categorie zonder vragen: '+c);else if(perCat[c]<10)warn.push(`categorie ${c} heeft maar ${perCat[c]} vragen`)}
+for(const c of Object.keys(CATS)){if(!perCat[c])bad.push('categorie zonder vragen: '+c);else if(perCat[c]<10)bad.push(`categorie ${c} heeft maar ${perCat[c]} vragen (minimaal 10)`);else if(perCat[c]<12)warn.push(`categorie ${c} heeft maar ${perCat[c]} vragen`)}
+if(absN/Q.length>.18)bad.push(`afleiders: bij ${absN} van de ${Q.length} vragen staat 'altijd', 'nooit' of 'elke' alleen in een fout antwoord (maximaal 18%)`);else console.log(`        afleiders met 'altijd'/'nooit' alleen in foute antwoorden: ${Math.round(100*absN/Q.length)}% van de vragen`);
 for(const m of MODS)for(const b of (m.blocks||[]).concat(m.blocks4||[]))for(const c of b[2])if(!CATS[c])bad.push(`blok ${m.id}/${b[0]}: onbekende categorie ${c}`);
 const sids=new Set();for(const s of STOF){if(sids.has(s.id))bad.push('studiestof dubbel id '+s.id);sids.add(s.id);if(!s.html||s.html.length<80)bad.push('studiestof te kort: '+s.id)}
 for(const [c,s] of Object.entries(STOF_CAT)){if(!CATS[c])warn.push('STOF_CAT: onbekende categorie '+c);if(!sids.has(s))bad.push(`STOF_CAT ${c} → onbekend onderwerp ${s}`)}
