@@ -100,6 +100,8 @@ function mailBlok(){
   if(mail.stap===1)return `<form class="stack lmail" id="mailForm" novalidate><div class="field"><label for="mailIn">E-mailadres</label>
       <input id="mailIn" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" value="${esc(mail.adres)}" placeholder="naam@voorbeeld.nl"${cloudFout?' aria-invalid="true" aria-describedby="mailErr"':""}></div>
       <button class="btn hi lgoogle" type="submit">Stuur mij een code</button>
+      <button class="btn lmailbtn" type="button" data-act="ww-start">Inloggen met wachtwoord</button>
+      <p class="lhint" id="mailTip"><b>Werk- of schoolmail?</b> Die houdt de code soms tegen. Kies dan <b>Inloggen met wachtwoord</b> (daarvoor is geen mail nodig), of gebruik je eigen e-mailadres.</p>
       <div class="row"><button class="linkbtn" type="button" data-act="mail-terug">Terug</button>${mailUur?'<button class="linkbtn" type="button" data-act="login">Log in met Google</button>':""}</div></form>`;
   if(mail.stap===2){const wacht=Math.max(0,60-Math.round((Date.now()-mail.t)/1000));
     return `<form class="stack lmail" id="mailCodeForm" novalidate><p class="lhint" role="status">We hebben een code gestuurd naar <b>${esc(mail.adres)}</b>. Zie je niets? Kijk ook bij ongewenste mail.</p>
@@ -108,10 +110,90 @@ function mailBlok(){
       <button class="btn hi lgoogle" type="submit">Inloggen</button>
       <p class="lhint" id="mailTraag"${Date.now()-mail.t>MAIL_TRAAG?"":" hidden"}>Nog geen mail? Soms duurt het een paar minuten. School- en werkmail houden een mail soms even vast of zetten hem in quarantaine. Kijk ook bij ongewenste e-mail, of gebruik een persoonlijk e-mailadres${CLOUD&&CLOUD.microsoft?'. Met schoolmail kun je ook <button class="linkbtn" type="button" data-act="login-ms">inloggen met je Microsoft-schoolaccount</button>':""}${CLOUD&&CLOUD.url?' of <button class="linkbtn" type="button" data-act="login">log in met Google</button>':""}.</p>
       <div class="row"><button class="linkbtn" type="button" data-act="mail-opnieuw"${wacht?" disabled":""}>${wacht?"Nieuwe code over "+wacht+" s":"Stuur een nieuwe code"}</button><button class="linkbtn" type="button" data-act="mail-ander">Ander e-mailadres</button></div></form>`}
+  if(mail.stap===3)return wwBlok();
+  if(mail.stap===4)return wwHerstelBlok();
   return `<button class="btn lmailbtn" data-act="login-mail">Inloggen met e-mail</button>`}
 document.addEventListener("submit",e=>{
   if(e.target.id==="mailForm"){e.preventDefault();mailStuur((document.getElementById("mailIn")||{}).value)}
-  if(e.target.id==="mailCodeForm"){e.preventDefault();mailCheck((document.getElementById("mailCode")||{}).value)}});
+  if(e.target.id==="mailCodeForm"){e.preventDefault();mailCheck((document.getElementById("mailCode")||{}).value)}
+  if(e.target.id==="wwForm"){e.preventDefault();wwGa((document.getElementById("wwMail")||{}).value,(document.getElementById("wwIn")||{}).value)}
+  if(e.target.id==="wwHerstelForm"){e.preventDefault();wwHerstel((document.getElementById("wwCode")||{}).value,(document.getElementById("wwNieuw")||{}).value)}
+  if(e.target.id==="wwZetForm"){e.preventDefault();wwZet((document.getElementById("wwZetIn")||{}).value)}});
+// ----- inloggen met e-mail en wachtwoord: werkt zonder mail, ook met werk- en schoolmail die de code tegenhoudt -----
+// Account maken: POST /signup. Staat in Supabase 'Confirm email' uit, dan ben je meteen ingelogd; staat hij aan, dan
+// komt er toch eerst een code per mail (stap 2). Wachtwoord vergeten: een code per mail (sjabloon 'Reset password',
+// ook zonder link) en daarna een nieuw wachtwoord. Wie al een account heeft (Google of code), stelt in Profiel een
+// wachtwoord in en kan daarna ook zo inloggen.
+const WW_MIN=8;
+const wwSterk=w=>w.length>=WW_MIN&&/[A-Za-z]/.test(w)&&/\d/.test(w);
+const WW_EIS=`Minstens ${WW_MIN} tekens, met letters en cijfers.`;
+function wwVeld(id,ac,lbl){return `<div class="field"><label for="${id}">${lbl}</label><div class="wwrij"><input id="${id}" type="password" autocomplete="${ac}" autocapitalize="off" spellcheck="false"${cloudFout?' aria-invalid="true" aria-describedby="mailErr"':""}>
+  <button class="linkbtn wwtoon" type="button" data-wwtoon="${id}" aria-pressed="false" aria-label="Wachtwoord tonen">Toon</button></div></div>`}
+function wwBlok(){const nieuw=mail.ww==="nieuw";
+  return `<form class="stack lmail" id="wwForm" novalidate><div class="field"><label for="wwMail">E-mailadres</label>
+    <input id="wwMail" type="email" inputmode="email" autocomplete="username" autocapitalize="off" spellcheck="false" value="${esc(mail.adres)}" placeholder="naam@voorbeeld.nl"></div>
+    ${wwVeld("wwIn",nieuw?"new-password":"current-password",nieuw?"Kies een wachtwoord":"Wachtwoord")}
+    ${nieuw?`<p class="lhint">${WW_EIS} Er gaat geen mail naar je toe.</p>`:""}
+    <button class="btn hi lgoogle" type="submit">${nieuw?"Account maken":"Inloggen"}</button>
+    <div class="row">${nieuw?`<button class="linkbtn" type="button" data-act="ww-in">Ik heb al een account</button>`
+      :`<button class="linkbtn" type="button" data-act="ww-nieuw">Nog geen account? Maak er een</button><button class="linkbtn" type="button" data-act="ww-vergeten">Wachtwoord vergeten?</button>`}
+      <button class="linkbtn" type="button" data-act="mail-terug">Terug</button></div></form>`}
+function wwHerstelBlok(){
+  return `<form class="stack lmail" id="wwHerstelForm" novalidate><p class="lhint" role="status">We hebben een code gestuurd naar <b>${esc(mail.adres)}</b>. Vul die in en kies een nieuw wachtwoord.</p>
+    <div class="field"><label for="wwCode">Code uit de mail</label><input id="wwCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="10" placeholder="123456"></div>
+    ${wwVeld("wwNieuw","new-password","Nieuw wachtwoord")}<p class="lhint">${WW_EIS}</p>
+    <button class="btn hi lgoogle" type="submit">Wachtwoord opslaan en inloggen</button>
+    <p class="lhint">Komt de code niet aan op je werk- of schoolmail? Log dan in met Google, of vraag de ICT-afdeling om mail van boaparaat.nl toe te staan.</p>
+    <div class="row"><button class="linkbtn" type="button" data-act="ww-in">Terug</button></div></form>`}
+const wwFoutTekst=e=>e.status>=500||!navigator.onLine?"Geen verbinding met de server. Probeer het zo opnieuw."
+  :e.status===429?"Te veel pogingen achter elkaar. Wacht een paar minuten en probeer het opnieuw.":"";
+async function wwGa(adres,ww){adres=String(adres||"").trim().toLowerCase();ww=String(ww||"");const nieuw=mail.ww==="nieuw";mail.adres=adres;
+  const fout=(t,id)=>{cloudFout=t;render();const i=document.getElementById(id||"wwIn");if(i)i.focus()};
+  if(!mailGeldig(adres))return fout("Vul een geldig e-mailadres in.","wwMail");
+  if(!ww)return fout(nieuw?"Kies een wachtwoord.":"Vul je wachtwoord in.");
+  if(nieuw&&!wwSterk(ww))return fout("Dit wachtwoord is te zwak. "+WW_EIS);
+  if(!navigator.onLine)return fout("Je bent offline. Om in te loggen heb je internet nodig.");
+  cloudFout="";cloudHint="";cloudBezig=nieuw?"Je account wordt gemaakt…":"Bezig met inloggen…";render();
+  try{if(nieuw){const j=await authFetch("signup",{email:adres,password:ww});
+      if(j.access_token){await loginKlaar(j);return}
+      // 'Confirm email' staat aan in Supabase: dan toch eerst de code uit de mail
+      cloudBezig="";mail={stap:2,adres,t:Date.now()};cloudHint="Je account is gemaakt. Vul de code uit de mail in om je e-mailadres te bevestigen.";render();mailTikker();return}
+    const j=await authFetch("token?grant_type=password",{email:adres,password:ww});await loginKlaar(j)}
+  catch(e){cloudBezig="";const c=e.code||"",m=e.message||"";
+    if(nieuw&&(c==="user_already_exists"||c==="email_exists"||/already registered/i.test(m))){mail.ww="in";return fout("Er is al een account met dit e-mailadres. Log in met je wachtwoord. Heb je nog geen wachtwoord? Log dan in met een code of met Google en stel in Profiel een wachtwoord in.")}
+    if(c==="weak_password")return fout("Dit wachtwoord is te zwak. "+WW_EIS);
+    if(c==="email_not_confirmed")return fout("Je e-mailadres is nog niet bevestigd. Log één keer in met een code per mail of met Google.");
+    if(c==="signup_disabled"||c==="email_provider_disabled")return fout("Een account maken met een wachtwoord staat nu uit. Log in met Google of met een code per mail.");
+    fout(wwFoutTekst(e)||(nieuw?"Het account kon niet worden gemaakt. Probeer het opnieuw.":"E-mailadres of wachtwoord klopt niet. Heb je nog geen wachtwoord ingesteld? Log dan in met een code of met Google en stel in Profiel een wachtwoord in."))}}
+async function wwVergeten(){const adres=String(((document.getElementById("wwMail")||{}).value)||mail.adres||"").trim().toLowerCase();mail.adres=adres;
+  if(!mailGeldig(adres)){cloudFout="Vul eerst je e-mailadres in.";render();const i=document.getElementById("wwMail");if(i)i.focus();return}
+  cloudFout="";cloudBezig="De code wordt verstuurd…";render();
+  try{await authFetch("recover",{email:adres});cloudBezig="";mail={stap:4,adres,t:Date.now(),ww:"in"};render();const i=document.getElementById("wwCode");if(i)i.focus()}
+  catch(e){cloudBezig="";cloudFout=wwFoutTekst(e)||"De code kon niet worden verstuurd. Controleer je e-mailadres.";render()}}
+async function wwHerstel(code,ww){code=String(code||"").replace(/\D/g,"");ww=String(ww||"");
+  const fout=(t,id)=>{cloudFout=t;render();const i=document.getElementById(id);if(i)i.focus()};
+  if(code.length<6)return fout("Vul de code uit de mail in.","wwCode");
+  if(!wwSterk(ww))return fout("Dit wachtwoord is te zwak. "+WW_EIS,"wwNieuw");
+  cloudFout="";cloudBezig="Je wachtwoord wordt opgeslagen…";render();
+  let j;try{j=await authFetch("verify",{type:"recovery",email:mail.adres,token:code})}
+  catch(e){cloudBezig="";return fout(wwFoutTekst(e)||"Deze code klopt niet of is verlopen. Vraag een nieuwe aan via Wachtwoord vergeten.","wwCode")}
+  try{const r=await fetch(CLOUD.url+"/auth/v1/user",{method:"PUT",headers:{apikey:CLOUD.key,Authorization:"Bearer "+j.access_token,"Content-Type":"application/json"},body:JSON.stringify({password:ww})});
+    if(!r.ok){const k=await r.json().catch(()=>({}));const e=new Error(k.msg||"");e.status=r.status;e.code=k.error_code||"";throw e}}
+  catch(e){cloudBezig="";if(e.code==="weak_password")return fout("Dit wachtwoord is te zwak. "+WW_EIS,"wwNieuw");
+    if(e.code!=="same_password"){toast("Je bent ingelogd, maar je nieuwe wachtwoord is niet opgeslagen. Stel het in Profiel opnieuw in.")}}
+  await loginKlaar(j)}
+// Profiel → Account: wachtwoord instellen of wijzigen (ook voor wie met Google of een code inlogde)
+let wwZetOpen=false;
+async function wwZet(ww){ww=String(ww||"");
+  if(!wwSterk(ww)){cloudFout="Dit wachtwoord is te zwak. "+WW_EIS;render();const i=document.getElementById("wwZetIn");if(i)i.focus();return}
+  cloudFout="";cloudBezig="Je wachtwoord wordt opgeslagen…";render();
+  try{const r=await fetch(CLOUD.url+"/auth/v1/user",{method:"PUT",headers:{apikey:CLOUD.key,Authorization:"Bearer "+await token(),"Content-Type":"application/json"},body:JSON.stringify({password:ww})});
+    const k=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(k.msg||"");e.status=r.status;e.code=k.error_code||"";throw e}
+    cloudBezig="";wwZetOpen=false;render();toast("Je wachtwoord is opgeslagen. Je kunt nu ook inloggen met je e-mailadres en wachtwoord")}
+  catch(e){cloudBezig="";cloudFout=e.code==="weak_password"?"Dit wachtwoord is te zwak. "+WW_EIS:e.code==="same_password"?"Dit is al je wachtwoord.":e.code==="reauthentication_needed"?"Log opnieuw in en probeer het dan nog eens.":wwFoutTekst(e)||"Je wachtwoord kon niet worden opgeslagen. Probeer het opnieuw.";render()}}
+function wwZetBlok(){return wwZetOpen?`<form class="stack" id="wwZetForm" novalidate>${wwVeld("wwZetIn","new-password","Nieuw wachtwoord")}<p class="small">${WW_EIS} Daarna kun je ook inloggen met je e-mailadres en dit wachtwoord, bijvoorbeeld op een computer waar je mail de code tegenhoudt.</p>
+    <div class="row"><button class="btn hi" type="submit">Opslaan</button><button class="btn" type="button" data-act="ww-zet-nee">Annuleren</button></div></form>`
+  :`<div class="row"><button class="btn" data-act="ww-zet">Wachtwoord instellen of wijzigen</button></div>`}
 // aftellen tot je een nieuwe code mag vragen, zonder het scherm opnieuw op te bouwen (dan blijft je invoer staan)
 // na een halve minuut zonder code: uitleg waarom een mail kan blijven hangen
 let mailTik=0;const MAIL_TRAAG=30000;
@@ -234,7 +316,7 @@ function viewAccount(){
     ${cloudBezig?`<p class="lbezig" role="status"><span class="spin" aria-hidden="true"></span>${esc(cloudBezig)}</p>`:
       confirmUitOffline?`<div class="confirm stack" style="gap:10px"><span><b>Je bent offline.</b> Wat je sinds de laatste keer bijwerken hebt geoefend, staat nog niet in je account. Als je nu uitlogt, ben je dat kwijt.</span><div class="row"><button class="btn danger" data-act="logout">Toch uitloggen</button><button class="btn" data-act="logout-no">Annuleren</button></div></div>`:
       cloudDel?`<div class="confirm stack" style="gap:10px"><span><b>Account verwijderen?</b> Je account en al je voortgang, examens en verslagen worden definitief verwijderd, ook van dit apparaat. Dit kan niet ongedaan worden gemaakt.</span><div class="row"><button class="btn danger" data-act="acc-del-yes">Ja, definitief verwijderen</button><button class="btn" data-act="acc-del-no">Annuleren</button></div></div>`:
-      `<div class="row"><button class="btn" data-act="sync">Nu bijwerken</button><button class="btn" data-act="logout">Uitloggen</button><button class="btn danger" data-act="acc-del">Account verwijderen</button></div>`}
+      `<div class="row"><button class="btn" data-act="sync">Nu bijwerken</button><button class="btn" data-act="logout">Uitloggen</button><button class="btn danger" data-act="acc-del">Account verwijderen</button></div>${wwZetBlok()}`}
     ${SITE?`<p class="small"><a href="${SITE}privacy.html" target="_blank" rel="noopener" data-ext>Privacyverklaring</a></p>`:""}
     </div>${benBeheer?`<div class="panel stack" id="beheer"><b>Beheer</b><p class="small">Zie wie de app gebruikt en waar ze mee bezig zijn, en welke codes je hebt uitgegeven.</p><div class="row"><a class="btn" href="${esc(beheerUrl())}">Open het beheer</a></div></div>`:""}</div>`}
 function cloudAct(act){
@@ -242,9 +324,14 @@ function cloudAct(act){
   if(act==="login-apple"){loginStart("apple");return true}
   if(act==="login-ms"){loginStart("azure");return true}
   if(act==="login-mail"){mail={stap:1,adres:"",t:0};cloudFout="";render();const i=document.getElementById("mailIn");if(i)i.focus();return true}
-  if(act==="mail-terug"){mail={stap:0,adres:"",t:0};cloudFout="";render();return true}
+  if(act==="mail-terug"){mail={stap:0,adres:"",t:0};cloudFout="";cloudHint="";render();return true}
   if(act==="mail-ander"){mail={stap:1,adres:mail.adres,t:0};cloudFout="";render();const i=document.getElementById("mailIn");if(i)i.focus();return true}
   if(act==="mail-opnieuw"){mailStuur(mail.adres);return true}
+  if(act==="ww-start"){const a=String(((document.getElementById("mailIn")||{}).value)||"").trim();mail={stap:3,adres:a||mail.adres,t:0,ww:"in"};cloudFout="";render();const i=document.getElementById(a?"wwIn":"wwMail");if(i)i.focus();return true}
+  if(act==="ww-in"||act==="ww-nieuw"){const a=(document.getElementById("wwMail")||{}).value;mail={stap:3,adres:a!=null?a:mail.adres,t:0,ww:act==="ww-nieuw"?"nieuw":"in"};cloudFout="";render();const i=document.getElementById("wwIn");if(i)i.focus();return true}
+  if(act==="ww-vergeten"){wwVergeten();return true}
+  if(act==="ww-zet"){wwZetOpen=true;cloudFout="";render();const i=document.getElementById("wwZetIn");if(i)i.focus();return true}
+  if(act==="ww-zet-nee"){wwZetOpen=false;cloudFout="";render();return true}
   if(act==="sync"){cloudFout="";cloudSyncNu().then(ok=>{if(!ok)toast("Bijwerken lukt nu niet. Controleer je internetverbinding.")});render();return true}
   if(act==="logout"){if(confirmUitOffline){const s=sesGet();if(s)fetch(CLOUD.url+"/auth/v1/logout",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+s.a}}).catch(()=>{});wisLokaal();location.hash="home";render();toast("Je bent uitgelogd");return true}uitloggen();return true}
   if(act==="logout-no"){confirmUitOffline=false;render();return true}
@@ -252,6 +339,9 @@ function cloudAct(act){
   if(act==="acc-del-no"){cloudDel=false;render();return true}
   if(act==="acc-del-yes"){accountWeg();return true}
   return false}
+// wachtwoord tonen of verbergen (zonder het scherm opnieuw op te bouwen, dan blijft je invoer staan)
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-wwtoon]");if(!b)return;const i=document.getElementById(b.dataset.wwtoon);if(!i)return;
+  const zie=i.type==="password";i.type=zie?"text":"password";b.textContent=zie?"Verberg":"Toon";b.setAttribute("aria-pressed",String(zie));b.setAttribute("aria-label",zie?"Wachtwoord verbergen":"Wachtwoord tonen")});
 // externe links (privacyverklaring) in de app via de browser van de telefoon
 document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("a[data-ext]");const B=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.Browser;
   if(a&&DESK()){e.preventDefault();DESK().open(a.href);return}

@@ -17,7 +17,7 @@ function tokensVoor(u){const a='at-'+crypto.randomBytes(8).toString('hex'),r='rt
 let SUPA='',APP='';
 const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);req.on('end',()=>{
   const u=new URL(req.url,'http://x');db.calls.push(req.method+' '+u.pathname);
-  if(req.method==='OPTIONS'){res.writeHead(204,{'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'*','Access-Control-Allow-Methods':'GET,POST,PATCH,DELETE,OPTIONS'});return res.end()}
+  if(req.method==='OPTIONS'){res.writeHead(204,{'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'*','Access-Control-Allow-Methods':'GET,POST,PUT,PATCH,DELETE,OPTIONS'});return res.end()}
   if(db.stuk&&u.pathname!=='/auth/v1/authorize')return json(res,503,{message:'storing'});
   if(u.pathname==='/auth/v1/authorize'){ // 'Google': meteen terug naar de app met een code
     const red=u.searchParams.get('redirect_to'),ch=u.searchParams.get('code_challenge');
@@ -33,6 +33,21 @@ const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);r
     if(db.otpSec)return json(res,429,{code:429,error_code:'over_email_send_rate_limit',msg:'For security purposes, you can only request this after 37 seconds.'});
     if(db.otpUur)return json(res,429,{code:429,error_code:'over_email_send_rate_limit',msg:'email rate limit exceeded'});
     db.otp=db.otp||{};db.otp[b.email]='482916';db.otpMails=(db.otpMails||0)+1;return json(res,200,{})}
+  // wachtwoord: account maken, inloggen, vergeten (code per mail) en instellen
+  if(u.pathname==='/auth/v1/signup'&&req.method==='POST'){const b=JSON.parse(body||'{}');db.pw=db.pw||{};
+    if(db.signupUit)return json(res,422,{code:422,error_code:'signup_disabled',msg:'Signups not allowed for this instance'});
+    if(db.pw[b.email])return json(res,422,{code:422,error_code:'user_already_exists',msg:'User already registered'});
+    if(!b.password||b.password.length<8)return json(res,422,{code:422,error_code:'weak_password',msg:'Password should be at least 8 characters.'});
+    db.pw[b.email]=b.password;const usr={id:'u-pw-'+b.email.length,email:b.email,naam:''};db.users[usr.id]=usr;
+    if(db.bevestig){db.otp=db.otp||{};db.otp[b.email]='482916';db.otpMails=(db.otpMails||0)+1;return json(res,200,{id:usr.id,email:b.email})}
+    return json(res,200,tokensVoor(usr))}
+  if(u.pathname==='/auth/v1/recover'&&req.method==='POST'){const b=JSON.parse(body||'{}');db.rec=db.rec||{};db.rec[b.email]='771204';db.otpMails=(db.otpMails||0)+1;return json(res,200,{})}
+  if(u.pathname==='/auth/v1/verify'&&req.method==='POST'&&JSON.parse(body||'{}').type==='recovery'){const b=JSON.parse(body);
+    if(!db.rec||db.rec[b.email]!==b.token)return json(res,403,{error_code:'otp_expired',msg:'Token has expired or is invalid'});
+    delete db.rec[b.email];let usr=Object.values(db.users).find(x=>x.email===b.email);if(!usr){usr={id:'u-rec',email:b.email,naam:''};db.users[usr.id]=usr}return json(res,200,tokensVoor(usr))}
+  if(u.pathname==='/auth/v1/user'&&req.method==='PUT'){const t0=(req.headers.authorization||'').replace('Bearer ','');const ss=db.tokens[t0];if(!ss)return json(res,401,{error_code:'bad_jwt'});
+    const b=JSON.parse(body||'{}');if(!b.password||b.password.length<8)return json(res,422,{error_code:'weak_password',msg:'weak'});
+    const us=db.users[ss.u];db.pw=db.pw||{};if(db.pw[us.email]===b.password)return json(res,422,{error_code:'same_password',msg:'same'});db.pw[us.email]=b.password;return json(res,200,{id:us.id,email:us.email})}
   if(u.pathname==='/auth/v1/verify'&&req.method==='POST'){const b=JSON.parse(body||'{}');
     if(b.type!=='email'||!db.otp||db.otp[b.email]!==b.token)return json(res,403,{error:'otp_expired',error_description:'Token has expired or is invalid'});
     delete db.otp[b.email];const usr={id:'u-mail-'+b.email.length,email:b.email,naam:''};db.users[usr.id]=usr;return json(res,200,tokensVoor(usr))}
@@ -40,6 +55,9 @@ const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);r
     if(u.searchParams.get('grant_type')==='pkce'){const c=db.codes[b.auth_code];delete db.codes[b.auth_code];
       if(!c||b64url(crypto.createHash('sha256').update(b.code_verifier||'').digest())!==c.ch)return json(res,400,{error:'invalid_grant',error_description:'PKCE klopt niet'});
       return json(res,200,tokensVoor(c.u))}
+    if(u.searchParams.get('grant_type')==='password'){db.pw=db.pw||{};
+      if(!b.email||db.pw[b.email]!==b.password)return json(res,400,{code:400,error_code:'invalid_credentials',msg:'Invalid login credentials'});
+      const usr=Object.values(db.users).find(x=>x.email===b.email);return json(res,200,tokensVoor(usr))}
     if(u.searchParams.get('grant_type')==='refresh_token'){const id=db.refresh[b.refresh_token];delete db.refresh[b.refresh_token];
       if(!id||!db.users[id])return json(res,400,{error:'invalid_grant'});db.vernieuwd=(db.vernieuwd||0)+1;return json(res,200,tokensVoor(db.users[id]))}
     return json(res,400,{error:'grant'})}
@@ -253,6 +271,52 @@ const nS=s=>Object.keys((s&&s.s)||{}).length;
     await pt.evaluate(()=>window.__vooruit(31000));await w(1300);
     t(await pt.locator('#mailTraag [data-act="login-ms"]').count()===1,'trage code bij schoolmail: app biedt inloggen met het Microsoft-schoolaccount aan');
     await pt.context().close()}
+  // ---------- 15c. e-mail en wachtwoord (zonder mail, voor werk- en schoolmail) ----------
+  {const nieuwePagina=async()=>{const ctx=await b.newContext({viewport:{width:390,height:844}});const pm=await ctx.newPage();pm._errs=[];pm.on('pageerror',e=>pm._errs.push(e.message));await pm.goto(APP+'/mail.html#home');await w(300);return pm};
+    const ses=pm=>pm.evaluate(()=>JSON.parse(localStorage.getItem('boa-sessie')||'null'));
+    let pm=await nieuwePagina();await pm.click('[data-act="login-mail"]');await w(150);
+    t(/Werk- of schoolmail\?/.test(await pm.textContent('#mailTip'))&&await pm.locator('[data-act="ww-start"]').count()===1,'e-mail: tip voor werk- en schoolmail met de keuze inloggen met wachtwoord');
+    await pm.fill('#mailIn','kees@ns.nl');await pm.click('[data-act="ww-start"]');await w(150);
+    t(await pm.inputValue('#wwMail')==='kees@ns.nl'&&await pm.evaluate(()=>document.activeElement.id)==='wwIn'&&await pm.getAttribute('#wwIn','autocomplete')==='current-password','wachtwoord: e-mailadres overgenomen, cursor in het wachtwoordveld');
+    await pm.click('[data-act="ww-nieuw"]');await w(150);
+    t(await pm.getAttribute('#wwIn','autocomplete')==='new-password'&&/geen mail/.test(await pm.textContent('#wwForm')),'account maken: nieuw wachtwoord, uitleg dat er geen mail komt');
+    await pm.fill('#wwIn','kort');await pm.click('#wwForm button[type="submit"]');await w(200);
+    t(/te zwak/.test(await pm.textContent('.login'))&&!(await ses(pm)),'account maken: zwak wachtwoord geweigerd (in de app, zonder verzoek)');
+    await pm.click('[data-wwtoon="wwIn"]');t(await pm.getAttribute('#wwIn','type')==='text'&&/Verberg/.test(await pm.textContent('[data-wwtoon="wwIn"]')),'wachtwoord tonen en verbergen');
+    const mails0=db.otpMails||0;
+    await pm.fill('#wwIn','Boa2026paraat');await pm.click('#wwForm button[type="submit"]');await w(900);
+    let sx=await ses(pm);t(sx&&sx.u.email==='kees@ns.nl'&&(db.otpMails||0)===mails0,'account maken met wachtwoord: meteen ingelogd, er is geen mail verstuurd');
+    t(!pm._errs.length,'wachtwoord: geen JS-fouten'+(pm._errs.length?': '+pm._errs.join(' | '):''));await pm.context().close();
+    // inloggen, fout en goed
+    pm=await nieuwePagina();await pm.click('[data-act="login-mail"]');await pm.click('[data-act="ww-start"]');await w(150);
+    await pm.fill('#wwMail','kees@ns.nl');await pm.fill('#wwIn','Verkeerd123');await pm.click('#wwForm button[type="submit"]');await w(400);
+    t(/klopt niet/.test(await pm.textContent('.login'))&&!(await ses(pm))&&await pm.inputValue('#wwMail')==='kees@ns.nl','inloggen: verkeerd wachtwoord geeft een duidelijke melding, e-mailadres blijft staan');
+    await pm.fill('#wwIn','Boa2026paraat');await pm.press('#wwIn','Enter');await w(900);
+    sx=await ses(pm);t(sx&&sx.u.email==='kees@ns.nl','inloggen met e-mail en wachtwoord (Enter)');await pm.context().close();
+    // bestaand account: account maken stuurt naar inloggen
+    pm=await nieuwePagina();await pm.click('[data-act="login-mail"]');await pm.click('[data-act="ww-start"]');await pm.click('[data-act="ww-nieuw"]');await w(100);
+    await pm.fill('#wwMail','kees@ns.nl');await pm.fill('#wwIn','Anders2026x');await pm.click('#wwForm button[type="submit"]');await w(400);
+    t(/al een account/.test(await pm.textContent('.login'))&&/Inloggen/.test(await pm.textContent('#wwForm button[type="submit"]')),'account maken met een bestaand adres: melding en terug naar inloggen');
+    // wachtwoord vergeten
+    await pm.click('[data-act="ww-vergeten"]');await w(400);
+    t(await pm.locator('#wwHerstelForm').count()===1&&db.rec&&db.rec['kees@ns.nl'],'wachtwoord vergeten: code per mail en een veld voor een nieuw wachtwoord');
+    await pm.fill('#wwCode','771204');await pm.fill('#wwNieuw','Nieuw2026boa');await pm.click('#wwHerstelForm button[type="submit"]');await w(1000);
+    sx=await ses(pm);t(sx&&sx.u.email==='kees@ns.nl'&&db.pw['kees@ns.nl']==='Nieuw2026boa','wachtwoord vergeten: nieuw wachtwoord opgeslagen en ingelogd');
+    t(!pm._errs.length,'wachtwoord vergeten: geen JS-fouten'+(pm._errs.length?': '+pm._errs.join(' | '):''));await pm.context().close();
+    // 'Confirm email' aan in Supabase: dan toch eerst de code
+    db.bevestig=true;pm=await nieuwePagina();await pm.click('[data-act="login-mail"]');await pm.click('[data-act="ww-start"]');await pm.click('[data-act="ww-nieuw"]');await w(100);
+    await pm.fill('#wwMail','lot@example.com');await pm.fill('#wwIn','Lot2026boa');await pm.click('#wwForm button[type="submit"]');await w(500);
+    t(await pm.locator('#mailCodeForm').count()===1&&/account is gemaakt/.test(await pm.textContent('.login')),'als Supabase bevestiging eist: account gemaakt, daarna de code uit de mail');
+    db.bevestig=false;await pm.context().close();
+    // Profiel: wachtwoord instellen na inloggen met een code
+    pm=await nieuwePagina();await pm.evaluate(()=>{localStorage.setItem('phb-trainer-v1',JSON.stringify({s:{},h:[],x:[],p:{naam:'Sem',dom:'1',werk:'ROC',rol:'scholier',ob:1,gezien:'9',mld:{gevraagd:1}}}))});await pm.reload();await w(300);
+    await pm.click('[data-act="login-mail"]');await pm.fill('#mailIn','sem@school.nl');await pm.click('#mailForm button[type="submit"]');await w(400);
+    await pm.fill('#mailCode','482916');await w(1200);await pm.evaluate(()=>location.hash='profiel');await w(400);
+    await pm.click('[data-act="ww-zet"]');await w(150);await pm.fill('#wwZetIn','abc');await pm.click('#wwZetForm button[type="submit"]');await w(200);
+    t(/te zwak/.test(await pm.textContent('#account')),'Profiel: zwak wachtwoord geweigerd');
+    await pm.fill('#wwZetIn','Sem2026boa!');await pm.click('#wwZetForm button[type="submit"]');await w(600);
+    t(db.pw['sem@school.nl']==='Sem2026boa!'&&await pm.locator('#wwZetForm').count()===0,'Profiel: wachtwoord instellen, daarna kun je ook zo inloggen');
+    t(!pm._errs.length,'Profiel wachtwoord: geen JS-fouten'+(pm._errs.length?': '+pm._errs.join(' | '):''));await pm.context().close()}
   // ---------- 15b. e-mail: trage mail, wachttijd van Supabase, link uit de mail ----------
   {const ctx=await b.newContext({viewport:{width:390,height:844}});const pm=await ctx.newPage();pm._errs=[];pm.on('pageerror',e=>pm._errs.push(e.message));
     await pm.addInitScript(()=>{const echt=Date.now;let extra=0;window.__vooruit=ms=>{extra+=ms};Date.now=()=>echt()+extra});

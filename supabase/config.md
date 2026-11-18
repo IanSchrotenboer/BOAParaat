@@ -45,6 +45,21 @@ De knop "Inloggen met e-mail" verschijnt pas als in `bron/cloud.json` `"email": 
 6. Resend → Domains: `boaparaat.nl` moet op **Verified** staan (SPF en DKIM). Voeg bij STRATO ook een DMARC-record toe (`_dmarc` TXT `v=DMARC1; p=none;`); zonder DMARC zet Microsoft (Outlook, school- en werkmail) mail vaker in ongewenst of quarantaine. Of een mail echt is afgeleverd, zie je per mail in Resend → Emails (Delivered, Delayed, Bounced).
 7. De app vangt het op als iemand toch een link uit een (oude) mail gebruikt: op de website logt de link gewoon in, en is hij al gebruikt dan krijgt de gebruiker uitleg en meteen het veld om een nieuwe code te vragen (`loginLink` in `bron/cloud.js`). Na 30 seconden zonder code legt de app uit dat schoolmail kan vertragen en biedt hij Google aan.
 
+## Inloggen met e-mail en wachtwoord (zonder mail)
+
+Voor wie werk- of schoolmail heeft die de code tegenhoudt. In de app: Inloggen met e-mail → **Inloggen met wachtwoord** (account maken, inloggen, wachtwoord vergeten), en Profiel → Account → **Wachtwoord instellen of wijzigen** voor wie al met Google of een code inlogt.
+
+Instellingen in Supabase → Authentication → Sign In / Providers → **Email**:
+- **Enable Email provider** en **Allow new users to sign up**: aan.
+- **Confirm email**: **uit**. Anders moet een nieuw account eerst een code uit de mail invullen, en dat lukt juist niet bij werk- en schoolmail. (De app vangt het op als hij toch aan staat: dan volgt de code-stap.)
+- **Secure password change**: uit (anders moet je opnieuw inloggen voordat je je wachtwoord mag wijzigen).
+- **Minimum password length**: 8; **Password requirements**: letters en cijfers (de app eist hetzelfde).
+- Mailsjabloon **Reset password**: `supabase/mail/reset-password.html` (onderwerp `Je code voor een nieuw wachtwoord`), ook alleen met `{{ .Token }}` en zonder link.
+
+Afweging: met 'Confirm email' uit controleert niemand of het e-mailadres van een wachtwoordaccount echt van die persoon is. Voor een oefenapp zonder gevoelige gegevens is dat acceptabel; wachtwoord vergeten werkt wel alleen als de mail aankomt.
+
+Tweestapsverificatie (onderzocht 18 nov): Supabase kan een tweede stap met een authenticator-app (TOTP, gratis) of sms (betaalde add-on). Nog niet gebouwd.
+
 ## Inloggen met Microsoft (school- en werkaccounts)
 
 Voor leerlingen en medewerkers met Microsoft 365 (zoals een ROC): ze loggen in met hun schoolaccount, zonder mail. De knop "Inloggen met Microsoft – school- of werkaccount" verschijnt pas als in `bron/cloud.json` `"microsoft": true` staat; de app gebruikt provider `azure` met `scopes=email`.
