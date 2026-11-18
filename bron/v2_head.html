@@ -690,7 +690,6 @@ footer{font-size:13px;color:var(--muted);padding-block:8px 32px}
   body:not(.inses) .bar .wrap{justify-content:center}
 }
 /* lange schermen: wat buiten beeld is, wordt pas opgemaakt als je ernaartoe scrollt (sneller openen op trage telefoons) */
-.pdeel{content-visibility:auto;contain-intrinsic-size:auto 640px}
 /* leerpad (pad.js): een slingerend pad met lessen, sterren en een toets per deel */
 .padview{max-width:720px;margin-left:auto;margin-right:auto}
 .modrow.padmods{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}
@@ -705,7 +704,7 @@ footer{font-size:13px;color:var(--muted);padding-block:8px 32px}
 .pstat i svg{width:22px;height:22px;fill:currentColor}
 .pstat.vuur i{color:#d9772b}.pstat.goud i{color:var(--hivis)}
 .ring.mini{width:22px;height:22px}.ring.mini::after{content:"";position:absolute;top:4px;right:4px;bottom:4px;left:4px;border-radius:50%;background:var(--surface)}
-.pdeel{border:1px solid var(--line);border-radius:calc(var(--r) + 4px);background:var(--surface);padding:16px 16px 22px;display:flex;flex-direction:column;gap:18px}
+.pdeel{border:1px solid var(--line);border-radius:calc(var(--r) + 4px);background:var(--surface);padding:16px 16px 22px;display:flex;flex-direction:column;gap:18px;content-visibility:auto;contain-intrinsic-size:auto 640px}
 .pdeelkop{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:12px 14px;margin:-4px -4px 0;border-radius:var(--r);background:var(--navy);color:var(--navy-ink)}
 .pdeelkop h2{font-size:19px;color:inherit}.pdeelkop .eyebrow{color:inherit;opacity:.8}
 .pdeelkop .btn{background:var(--surface);color:var(--ink);border-color:transparent}
@@ -758,6 +757,26 @@ footer{font-size:13px;color:var(--muted);padding-block:8px 32px}
 .pgroot.goud{background:var(--warn-bg);color:var(--hivis)}.pgroot.goud svg{fill:currentColor}
 .puitslag.mis .pgroot{background:var(--bad-bg);color:var(--bad)}
 /* zoeken in studiestof en vragen */
+/* naslag: wetslinks, toetsterm en feitcodes (naslag.js) */
+a.wet{color:inherit;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px}
+a.wet:hover{color:var(--link)}
+a.wet::after{content:" ↗";text-decoration:none;display:inline-block;margin-left:1px}
+.chip.ref a.wet{color:inherit}
+.ref .btn.reflees{align-self:flex-start;white-space:normal;height:auto;min-height:38px;line-height:1.35;padding:8px 14px;text-align:left}
+.reftt{display:block;margin-top:4px;color:var(--muted)}
+.reftt .eyebrow{margin-right:4px}
+.feitlink{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:var(--rb);background:var(--surface);color:var(--ink);text-decoration:none}
+.feitlink>span:first-child{display:flex;flex-direction:column;gap:2px}
+@media (hover:hover){.feitlink:hover{border-color:var(--navy)}}
+.feitview{max-width:760px}
+.feiten{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.feit{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--rb);background:var(--surface)}
+.feit p{margin:0}
+.feitkop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.feitbedrag{font-family:var(--f-display);font-weight:800;font-size:20px;color:var(--navy)}
+.feitbedrag.om{font-size:14px;font-weight:700;color:var(--muted)}
+.feitlet{border-left:3px solid var(--hivis);padding-left:8px}
+.feitlinks{margin-top:4px}
 .zoek{display:flex;gap:10px;align-items:center}
 .zoek input{flex:1;min-width:0;font:inherit;font-size:16px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--rb);background:var(--surface);color:var(--ink)}
 .zoek input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px var(--ring)}

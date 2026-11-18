@@ -264,6 +264,7 @@ function render(){
   else if(r==="wv"){v="wv";h=viewWV()}
   else if(r.indexOf("verslag-")===0){v="verslag";h=viewWVResult(r.slice(8))}
   else if(r==="profiel"||r==="profiel-examens"||r==="profiel-phb3"||r==="profiel-fouten"||r==="fouten"){v="profiel";h=viewProfile(r==="profiel-examens"?"examens":r==="profiel-fouten"||r==="fouten"?"fouten":"voortgang")}
+  else if(r==="stof-feitcodes"){v="stof";h=viewFeiten()}
   else if(r==="stof"||r.indexOf("stof-")===0){v="stof";h=viewStof()}
   else if(r==="pad-les"&&!PL){location.replace("#pad");return}
   else if(r==="pad"||r.indexOf("pad-")===0){v="pad";h=viewPad(r)}
@@ -281,9 +282,10 @@ function refFor(q){
   for(const [re,sec] of STOF_ART){if(q.r&&re.test(q.r))return {sec}}
   const sec=STOF_CAT[q.c];if(!sec||!STOFBY[sec])return null;return {sec};
 }
-function refHtml(q){
-  const f=refFor(q);if(!f)return "";const s=STOFBY[f.sec];
-  return `<div class="ref"><span class="eyebrow">Studiestof</span><a href="#stof-${s.id}">Samenvatting: ${esc(s.titel)} →</a></div>`;
+// onder de uitleg: de samenvatting om na te lezen (bij een fout antwoord als knop) en de toetsterm uit de toetsmatrijs
+function refHtml(q,fout){
+  const f=refFor(q),s=f&&STOFBY[f.sec],t=toetsterm(q.id);if(!s&&!t)return "";
+  return `<div class="ref">${s?`<span class="eyebrow">Studiestof</span>${fout?`<a class="btn sm reflees" href="#stof-${s.id}">Lees de stof: ${esc(s.titel)} →</a>`:`<a href="#stof-${s.id}">Samenvatting: ${esc(s.titel)} →</a>`}`:""}${t?`<span class="reftt"><span class="eyebrow">Toetsterm ${esc(t[0])}</span> ${esc(t[1])}</span>`:""}</div>`;
 }
 // op een telefoon staat elk onderwerp ingeklapt; op een breed scherm (met inhoudsopgave ernaast) open. Een ingeklapt onderwerp krijgt
 // zijn tekst pas bij openen: op een telefoon scheelt dat driekwart van het werk bij het tonen van Studiestof.
@@ -297,6 +299,7 @@ function viewStof(){
     <div class="stack" style="gap:8px"><span class="eyebrow">Samenvattingen</span><h1>Studiestof</h1>
     <p class="lede">Samenvattingen per onderwerp.</p></div>
     ${zoekVeld()}
+    ${feitKaartStof()}
     <div class="stofgrid"${zoekWoorden(zoekQ).length?" hidden":""}><nav class="toc panel" aria-label="Onderwerpen">${groups.map(g=>`<div class="stack" style="gap:6px"><span class="eyebrow">${esc(g)}</span><ol>${STOF.filter(s=>s.deel===g).map(s=>`<li><a href="#stof-${s.id}">${esc(s.titel)}</a></li>`).join("")}</ol></div>`).join("")}</nav>
     <div class="stack">${groups.map(g=>`<h2 class="deel">${esc(g)}</h2>`+STOF.filter(s=>s.deel===g).map(s=>{const cs=catsFor(s.id);const open=!stofSmal()||route()==="stof-"+s.id;return `<details class="stofsec" id="s-${s.id}"${open?" open":""}>
       <summary><h3>${esc(s.titel)}</h3></summary>
@@ -560,7 +563,7 @@ function viewQuestion(){
     const mk=answered&&oi===0?`<svg class="mk" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 L10 17 L19 7.5"/></svg><span class="vh">(juiste antwoord)</span>`:answered&&it.pick===oi?`<svg class="mk" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7 L17 17 M17 7 L7 17"/></svg><span class="vh">(jouw antwoord)</span>`:"";
     return `<li><button class="${cls}" data-act="pick" data-o="${oi}" ${answered?"disabled":""} aria-pressed="${it.pick===oi}"><span class="k">${LET[pos]}</span><span class="tx">${esc(q.o[oi])}</span>${mk}</button></li>`}).join("");
   let fb="";
-  if(answered){const ok=it.pick===0;fb=`<div class="fb ${ok?"ok":"no"}" role="status"><strong>${ok?"Goed zo.":"Helaas, dit is niet goed."}</strong>${ok?"":`<p>Juist is: <b>${esc(q.o[0])}</b></p>`}<p style="margin-top:4px">${esc(q.e)}</p>${q.r?`<p class="art">${esc(q.r)}</p>`:""}${refHtml(q)}</div>`}
+  if(answered){const ok=it.pick===0;fb=`<div class="fb ${ok?"ok":"no"}" role="status"><strong>${ok?"Goed zo.":"Helaas, dit is niet goed."}</strong>${ok?"":`<p>Juist is: <b>${esc(q.o[0])}</b></p>`}<p style="margin-top:4px">${esc(q.e)}</p>${q.r?`<p class="art">${bronHtml(q.r)}</p>`:""}${refHtml(q,!ok)}</div>`}
   const last=S.i===n-1;let nav="";
   if(practice){nav=`<div class="row" style="justify-content:space-between"><span class="small kbdhint">Toets: <span class="kbd">A</span>–<span class="kbd">D</span> kiezen, <span class="kbd">Enter</span> verder</span>${answered?`<button class="btn hi qnext" data-act="${last?"finish":"next"}">${last?"Bekijk resultaat":"Volgende vraag"}</button>`:""}</div>`}
   else{nav=`<div class="row" style="justify-content:space-between">
@@ -618,7 +621,7 @@ function viewResult(){
     stats=[[pct(ratio),"goed"],[r.wrong+"/"+allowed,"fout (maximaal)"],[mins+" min","tijd"]]}
   head+=`<dl class="rstats">${stats.map(s=>`<div><dt>${s[1]}</dt><dd>${s[0]}</dd></div>`).join("")}</dl>`;
   const rows=Object.entries(byCat).sort((a,b)=>a[1][0]/a[1][1]-b[1][0]/b[1][1]).map(([c,v])=>`<tr><td>${esc(CATS[c][1])}</td><td style="width:35%"><div class="meter"><i style="width:${pct(v[0]/v[1])};background:${v[0]/v[1]>=.7?"var(--ok)":"var(--bad)"}"></i></div></td><td class="n">${v[0]}/${v[1]}</td></tr>`).join("");
-  const rev=wrongs.map(it=>{const q=BYID[it.id];const k=S.items.indexOf(it)+1;return `<details class="review"${wrongs.length<=3?" open":""}><summary><span class="qhead"><span class="chip">${esc(CATS[q.c][1])}</span><span class="mono small">Vraag ${k}</span></span><b>${esc(q.q)}</b></summary><div class="rbody"><p class="yours">Jouw antwoord: ${it.pick===null?"niet beantwoord":esc(q.o[it.pick])}</p><p class="corr">Juist: ${esc(q.o[0])}</p><p class="small">${esc(q.e)}</p>${q.r?`<div><span class="chip ref">${esc(q.r)}</span></div>`:""}${refHtml(q)}</div></details>`}).join("");
+  const rev=wrongs.map(it=>{const q=BYID[it.id];const k=S.items.indexOf(it)+1;return `<details class="review"${wrongs.length<=3?" open":""}><summary><span class="qhead"><span class="chip">${esc(CATS[q.c][1])}</span><span class="mono small">Vraag ${k}</span></span><b>${esc(q.q)}</b></summary><div class="rbody"><p class="yours">Jouw antwoord: ${it.pick===null?"niet beantwoord":esc(q.o[it.pick])}</p><p class="corr">Juist: ${esc(q.o[0])}</p><p class="small">${esc(q.e)}</p>${q.r?`<div><span class="chip ref">${bronHtml(q.r)}</span></div>`:""}${refHtml(q,true)}</div></details>`}).join("");
   return `<div class="stack"><span class="eyebrow">${esc(S.title)}</span>${head}
     ${S.locked?`<div class="lockbox stack" style="gap:10px"><div><b>${isEx?"Eerst de vragen uit dit examen oefenen":"Eerst deze vragen nog een keer"}</b><p class="small">Je had ${r.wrong} van de ${r.n} vragen fout (${pct(r.wrong/r.n)}). Bij meer dan 75% fout raden we aan eerst te oefenen. Oefen de vragen die je net hebt gehad${isEx?", met uitleg na elke vraag":""}; heb je daarvan minimaal een kwart goed, dan ${fromEx?"staat het nieuwe oefenexamen weer klaar":"komen er weer nieuwe vragen"}.</p></div>
       <div class="row"><button class="btn hi" data-act="redo-same">${isEx?"Oefen de vragen uit dit examen":"Dezelfde vragen opnieuw"} (${r.n})</button>${wrongs.length&&wrongs.length<r.n?`<button class="btn go" data-act="redo-wrong">Alleen de fouten (${wrongs.length})</button>`:""}</div>
