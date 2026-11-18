@@ -25,13 +25,16 @@ const needsLogin=()=>cloudKan()&&!sesGet();
 const b64url=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 function randStr(n){const a=new Uint8Array(n);crypto.getRandomValues(a);return b64url(a).slice(0,n)}
 function redirectUrl(){return isNative()?REDIR_APP:location.origin+location.pathname}
-async function loginStart(prov){prov=prov==="apple"&&CLOUD.apple?"apple":"google";
+// Microsoft (provider 'azure'): school- en werkaccounts (Microsoft 365) en persoonlijke Microsoft-accounts. Voor wie
+// geen Google heeft en bij wie de code per mail blijft hangen in de schoolmail. Zichtbaar met "microsoft": true.
+const PROV_NAAM={google:"Google",apple:"Apple",azure:"Microsoft"};
+async function loginStart(prov){prov=prov==="apple"&&CLOUD.apple?"apple":prov==="azure"&&CLOUD.microsoft?"azure":"google";
   if(!navigator.onLine){cloudFout="Je bent offline. Om in te loggen heb je internet nodig.";render();return}
-  cloudFout="";cloudHint="";cloudBezig=(prov==="apple"?"Apple":"Google")+" wordt geopend…";render();
+  cloudFout="";cloudHint="";cloudBezig=PROV_NAAM[prov]+" wordt geopend…";render();
   try{const v=randStr(64);const ch=b64url(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v)));
     try{localStorage.setItem(PKCE,v)}catch(e){}
     const red=DESK()&&DESK().loginRedirect?await DESK().loginRedirect():redirectUrl();
-    const u=CLOUD.url+"/auth/v1/authorize?provider="+prov+"&redirect_to="+encodeURIComponent(red)+"&code_challenge="+ch+"&code_challenge_method=s256"+(prov==="google"?"&prompt=select_account":"");
+    const u=CLOUD.url+"/auth/v1/authorize?provider="+prov+"&redirect_to="+encodeURIComponent(red)+"&code_challenge="+ch+"&code_challenge_method=s256"+(prov==="google"?"&prompt=select_account":prov==="azure"?"&scopes=email&prompt=select_account":"");
     const B=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.Browser;
     if(DESK()){await DESK().open(u);cloudBezig="";cloudHint="Log in via het venster van je browser. Daarna kom je vanzelf terug in Boa Paraat.";render()}
     else if(isNative()&&B){await B.open({url:u,presentationStyle:"popover"});cloudBezig="";render()}else location.assign(u);
@@ -103,7 +106,7 @@ function mailBlok(){
       <div class="field"><label for="mailCode">Code uit de mail</label>
       <input id="mailCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="10" placeholder="123456"${cloudFout?' aria-invalid="true" aria-describedby="mailErr"':""}></div>
       <button class="btn hi lgoogle" type="submit">Inloggen</button>
-      <p class="lhint" id="mailTraag"${Date.now()-mail.t>MAIL_TRAAG?"":" hidden"}>Nog geen mail? Soms duurt het een paar minuten. School- en werkmail houden een mail soms even vast of zetten hem in quarantaine. Kijk ook bij ongewenste e-mail, of gebruik een persoonlijk e-mailadres${CLOUD&&CLOUD.url?' of <button class="linkbtn" type="button" data-act="login">log in met Google</button>':""}.</p>
+      <p class="lhint" id="mailTraag"${Date.now()-mail.t>MAIL_TRAAG?"":" hidden"}>Nog geen mail? Soms duurt het een paar minuten. School- en werkmail houden een mail soms even vast of zetten hem in quarantaine. Kijk ook bij ongewenste e-mail, of gebruik een persoonlijk e-mailadres${CLOUD&&CLOUD.microsoft?'. Met schoolmail kun je ook <button class="linkbtn" type="button" data-act="login-ms">inloggen met je Microsoft-schoolaccount</button>':""}${CLOUD&&CLOUD.url?' of <button class="linkbtn" type="button" data-act="login">log in met Google</button>':""}.</p>
       <div class="row"><button class="linkbtn" type="button" data-act="mail-opnieuw"${wacht?" disabled":""}>${wacht?"Nieuwe code over "+wacht+" s":"Stuur een nieuwe code"}</button><button class="linkbtn" type="button" data-act="mail-ander">Ander e-mailadres</button></div></form>`}
   return `<button class="btn lmailbtn" data-act="login-mail">Inloggen met e-mail</button>`}
 document.addEventListener("submit",e=>{
@@ -208,7 +211,7 @@ function viewLogin(){
     <div class="whead"><span class="wmark" aria-hidden="true">${WMARK}</span>
       <div><h1>Welkom bij Boa Paraat</h1><p class="lede">De Examentrainer voor je PHB. Log in, dan blijft je voortgang bewaard op al je apparaten.</p></div></div>
     <div class="panel stack">
-      ${cloudBezig?`<p class="lbezig" role="status"><span class="spin" aria-hidden="true"></span>${esc(cloudBezig)}</p>`:mail.stap?mailBlok():`<button class="btn hi lgoogle" data-act="login">Inloggen met Google</button>${CLOUD&&CLOUD.apple?`<button class="btn lapple" data-act="login-apple">Inloggen met Apple</button>`:""}${CLOUD&&CLOUD.email?mailBlok():""}`}
+      ${cloudBezig?`<p class="lbezig" role="status"><span class="spin" aria-hidden="true"></span>${esc(cloudBezig)}</p>`:mail.stap?mailBlok():`<button class="btn hi lgoogle" data-act="login">Inloggen met Google</button>${CLOUD&&CLOUD.microsoft?`<button class="btn lmailbtn lms" data-act="login-ms">Inloggen met Microsoft<span class="lsub">school- of werkaccount</span></button>`:""}${CLOUD&&CLOUD.apple?`<button class="btn lapple" data-act="login-apple">Inloggen met Apple</button>`:""}${CLOUD&&CLOUD.email?mailBlok():""}`}
       ${cloudHint&&!cloudBezig&&!cloudFout?`<p class="lhint" role="status">${esc(cloudHint)}</p>`:""}
       ${cloudFout?`<p class="ferr" role="alert"${mail.stap?' id="mailErr"':""}>${esc(cloudFout)}</p>`:""}
       ${!navigator.onLine&&!cloudBezig?`<p class="small">Je bent nu offline. De eerste keer inloggen kan alleen met internet; daarna werkt de app ook offline.</p>`:""}
@@ -237,6 +240,7 @@ function viewAccount(){
 function cloudAct(act){
   if(act==="login"){loginStart("google");return true}
   if(act==="login-apple"){loginStart("apple");return true}
+  if(act==="login-ms"){loginStart("azure");return true}
   if(act==="login-mail"){mail={stap:1,adres:"",t:0};cloudFout="";render();const i=document.getElementById("mailIn");if(i)i.focus();return true}
   if(act==="mail-terug"){mail={stap:0,adres:"",t:0};cloudFout="";render();return true}
   if(act==="mail-ander"){mail={stap:1,adres:mail.adres,t:0};cloudFout="";render();const i=document.getElementById("mailIn");if(i)i.focus();return true}

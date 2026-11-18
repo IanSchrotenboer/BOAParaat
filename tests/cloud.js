@@ -23,7 +23,8 @@ const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);r
     const red=u.searchParams.get('redirect_to'),ch=u.searchParams.get('code_challenge');
     if(db.weiger){res.writeHead(302,{Location:red+'?error=access_denied&error_description=Toegang+geweigerd'});return res.end()}
     const prov=u.searchParams.get('provider');db.prov=prov;db.prompt=u.searchParams.get('prompt');
-    if(!['google','apple'].includes(prov)||u.searchParams.get('code_challenge_method')!=='s256'||!ch)return json(res,400,{error:'bad'});
+    db.scopes=u.searchParams.get('scopes');
+    if(!['google','apple','azure'].includes(prov)||u.searchParams.get('code_challenge_method')!=='s256'||!ch)return json(res,400,{error:'bad'});
     const code='c-'+crypto.randomBytes(6).toString('hex');db.codes[code]={ch,u:{...db.als}};db.users[db.als.id]={...db.als};
     res.writeHead(302,{Location:red+(red.includes('?')?'&':'?')+'code='+code});return res.end()}
   if(u.pathname==='/auth/v1/otp'&&req.method==='POST'){const b=JSON.parse(body||'{}');
@@ -59,7 +60,7 @@ const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);r
   json(res,404,{message:'?'})})});
 const app=http.createServer((req,res)=>{const u=new URL(req.url,'http://x');
   if(u.pathname==='/frame.html'){res.writeHead(200,{'Content-Type':'text/html'});return res.end(`<iframe src="${APP}/app.html#home" style="width:390px;height:800px"></iframe>`)}
-  res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(html.replace(/const CLOUD=(null|\{[^;]*\});/,'const CLOUD='+JSON.stringify(Object.assign({url:SUPA,key:'pk-test'},u.pathname==='/apple.html'?{apple:true}:u.pathname==='/mail.html'?{email:true}:{}))+';'))});
+  res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(html.replace(/const CLOUD=(null|\{[^;]*\});/,'const CLOUD='+JSON.stringify(Object.assign({url:SUPA,key:'pk-test'},u.pathname==='/apple.html'?{apple:true}:u.pathname==='/mail.html'?{email:true}:u.pathname==='/ms.html'?{email:true,microsoft:true}:{}))+';'))});
 const listen=s=>new Promise(r=>s.listen(0,'127.0.0.1',()=>r(s.address().port)));
 // ---------------- hulpjes ----------------
 const store=p=>p.evaluate(()=>JSON.parse(localStorage.getItem('phb-trainer-v1')||'{}'));
@@ -233,6 +234,25 @@ const nS=s=>Object.keys((s&&s.s)||{}).length;
     t(s&&s.u&&s.u.email==='eva@voorbeeld.nl'&&await pm.locator('#obForm').count()===1,'e-mail: juiste code (ook met spaties geplakt) logt in, daarna het welkomstscherm');
     t(!pm._errs.length,'e-mail: geen JS-fouten'+(pm._errs.length?': '+pm._errs.join(' | '):''));
     await ctx.close()}
+  // ---------- 15a. Microsoft (school- of werkaccount) ----------
+  {const pg=await (await b.newContext()).newPage();await pg.goto(APP+'/mail.html#home');await w(300);
+    t(await pg.locator('[data-act="login-ms"]').count()===0,'Microsoft: zonder Microsoft in de instellingen geen knop');await pg.context().close();
+    const ctx=await b.newContext({viewport:{width:390,height:844}});const pm=await ctx.newPage();pm._errs=[];pm.on('pageerror',e=>pm._errs.push(e.message));
+    await pm.goto(APP+'/ms.html#home');await w(300);
+    t(await pm.locator('[data-act="login"]').count()===1&&/school- of werkaccount/.test(await pm.textContent('[data-act="login-ms"]')),'Microsoft: knop "Inloggen met Microsoft – school- of werkaccount"');
+    const kn=await pm.locator('[data-act="login-ms"]').boundingBox();t(kn&&kn.height>=44,'Microsoft: knop groot genoeg om op te tikken');
+    db.als={id:'u-sanne',email:'sanne@leerling.school.nl',naam:'Sanne Bakker'};
+    await pm.click('[data-act="login-ms"]');await pm.waitForURL(/ms\.html(#.*)?$/,{timeout:5000}).catch(()=>{});await w(900);
+    t(db.prov==='azure'&&db.scopes==='email'&&db.prompt==='select_account','Microsoft: inloggen via Microsoft (azure) met e-mail en accountkeuze');
+    const s=await pm.evaluate(()=>JSON.parse(localStorage.getItem('boa-sessie')||'null'));
+    t(s&&s.u&&s.u.email==='sanne@leerling.school.nl','Microsoft: ingelogd met het schoolaccount');
+    t(!pm._errs.length,'Microsoft: geen JS-fouten'+(pm._errs.length?': '+pm._errs.join(' | '):''));
+    await ctx.close();
+    const pt=await (await b.newContext()).newPage();await pt.addInitScript(()=>{const echt=Date.now;let extra=0;window.__vooruit=ms=>{extra+=ms};Date.now=()=>echt()+extra});
+    await pt.goto(APP+'/ms.html#home');await w(300);await pt.click('[data-act="login-mail"]');await w(150);await pt.fill('#mailIn','tim@school.nl');await pt.click('#mailForm button[type="submit"]');await w(400);
+    await pt.evaluate(()=>window.__vooruit(31000));await w(1300);
+    t(await pt.locator('#mailTraag [data-act="login-ms"]').count()===1,'trage code bij schoolmail: app biedt inloggen met het Microsoft-schoolaccount aan');
+    await pt.context().close()}
   // ---------- 15b. e-mail: trage mail, wachttijd van Supabase, link uit de mail ----------
   {const ctx=await b.newContext({viewport:{width:390,height:844}});const pm=await ctx.newPage();pm._errs=[];pm.on('pageerror',e=>pm._errs.push(e.message));
     await pm.addInitScript(()=>{const echt=Date.now;let extra=0;window.__vooruit=ms=>{extra+=ms};Date.now=()=>echt()+extra});

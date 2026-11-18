@@ -662,7 +662,7 @@ document.addEventListener("click",e=>{
   if(act.indexOf("kz-")===0&&casusClick(act,{...d}))return;
   if(act.indexOf("zoek-")===0&&zoekClick(act))return;
   if(act.indexOf("yt-")===0&&ytClick(act,{...d}))return;
-  if(["login","login-apple","login-mail","mail-terug","mail-ander","mail-opnieuw","sync","logout","logout-no","acc-del","acc-del-no","acc-del-yes"].includes(act)&&cloudAct(act))return;
+  if(["login","login-apple","login-ms","login-mail","mail-terug","mail-ander","mail-opnieuw","sync","logout","logout-no","acc-del","acc-del-no","acc-del-yes"].includes(act)&&cloudAct(act))return;
   if((act.indexOf("lic-")===0||act==="ob-lic")&&licAct(act))return;
   if(["oefen","mix","fouten","herhaal","toets","examen","mtx"].includes(act)){launch(act,{...d});return}
   if(act==="akte-edit"){const go=()=>{const f=$("#pAkte");if(f){f.scrollIntoView({block:"center"});f.focus()}};if($("#pAkte"))go();else{location.hash="profiel";setTimeout(go,120)}return}
