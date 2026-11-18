@@ -11,6 +11,7 @@
 // voorbeeld (iframe) kan Google niet inloggen; daar werkt de app zoals voorheen, alleen op dit apparaat.
 const CLOUD=/*__CLOUD__*/null;
 const SITE=/*__SITE__*/"";
+const SITE_CONTACT=/*__CONTACT__*/"";
 const SES="boa-sessie",PKCE="boa-pkce",REDIR_APP="nl.boa.phbtrainer://login";
 let cloudBezig="",cloudFout="",cloudHint="",cloudSync={t:0,ok:true,bezig:false},cloudDel=false,cloudUit=false;
 const DESK=()=>window.boaDesktop&&typeof window.boaDesktop.open==="function"?window.boaDesktop:null;
@@ -60,7 +61,31 @@ async function loginTerug(url){
     try{localStorage.removeItem(PKCE)}catch(e){}
     await loginKlaar(j);
   }catch(e){cloudBezig="";cloudFout=e.status>=500||!navigator.onLine?"Geen verbinding met de server. Probeer het zo opnieuw.":"Inloggen is niet gelukt. Probeer het opnieuw.";render()}}
-async function loginKlaar(j){
+// ----- tweestapsverificatie (vrijwillig, Profiel → Account; authenticator-app, Supabase MFA 'totp') -----
+// Na elke manier van inloggen: heeft dit account een tweede stap aan, dan eerst de code uit de app (mfaBlok); pas
+// daarna wordt de sessie bewaard. De database laat voortgang alleen toe met een sessie mét tweede stap (mfa_ok()).
+let mfaWacht=null;
+const mfaFactor=u=>((u&&u.factors)||[]).find(f=>f.factor_type==="totp"&&f.status==="verified")||null;
+async function authMet(tok,method,pad,body){
+  const r=await fetch(CLOUD.url+"/auth/v1/"+pad,{method,headers:{apikey:CLOUD.key,Authorization:"Bearer "+tok,"Content-Type":"application/json"},body:body===undefined?undefined:JSON.stringify(body)});
+  const j=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(j.msg||j.error_description||j.error||("HTTP "+r.status));e.status=r.status;e.code=j.error_code||j.error||"";throw e}return j}
+async function mfaCode(tok,fid,code){const ch=await authMet(tok,"POST","factors/"+fid+"/challenge",{});return authMet(tok,"POST","factors/"+fid+"/verify",{challenge_id:ch.id,code})}
+const mfaFoutTekst=e=>e.status>=500||!navigator.onLine?"Geen verbinding met de server. Probeer het zo opnieuw."
+  :e.status===429?"Te veel pogingen achter elkaar. Wacht een paar minuten.":"Deze code klopt niet. Neem de nieuwste code uit je authenticator-app en kijk of de tijd op je telefoon goed staat.";
+function mfaBlok(){return `<form class="stack lmail" id="mfaForm" novalidate><p class="lhint" role="status"><b>Tweestapsverificatie.</b> Vul de code van 6 cijfers in uit je authenticator-app.</p>
+    <div class="field"><label for="mfaIn">Code uit je authenticator-app</label><input id="mfaIn" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" placeholder="123456"${cloudFout?' aria-invalid="true"':""}></div>
+    <button class="btn hi lgoogle" type="submit">Bevestigen</button>
+    <p class="small">Geen toegang meer tot je authenticator-app? Mail ${SITE_CONTACT?esc(SITE_CONTACT):"de beheerder van Boa Paraat"}, dan zetten we de tweede stap voor je uit.</p>
+    <div class="row"><button class="linkbtn" type="button" data-act="mfa-weg">Annuleren</button></div></form>`}
+async function mfaInlog(code){code=String(code||"").replace(/\D/g,"");if(!mfaWacht)return;
+  if(code.length!==6){cloudFout="Vul de 6 cijfers uit je authenticator-app in.";render();const i=document.getElementById("mfaIn");if(i)i.focus();return}
+  cloudFout="";cloudBezig="Bezig met inloggen…";render();
+  try{const j=await mfaCode(mfaWacht.j.access_token,mfaWacht.fid,code);mfaWacht=null;await loginKlaar(j,true)}
+  catch(e){cloudBezig="";cloudFout=mfaFoutTekst(e);render();const i=document.getElementById("mfaIn");if(i){i.value="";i.focus()}}}
+async function loginKlaar(j,naMfa){
+    if(!naMfa){let u=j.user;
+      if(!u||!Array.isArray(u.factors)){try{u=await authMet(j.access_token,"GET","user")}catch(e){u=j.user}}
+      const f=mfaFactor(u);if(f){mfaWacht={j,fid:f.id};cloudBezig="";cloudFout="";cloudHint="";mail={stap:0,adres:"",t:0};render();const i=document.getElementById("mfaIn");if(i)i.focus();return}}
     const s=sesVan(j);
     // andere gebruiker dan de vorige op dit apparaat: diens gegevens niet meenemen naar dit account
     if(store.eig&&store.eig!==s.u.id){store=blank()}
@@ -118,7 +143,9 @@ document.addEventListener("submit",e=>{
   if(e.target.id==="mailCodeForm"){e.preventDefault();mailCheck((document.getElementById("mailCode")||{}).value)}
   if(e.target.id==="wwForm"){e.preventDefault();wwGa((document.getElementById("wwMail")||{}).value,(document.getElementById("wwIn")||{}).value)}
   if(e.target.id==="wwHerstelForm"){e.preventDefault();wwHerstel((document.getElementById("wwCode")||{}).value,(document.getElementById("wwNieuw")||{}).value)}
-  if(e.target.id==="wwZetForm"){e.preventDefault();wwZet((document.getElementById("wwZetIn")||{}).value)}});
+  if(e.target.id==="wwZetForm"){e.preventDefault();wwZet((document.getElementById("wwZetIn")||{}).value)}
+  if(e.target.id==="mfaForm"){e.preventDefault();mfaInlog((document.getElementById("mfaIn")||{}).value)}
+  if(e.target.id==="mfaZetForm"){e.preventDefault();mfaBevestig((document.getElementById("mfaZetIn")||{}).value)}});
 // ----- inloggen met e-mail en wachtwoord: werkt zonder mail, ook met werk- en schoolmail die de code tegenhoudt -----
 // Account maken: POST /signup. Staat in Supabase 'Confirm email' uit, dan ben je meteen ingelogd; staat hij aan, dan
 // komt er toch eerst een code per mail (stap 2). Wachtwoord vergeten: een code per mail (sjabloon 'Reset password',
@@ -191,6 +218,45 @@ async function wwZet(ww){ww=String(ww||"");
     const k=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(k.msg||"");e.status=r.status;e.code=k.error_code||"";throw e}
     cloudBezig="";wwZetOpen=false;render();toast("Je wachtwoord is opgeslagen. Je kunt nu ook inloggen met je e-mailadres en wachtwoord")}
   catch(e){cloudBezig="";cloudFout=e.code==="weak_password"?"Dit wachtwoord is te zwak. "+WW_EIS:e.code==="same_password"?"Dit is al je wachtwoord.":e.code==="reauthentication_needed"?"Log opnieuw in en probeer het dan nog eens.":wwFoutTekst(e)||"Je wachtwoord kon niet worden opgeslagen. Probeer het opnieuw.";render()}}
+// Profiel → Account: tweestapsverificatie aan- of uitzetten
+let mfa={geladen:false,aan:false,fid:"",nieuw:null,uit:false,fout:""};
+async function mfaLaad(){if(mfa.geladen||mfa.laden)return;mfa.laden=true;
+  try{const u=await authMet(await token(),"GET","user");const f=mfaFactor(u);mfa={...mfa,geladen:true,aan:!!f,fid:f?f.id:""};if(route()==="profiel")render()}
+  catch(e){}finally{mfa.laden=false}}
+async function mfaStart(){mfa.fout="";cloudBezig="";render();
+  try{const tok=await token();const u=await authMet(tok,"GET","user");
+    // half afgemaakte eerdere poging opruimen
+    for(const f of (u.factors||[]))if(f.status!=="verified"){try{await authMet(tok,"DELETE","factors/"+f.id)}catch(e){}}
+    const n=await authMet(tok,"POST","factors",{factor_type:"totp",friendly_name:"Boa Paraat "+new Date().toISOString().slice(0,10),issuer:"Boa Paraat"});
+    mfa.nieuw={fid:n.id,qr:n.totp.qr_code,geheim:n.totp.secret,uri:n.totp.uri};render();const i=document.getElementById("mfaZetIn");if(i)i.focus()}
+  catch(e){mfa.fout=e.status>=500||!navigator.onLine?"Geen verbinding met de server. Probeer het zo opnieuw.":"Tweestapsverificatie aanzetten lukt nu niet. Probeer het later opnieuw.";render()}}
+async function mfaBevestig(code){code=String(code||"").replace(/\D/g,"");if(!mfa.nieuw)return;
+  if(code.length!==6){mfa.fout="Vul de 6 cijfers uit je authenticator-app in.";render();const i=document.getElementById("mfaZetIn");if(i)i.focus();return}
+  mfa.fout="";render();
+  try{const j=await mfaCode(await token(),mfa.nieuw.fid,code);
+    const s=sesVan(j);sesSet(s);mfa={...mfa,aan:true,fid:mfa.nieuw.fid,nieuw:null,fout:""};
+    // andere apparaten uitloggen: daar moet je opnieuw inloggen, nu met de tweede stap
+    authMet(s.a,"POST","logout?scope=others").catch(()=>{});
+    render();toast("Tweestapsverificatie staat aan. Op je andere apparaten log je opnieuw in")}
+  catch(e){mfa.fout=mfaFoutTekst(e);render();const i=document.getElementById("mfaZetIn");if(i){i.value="";i.focus()}}}
+async function mfaUitzetten(){mfa.fout="";render();
+  try{await authMet(await token(),"DELETE","factors/"+mfa.fid);mfa={...mfa,aan:false,fid:"",uit:false};render();toast("Tweestapsverificatie staat uit")}
+  catch(e){mfa.uit=false;mfa.fout=e.code==="insufficient_aal"||e.status===403?"Log uit en log opnieuw in met de code uit je authenticator-app; daarna kun je het uitzetten.":"Uitzetten lukt nu niet. Probeer het later opnieuw.";render()}}
+function mfaAccountBlok(){if(!mfa.geladen){setTimeout(mfaLaad,0);return ""}
+  const fout=mfa.fout?`<p class="ferr" role="alert">${esc(mfa.fout)}</p>`:"";
+  if(mfa.nieuw){const g=mfa.nieuw.geheim.replace(/(.{4})/g,"$1 ").trim();
+    return `<div class="panel stack" id="mfa"><b>Tweestapsverificatie aanzetten</b>
+      <ol class="mfastap"><li>Installeer een authenticator-app, bijvoorbeeld Google Authenticator of Microsoft Authenticator. Op een iPhone kan het ook in de app Wachtwoorden.</li>
+      <li>Scan deze QR-code met die app.<div class="mfaqr"><img src="${esc(mfa.nieuw.qr)}" alt="QR-code voor je authenticator-app" width="180" height="180"></div>
+        Staat de app op deze telefoon? <a href="${esc(mfa.nieuw.uri)}">Open in je authenticator-app</a>, of typ deze sleutel over: <code class="mfasleutel">${esc(g)}</code> <button class="linkbtn" type="button" data-act="mfa-kopieer">Kopieer sleutel</button></li>
+      <li>Vul de code van 6 cijfers in die de app nu laat zien.</li></ol>
+      <form class="stack" id="mfaZetForm" novalidate><div class="field"><label for="mfaZetIn">Code uit je authenticator-app</label><input id="mfaZetIn" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" placeholder="123456"></div>
+      ${fout}<div class="row"><button class="btn hi" type="submit">Bevestigen</button><button class="btn" type="button" data-act="mfa-annuleer">Annuleren</button></div></form></div>`}
+  if(mfa.aan)return `<div class="panel stack" id="mfa"><b>Tweestapsverificatie staat aan</b><p class="small">Bij het inloggen vraagt de app na je wachtwoord, Google of e-mailcode ook om de code uit je authenticator-app.</p>${fout}
+    ${mfa.uit?`<div class="confirm stack" style="gap:10px"><span><b>Tweestapsverificatie uitzetten?</b> Daarna is inloggen weer zonder de tweede stap.</span><div class="row"><button class="btn danger" data-act="mfa-uit-ja">Uitzetten</button><button class="btn" data-act="mfa-uit-nee">Laat aan</button></div></div>`
+      :`<div class="row"><button class="btn" data-act="mfa-uit">Uitzetten</button></div>`}</div>`;
+  return `<div class="panel stack" id="mfa"><b>Tweestapsverificatie</b><p class="small">Extra beveiliging, als je wilt: bij het inloggen vul je dan ook een code in uit een authenticator-app op je telefoon.</p>${fout}
+    <div class="row"><button class="btn" data-act="mfa-aan">Aanzetten</button></div></div>`}
 function wwZetBlok(){return wwZetOpen?`<form class="stack" id="wwZetForm" novalidate>${wwVeld("wwZetIn","new-password","Nieuw wachtwoord")}<p class="small">${WW_EIS} Daarna kun je ook inloggen met je e-mailadres en dit wachtwoord, bijvoorbeeld op een computer waar je mail de code tegenhoudt.</p>
     <div class="row"><button class="btn hi" type="submit">Opslaan</button><button class="btn" type="button" data-act="ww-zet-nee">Annuleren</button></div></form>`
   :`<div class="row"><button class="btn" data-act="ww-zet">Wachtwoord instellen of wijzigen</button></div>`}
@@ -286,14 +352,14 @@ async function accountWeg(){
     const s=sesGet();if(s)fetch(CLOUD.url+"/auth/v1/logout",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+s.a}}).catch(()=>{});
     wisLokaal();cloudBezig="";cloudDel=false;location.hash="home";render();toast("Je account en je voortgang zijn verwijderd")}
   catch(e){cloudBezig="";cloudFout="Verwijderen is niet gelukt. Controleer je internetverbinding en probeer het opnieuw.";render()}}
-function wisLokaal(){sesSet(null);benBeheer=false;beheerGevraagd=false;clearTimeout(syncT);store=blank();try{localStorage.removeItem(KEY)}catch(e){}confirmUitOffline=false;cloudUit=false;applyTheme()}
+function wisLokaal(){sesSet(null);mfa={geladen:false,aan:false,fid:"",nieuw:null,uit:false,fout:""};mfaWacht=null;benBeheer=false;beheerGevraagd=false;clearTimeout(syncT);store=blank();try{localStorage.removeItem(KEY)}catch(e){}confirmUitOffline=false;cloudUit=false;applyTheme()}
 // ----- schermen -----
 function viewLogin(){
   return `<div class="welcome login">
     <div class="whead"><span class="wmark" aria-hidden="true">${WMARK}</span>
       <div><h1>Welkom bij Boa Paraat</h1><p class="lede">De Examentrainer voor je PHB. Log in, dan blijft je voortgang bewaard op al je apparaten.</p></div></div>
     <div class="panel stack">
-      ${cloudBezig?`<p class="lbezig" role="status"><span class="spin" aria-hidden="true"></span>${esc(cloudBezig)}</p>`:mail.stap?mailBlok():`<button class="btn hi lgoogle" data-act="login">Inloggen met Google</button>${CLOUD&&CLOUD.microsoft?`<button class="btn lmailbtn lms" data-act="login-ms">Inloggen met Microsoft<span class="lsub">school- of werkaccount</span></button>`:""}${CLOUD&&CLOUD.apple?`<button class="btn lapple" data-act="login-apple">Inloggen met Apple</button>`:""}${CLOUD&&CLOUD.email?mailBlok():""}`}
+      ${cloudBezig?`<p class="lbezig" role="status"><span class="spin" aria-hidden="true"></span>${esc(cloudBezig)}</p>`:mfaWacht?mfaBlok():mail.stap?mailBlok():`<button class="btn hi lgoogle" data-act="login">Inloggen met Google</button>${CLOUD&&CLOUD.microsoft?`<button class="btn lmailbtn lms" data-act="login-ms">Inloggen met Microsoft<span class="lsub">school- of werkaccount</span></button>`:""}${CLOUD&&CLOUD.apple?`<button class="btn lapple" data-act="login-apple">Inloggen met Apple</button>`:""}${CLOUD&&CLOUD.email?mailBlok():""}`}
       ${cloudHint&&!cloudBezig&&!cloudFout?`<p class="lhint" role="status">${esc(cloudHint)}</p>`:""}
       ${cloudFout?`<p class="ferr" role="alert"${mail.stap?' id="mailErr"':""}>${esc(cloudFout)}</p>`:""}
       ${!navigator.onLine&&!cloudBezig?`<p class="small">Je bent nu offline. De eerste keer inloggen kan alleen met internet; daarna werkt de app ook offline.</p>`:""}
@@ -318,7 +384,7 @@ function viewAccount(){
       cloudDel?`<div class="confirm stack" style="gap:10px"><span><b>Account verwijderen?</b> Je account en al je voortgang, examens en verslagen worden definitief verwijderd, ook van dit apparaat. Dit kan niet ongedaan worden gemaakt.</span><div class="row"><button class="btn danger" data-act="acc-del-yes">Ja, definitief verwijderen</button><button class="btn" data-act="acc-del-no">Annuleren</button></div></div>`:
       `<div class="row"><button class="btn" data-act="sync">Nu bijwerken</button><button class="btn" data-act="logout">Uitloggen</button><button class="btn danger" data-act="acc-del">Account verwijderen</button></div>${wwZetBlok()}`}
     ${SITE?`<p class="small"><a href="${SITE}privacy.html" target="_blank" rel="noopener" data-ext>Privacyverklaring</a></p>`:""}
-    </div>${benBeheer?`<div class="panel stack" id="beheer"><b>Beheer</b><p class="small">Zie wie de app gebruikt en waar ze mee bezig zijn, en welke codes je hebt uitgegeven.</p><div class="row"><a class="btn" href="${esc(beheerUrl())}">Open het beheer</a></div></div>`:""}</div>`}
+    </div>${mfaAccountBlok()}${benBeheer?`<div class="panel stack" id="beheer"><b>Beheer</b><p class="small">Zie wie de app gebruikt en waar ze mee bezig zijn, en welke codes je hebt uitgegeven.</p><div class="row"><a class="btn" href="${esc(beheerUrl())}">Open het beheer</a></div></div>`:""}</div>`}
 function cloudAct(act){
   if(act==="login"){loginStart("google");return true}
   if(act==="login-apple"){loginStart("apple");return true}
@@ -330,6 +396,13 @@ function cloudAct(act){
   if(act==="ww-start"){const a=String(((document.getElementById("mailIn")||{}).value)||"").trim();mail={stap:3,adres:a||mail.adres,t:0,ww:"in"};cloudFout="";render();const i=document.getElementById(a?"wwIn":"wwMail");if(i)i.focus();return true}
   if(act==="ww-in"||act==="ww-nieuw"){const a=(document.getElementById("wwMail")||{}).value;mail={stap:3,adres:a!=null?a:mail.adres,t:0,ww:act==="ww-nieuw"?"nieuw":"in"};cloudFout="";render();const i=document.getElementById("wwIn");if(i)i.focus();return true}
   if(act==="ww-vergeten"){wwVergeten();return true}
+  if(act==="mfa-weg"){const j=mfaWacht&&mfaWacht.j;mfaWacht=null;cloudFout="";if(j)authMet(j.access_token,"POST","logout").catch(()=>{});render();return true}
+  if(act==="mfa-aan"){mfaStart();return true}
+  if(act==="mfa-annuleer"){const n=mfa.nieuw;mfa.nieuw=null;mfa.fout="";render();if(n)token().then(t=>authMet(t,"DELETE","factors/"+n.fid)).catch(()=>{});return true}
+  if(act==="mfa-kopieer"){try{navigator.clipboard.writeText(mfa.nieuw.geheim).then(()=>toast("Sleutel gekopieerd"),()=>toast("Kopiëren lukt niet; typ de sleutel over"))}catch(e){toast("Kopiëren lukt niet; typ de sleutel over")}return true}
+  if(act==="mfa-uit"){mfa.uit=true;mfa.fout="";render();return true}
+  if(act==="mfa-uit-nee"){mfa.uit=false;render();return true}
+  if(act==="mfa-uit-ja"){mfaUitzetten();return true}
   if(act==="ww-zet"){wwZetOpen=true;cloudFout="";render();const i=document.getElementById("wwZetIn");if(i)i.focus();return true}
   if(act==="ww-zet-nee"){wwZetOpen=false;cloudFout="";render();return true}
   if(act==="sync"){cloudFout="";cloudSyncNu().then(ok=>{if(!ok)toast("Bijwerken lukt nu niet. Controleer je internetverbinding.")});render();return true}

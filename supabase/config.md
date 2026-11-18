@@ -58,7 +58,13 @@ Instellingen in Supabase → Authentication → Sign In / Providers → **Email*
 
 Afweging: met 'Confirm email' uit controleert niemand of het e-mailadres van een wachtwoordaccount echt van die persoon is. Voor een oefenapp zonder gevoelige gegevens is dat acceptabel; wachtwoord vergeten werkt wel alleen als de mail aankomt.
 
-Tweestapsverificatie (onderzocht 18 nov): Supabase kan een tweede stap met een authenticator-app (TOTP, gratis) of sms (betaalde add-on). Nog niet gebouwd.
+## Tweestapsverificatie (vrijwillig)
+
+- Profiel → Account → **Tweestapsverificatie**: aanzetten met een authenticator-app (TOTP, gratis in Supabase; sms kost $75/maand plus sms-kosten en is daarom niet gebouwd). Supabase → Authentication → Multi-Factor: **TOTP (App Authenticator)** moet aan staan (standaard aan).
+- Na elke manier van inloggen vraagt de app de code als het account een geverifieerde factor heeft (`loginKlaar` → `mfaBlok`); pas daarna wordt de sessie bewaard. Bij aanzetten worden andere apparaten uitgelogd (`logout?scope=others`).
+- Afgedwongen in de database: `public.mfa_ok()` + restrictive policy op `voortgang` (migratie `20261118100000_tweestapsverificatie.sql`): wie een tweede stap heeft, kan zijn voortgang alleen lezen en bewaren met een sessie met `aal2`.
+- Telefoon kwijt: in Supabase → Authentication → Users → gebruiker → **Remove MFA factor** (of `delete from auth.mfa_factors where user_id = '…'`).
+- Beheerpagina en docentenomgeving vragen (nog) geen tweede stap; de beheerfuncties kijken alleen of je beheerder bent.
 
 ## Inloggen met Microsoft (school- en werkaccounts)
 

@@ -12,8 +12,8 @@ const html=fs.readFileSync(SRC,'utf8');
 const db={users:{},rows:{},codes:{},tokens:{},refresh:{},als:{id:'u-anna',email:'anna@example.com',naam:'Anna de Boer'},calls:[]};
 const b64url=b=>b.toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 function json(res,code,obj){res.writeHead(code,{'Content-Type':'application/json','Access-Control-Allow-Origin':'*'});res.end(obj==null?'':JSON.stringify(obj))}
-function tokensVoor(u){const a='at-'+crypto.randomBytes(8).toString('hex'),r='rt-'+crypto.randomBytes(8).toString('hex');db.tokens[a]={u:u.id,exp:Date.now()+3600e3};db.refresh[r]=u.id;
-  return {access_token:a,refresh_token:r,expires_in:3600,token_type:'bearer',user:{id:u.id,email:u.email,user_metadata:{full_name:u.naam}}}}
+function tokensVoor(u,aal){const a='at-'+crypto.randomBytes(8).toString('hex'),r='rt-'+crypto.randomBytes(8).toString('hex');db.tokens[a]={u:u.id,exp:Date.now()+3600e3,aal:aal||'aal1'};db.refresh[r]=u.id;
+  return {access_token:a,refresh_token:r,expires_in:3600,token_type:'bearer',user:{id:u.id,email:u.email,user_metadata:{full_name:u.naam},factors:(db.factors&&db.factors[u.id])||[]}}}
 let SUPA='',APP='';
 const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);req.on('end',()=>{
   const u=new URL(req.url,'http://x');db.calls.push(req.method+' '+u.pathname);
@@ -61,8 +61,19 @@ const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);r
     if(u.searchParams.get('grant_type')==='refresh_token'){const id=db.refresh[b.refresh_token];delete db.refresh[b.refresh_token];
       if(!id||!db.users[id])return json(res,400,{error:'invalid_grant'});db.vernieuwd=(db.vernieuwd||0)+1;return json(res,200,tokensVoor(db.users[id]))}
     return json(res,400,{error:'grant'})}
-  if(u.pathname==='/auth/v1/logout')return json(res,204,null);
-  if(u.pathname==='/auth/v1/user'&&req.method==='GET'){const t0=(req.headers.authorization||'').replace('Bearer ','');const ss=db.tokens[t0];if(!ss)return json(res,401,{error:'bad_jwt'});const us=db.users[ss.u];return json(res,200,{id:us.id,email:us.email,user_metadata:{}})}
+  if(u.pathname==='/auth/v1/logout'&&u.searchParams.get('scope')!=='others')return json(res,204,null);
+  if(u.pathname==='/auth/v1/user'&&req.method==='GET'){const t0=(req.headers.authorization||'').replace('Bearer ','');const ss=db.tokens[t0];if(!ss)return json(res,401,{error:'bad_jwt'});const us=db.users[ss.u];return json(res,200,{id:us.id,email:us.email,user_metadata:{},factors:(db.factors&&db.factors[us.id])||[]})}
+  // tweestapsverificatie (TOTP): de juiste code is altijd 135790
+  if(u.pathname.startsWith('/auth/v1/factors')||(u.pathname==='/auth/v1/logout'&&u.searchParams.get('scope')==='others')){const t0=(req.headers.authorization||'').replace('Bearer ','');const ss=db.tokens[t0];if(!ss)return json(res,401,{error_code:'bad_jwt'});
+    const us=db.users[ss.u];db.factors=db.factors||{};const fs=db.factors[us.id]=db.factors[us.id]||[];const deel=u.pathname.split('/').slice(4);
+    if(u.pathname==='/auth/v1/logout'){db.anderenUit=(db.anderenUit||0)+1;return json(res,204,null)}
+    if(!deel.length&&req.method==='POST'){const f={id:'f-'+crypto.randomBytes(4).toString('hex'),factor_type:'totp',status:'unverified',friendly_name:JSON.parse(body||'{}').friendly_name};fs.push(f);
+      return json(res,200,{id:f.id,type:'totp',totp:{qr_code:'data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><rect width="180" height="180" fill="#000"/></svg>',secret:'JBSWY3DPEHPK3PXP',uri:'otpauth://totp/Boa%20Paraat:x?secret=JBSWY3DPEHPK3PXP&issuer=Boa%20Paraat'}})}
+    const f=fs.find(x=>x.id===deel[0]);if(!f)return json(res,404,{error_code:'mfa_factor_not_found'});
+    if(deel[1]==='challenge')return json(res,200,{id:'ch-'+f.id,type:'totp'});
+    if(deel[1]==='verify'){const b=JSON.parse(body||'{}');if(b.code!=='135790'||b.challenge_id!=='ch-'+f.id)return json(res,422,{error_code:'mfa_verification_failed',msg:'Invalid TOTP code entered'});f.status='verified';db.mfaVerify=(db.mfaVerify||0)+1;return json(res,200,tokensVoor(us,'aal2'))}
+    if(req.method==='DELETE'){if(f.status==='verified'&&ss.aal!=='aal2')return json(res,403,{error_code:'insufficient_aal',msg:'AAL2 required'});fs.splice(fs.indexOf(f),1);return json(res,200,{id:f.id})}
+    return json(res,400,{error:'?'})}
   // REST met row level security
   const tok=(req.headers.authorization||'').replace('Bearer ','');const ses=db.tokens[tok];
   if(u.pathname.startsWith('/rest/v1/')){
@@ -317,6 +328,43 @@ const nS=s=>Object.keys((s&&s.s)||{}).length;
     await pm.fill('#wwZetIn','Sem2026boa!');await pm.click('#wwZetForm button[type="submit"]');await w(600);
     t(db.pw['sem@school.nl']==='Sem2026boa!'&&await pm.locator('#wwZetForm').count()===0,'Profiel: wachtwoord instellen, daarna kun je ook zo inloggen');
     t(!pm._errs.length,'Profiel wachtwoord: geen JS-fouten'+(pm._errs.length?': '+pm._errs.join(' | '):''));await pm.context().close()}
+  // ---------- 15d. tweestapsverificatie (vrijwillig) ----------
+  {const ses=pm=>pm.evaluate(()=>JSON.parse(localStorage.getItem('boa-sessie')||'null'));
+    const prof=async pm=>{await pm.evaluate(()=>{localStorage.setItem('phb-trainer-v1',JSON.stringify({s:{},h:[],x:[],p:{naam:'Fien',dom:'1',werk:'NS',rol:'werkend',akte:'2029-01-01',ob:1,gezien:'9',mld:{gevraagd:1}}}))});await pm.reload();await w(300)};
+    const metCode=async(pm,adres)=>{await pm.click('[data-act="login-mail"]');await pm.fill('#mailIn',adres);await pm.click('#mailForm button[type="submit"]');await w(400);await pm.fill('#mailCode','482916');await w(1200)};
+    let ctx=await b.newContext({viewport:{width:390,height:844},permissions:['clipboard-read','clipboard-write']});let pm=await ctx.newPage();pm._errs=[];pm.on('pageerror',e=>pm._errs.push(e.message));
+    await pm.goto(APP+'/mail.html#home');await prof(pm);await metCode(pm,'fien@ns.nl');await pm.evaluate(()=>location.hash='profiel');await w(800);
+    t(/Tweestapsverificatie/.test(await pm.textContent('#mfa'))&&await pm.locator('[data-act="mfa-aan"]').count()===1,'Profiel: tweestapsverificatie staat uit, met een knop om aan te zetten');
+    await pm.click('[data-act="mfa-aan"]');await w(600);
+    t(await pm.locator('#mfa img[alt*="QR"]').count()===1&&/JBSW Y3DP EHPK 3PXP/.test(await pm.textContent('#mfa'))&&await pm.locator('#mfa a[href^="otpauth://"]').count()===1,'aanzetten: QR-code, sleutel om over te typen en een link voor de app op deze telefoon');
+    await pm.click('[data-act="mfa-kopieer"]');await w(200);
+    t(await pm.evaluate(()=>navigator.clipboard.readText().catch(()=>''))==='JBSWY3DPEHPK3PXP','sleutel kopiëren');
+    await pm.fill('#mfaZetIn','000000');await pm.click('#mfaZetForm button[type="submit"]');await w(400);
+    t(/klopt niet/.test(await pm.textContent('#mfa'))&&await pm.evaluate(()=>document.activeElement.id)==='mfaZetIn','aanzetten: verkeerde code geeft een melding');
+    const uid=(await ses(pm)).u.id,oud=(await ses(pm)).a;
+    await pm.fill('#mfaZetIn','135790');await pm.click('#mfaZetForm button[type="submit"]');await w(600);
+    t(/staat aan/.test(await pm.textContent('#mfa'))&&db.factors[uid].some(f=>f.status==='verified')&&(await ses(pm)).a!==oud&&db.anderenUit>=1,'aanzetten met de juiste code: staat aan, nieuwe sessie, andere apparaten uitgelogd');
+    t(!pm._errs.length,'tweestapsverificatie aanzetten: geen JS-fouten'+(pm._errs.length?': '+pm._errs.join(' | '):''));await ctx.close();
+    // opnieuw inloggen: na de code per mail ook de code uit de app
+    ctx=await b.newContext({viewport:{width:390,height:844}});pm=await ctx.newPage();pm._errs=[];pm.on('pageerror',e=>pm._errs.push(e.message));
+    await pm.goto(APP+'/mail.html#home');await prof(pm);await metCode(pm,'fien@ns.nl');
+    t(await pm.locator('#mfaForm').count()===1&&!(await ses(pm)),'inloggen met tweestapsverificatie: eerst de code uit de app, sessie nog niet bewaard');
+    await pm.fill('#mfaIn','111111');await pm.click('#mfaForm button[type="submit"]');await w(400);
+    t(/klopt niet/.test(await pm.textContent('.login'))&&!(await ses(pm)),'tweede stap: verkeerde code, niet ingelogd');
+    await pm.fill('#mfaIn','135790');await pm.click('#mfaForm button[type="submit"]');await w(1000);
+    const s2=await ses(pm);t(s2&&s2.u.email==='fien@ns.nl'&&db.tokens[s2.a].aal==='aal2','tweede stap goed: ingelogd met een sessie mét tweede stap');
+    // uitzetten
+    await pm.evaluate(()=>location.hash='profiel');await w(800);await pm.click('[data-act="mfa-uit"]');await w(150);
+    t(/uitzetten\?/i.test(await pm.textContent('#mfa')),'uitzetten: eerst bevestigen');
+    await pm.click('[data-act="mfa-uit-ja"]');await w(500);
+    t(!db.factors[uid].length&&await pm.locator('[data-act="mfa-aan"]').count()===1,'uitgezet: inloggen is weer zonder tweede stap');
+    t(!pm._errs.length,'tweestapsverificatie inloggen: geen JS-fouten'+(pm._errs.length?': '+pm._errs.join(' | '):''));await ctx.close();
+    // annuleren bij de tweede stap
+    db.factors[uid].push({id:'f-vast',factor_type:'totp',status:'verified'});
+    ctx=await b.newContext({viewport:{width:390,height:844}});pm=await ctx.newPage();await pm.goto(APP+'/mail.html#home');await prof(pm);await metCode(pm,'fien@ns.nl');
+    await pm.click('[data-act="mfa-weg"]');await w(200);
+    t(await pm.locator('#mfaForm').count()===0&&await pm.locator('[data-act="login-mail"]').count()===1&&!(await ses(pm)),'tweede stap annuleren: terug naar inloggen, niet ingelogd');
+    db.factors[uid]=[];await ctx.close()}
   // ---------- 15b. e-mail: trage mail, wachttijd van Supabase, link uit de mail ----------
   {const ctx=await b.newContext({viewport:{width:390,height:844}});const pm=await ctx.newPage();pm._errs=[];pm.on('pageerror',e=>pm._errs.push(e.message));
     await pm.addInitScript(()=>{const echt=Date.now;let extra=0;window.__vooruit=ms=>{extra+=ms};Date.now=()=>echt()+extra});

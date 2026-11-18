@@ -38,6 +38,7 @@ extra = ''.join(lees(BRON, f) for f in ['wv.js', 'wv_ui.js', 'ui_extra.js', 'fou
 # Supabase: projectadres en publishable key (openbaar; de beveiliging zit in de database-regels, zie supabase/)
 CLOUD = json.load(open(os.path.join(BRON, 'cloud.json'))) if os.path.exists(os.path.join(BRON, 'cloud.json')) else {}
 extra = extra.replace('/*__SITE__*/""', json.dumps(json.load(open(os.path.join(BRON, 'site.json'))).get('adres', '')))
+extra = extra.replace('/*__CONTACT__*/""', json.dumps(json.load(open(os.path.join(BRON, 'site.json'))).get('contact', '')))
 extra = extra.replace('/*__CLOUD__*/null', json.dumps(dict({'url': CLOUD['url'].rstrip('/'), 'key': CLOUD['key']}, **{k: True for k in ('apple', 'email', 'microsoft') if CLOUD.get(k)})) if CLOUD.get('url') and CLOUD.get('key') else 'null')
 VERSIE = json.load(open(os.path.join(ROOT, 'package.json')))['version']
 notities = os.path.join(ROOT, 'release-notities', 'v' + VERSIE + '.md')
