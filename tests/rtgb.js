@@ -51,6 +51,9 @@ const store=p=>p.evaluate(()=>JSON.parse(localStorage.getItem('phb-trainer-v1')|
   // studiestof
   await ga(p,'stof');
   t(await p.evaluate(()=>['ambts','rtgbmiddel','rtgbrecht','geweldmelding','rtgbexamen'].every(id=>document.getElementById('s-'+id))),'studiestof: vijf onderwerpen over de Ambtsinstructie en de RTGB');
+  // op een telefoon staan de onderwerpen ingeklapt en krijgen ze hun tekst pas bij openen
+  t(await p.evaluate(()=>!document.getElementById('s-ambts').open&&!document.querySelector('#s-ambts .prose').firstChild),'telefoon: onderwerp ingeklapt, tekst nog niet geladen');
+  await p.evaluate(()=>document.querySelectorAll('.stofsec').forEach(d=>d.open=true));await w(200);
   t(await p.locator('#s-ambts table tr').count()===7&&(await p.textContent('#s-rtgbrecht')).includes('Noodweerexces')&&(await p.textContent('#s-rtgbexamen')).includes('FCB'),'categorieën BOA 1 t/m 6, strafuitsluitingsgronden en de toets AZV staan erin');
   t(await p.locator('#s-geweldmelding ol.flow li').count()===4,'meldschema in vier stappen');
   t((await p.textContent('#s-geweldmelding')).includes('MONFOR')&&(await p.textContent('#s-rtgbmiddel')).includes('VVV'),'ezelsbruggetjes staan erin (GSM, SAGG, MONFOR, VVV, HOS)');

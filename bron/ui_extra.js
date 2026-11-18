@@ -233,7 +233,9 @@ function tabTransition(app){
   if(swipeIn!=="ghost")swipeAbort();
   if(swipeIn==="ghost"){swipeIn="";pageAnim=false;app.style.transition="none";app.style.transform="";const g=swipeGhost;swipeGhost=null;if(g)requestAnimationFrame(()=>g.remove());return}
   if(!pageAnim||i<0||from<0||i===from||motionOff()||!app.firstElementChild)return;
-  const dir=i>from?1:-1,old=ghostOf(app.innerHTML,app.getBoundingClientRect().top,dir>0?"swoutl":"swoutr");
+  // het oude scherm zelf verhuist naar de schim (geen kopie via innerHTML: scheelt opnieuw opbouwen, vooral bij lange schermen)
+  const dir=i>from?1:-1,top=app.getBoundingClientRect().top,old=ghostOf("",top,dir>0?"swoutl":"swoutr");
+  const f=document.createDocumentFragment();while(app.firstChild)f.appendChild(app.firstChild);f.querySelectorAll("[id]").forEach(e=>e.removeAttribute("id"));old.appendChild(f);
   setTimeout(()=>old.remove(),360);swipeIn=dir>0?"swr":"swl";
 }
 (function(){

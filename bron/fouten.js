@@ -11,7 +11,7 @@ function foutStat(list){let att=0,wr=0,open=0,ooit=0,opg=0;
 // zwakste onderwerpen: eerst de meeste open fouten, dan het hoogste foutpercentage
 const zwakSort=(a,b)=>b.st.open-a.st.open||(b.st.rate||0)-(a.st.rate||0);
 function zwakkePlekken(){const out=[];
-  for(const m of MODS)for(const c of catsOf(m)){const l=inCat(c).filter(q=>inMod(m.id).includes(q));const st=foutStat(l);if(st.open)out.push({m,c,st})}
+  for(const m of MODS){const inM=new Set(inMod(m.id));for(const c of catsOf(m)){const st=foutStat(inCat(c).filter(q=>inM.has(q)));if(st.open)out.push({m,c,st})}}
   return out.sort(zwakSort)}
 // volgorde voor 'Fouten wegwerken': vragen uit de zwakste onderwerpen eerst, daarna de vaakst fout beantwoorde
 function foutVolgorde(list){const per={};list.forEach(q=>{per[q.c]=(per[q.c]||0)+1});
@@ -36,7 +36,7 @@ function foutInhoud(){
       return `<li class="panel"><div class="stack" style="gap:4px;min-width:0"><span class="eyebrow">${esc(m.code)}</span><b>${esc(CATS[c][1])}</b><span class="small">${s.open} open ${s.open===1?"fout":"fouten"} · ${pct(s.rate)} van je antwoorden fout</span>${foutBalk(s.rate)}</div>
         <div class="row"><button class="btn hi sm" data-act="fouten" data-mod="${m.id}" data-cat="${c}">Oefen deze fouten</button>${sv?`<a class="btn sm" href="#stof-${sv}">Lees de stof</a>`:""}</div></li>`}).join("")}</ol></div>`:"";
   const mods=MODS.map(m=>{const l=inMod(m.id);const ms=foutStat(l);if(!ms.att)return "";
-    const rows=catsOf(m).map(c=>{const s=foutStat(inCat(c).filter(q=>l.includes(q)));if(!s.att)return "";
+    const inM=new Set(l);const rows=catsOf(m).map(c=>{const s=foutStat(inCat(c).filter(q=>inM.has(q)));if(!s.att)return "";
       return `<tr><td>${esc(CATS[c][1])}</td><td style="width:30%">${foutBalk(s.rate)}</td><td class="n">${s.open?`<b>${s.open}</b>`:"0"}</td><td class="n">${s.open?`<button class="btn sm" data-act="fouten" data-mod="${m.id}" data-cat="${c}" aria-label="Oefen ${s.open} ${s.open===1?"fout":"fouten"} bij ${esc(CATS[c][1])}">Oefen</button>`:`<span class="small">${s.ooit?"opgelost":"–"}</span>`}</td></tr>`}).join("");
     let mtx="";if(m.id==="phb1"){const gs=mtxGroups().map(g=>({g,s:foutStat(mtxQs(g))})).filter(x=>x.s.open).sort((a,b)=>b.s.open-a.s.open||(b.s.rate||0)-(a.s.rate||0));
       if(gs.length)mtx=`<h3 class="small fsub">Per toetsterm van het examen</h3><ul class="mlist">${gs.map(({g,s})=>`<li><span class="mcode mono">${esc(g[0])}</span><span class="mt">${esc(g[1])}<span class="small">${s.open} open ${s.open===1?"fout":"fouten"} · ${g[2]} ${g[2]===1?"vraag":"vragen"} op het examen</span></span><button class="btn sm" data-act="mtx" data-g="${esc(g[0])}">Oefen</button></li>`).join("")}</ul>`}

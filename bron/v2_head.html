@@ -3,7 +3,9 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=IBM+Plex+Mono:wght@500;600&family=Public+Sans:wght@400;500;600;700&display=swap">
+<!-- lettertypes laden zonder het eerste scherm op te houden (traag of geen netwerk, zoals in de trein): tot ze er zijn, de systeemletter -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=IBM+Plex+Mono:wght@500;600&family=Public+Sans:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800&family=IBM+Plex+Mono:wght@500;600&family=Public+Sans:wght@400;500;600;700&display=swap"></noscript>
 <style>
 /* Layout: rustige lichte kopbalk met modulenavigatie en profiel, één leeskolom (max 820px); op de telefoon een tabbalk onderaan.
    Kleur: koele grijsblauwe neutralen; gedempt uniformblauw als enige accent; een gedempte koperkleur (als van een insigne) alleen voor kleine markeringen. */
@@ -525,12 +527,12 @@ footer{font-size:13px;color:var(--muted);padding-block:8px 32px}
 .seg.three button{align-items:center;text-align:center;font-family:var(--f-body);font-size:15px;font-weight:600}
 @media (max-width:560px){.ractions{flex-direction:column;align-items:stretch}.qnext{width:100%;min-height:50px}}
 /* Opstartscherm en overgangen: kort, rustig, en uit bij "minder beweging" */
-#launch{position:fixed;top:0;right:0;bottom:0;left:0;z-index:100;display:grid;place-items:center;background:var(--l-bg);color:var(--l-ink);transition:opacity .4s ease,visibility .4s}
+#launch{position:fixed;top:0;right:0;bottom:0;left:0;z-index:100;display:grid;place-items:center;background:var(--l-bg);color:var(--l-ink);transition:opacity .3s ease,visibility .3s}
 #launch.uit{opacity:0;visibility:hidden}
-#launch .lmark{display:flex;flex-direction:column;align-items:center;gap:4px;animation:lmIn .55s cubic-bezier(.2,.7,.2,1) both}
+#launch .lmark{display:flex;flex-direction:column;align-items:center;gap:4px;animation:lmIn .35s cubic-bezier(.2,.7,.2,1) both}
 #launch svg{width:88px;height:88px;margin-bottom:14px}
 #launch .ls{fill:var(--l-mark)}
-#launch .lc{fill:none;stroke:var(--l-check);stroke-width:5.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:34;stroke-dashoffset:34;animation:lDraw .45s .3s ease-out forwards}
+#launch .lc{fill:none;stroke:var(--l-check);stroke-width:5.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:34;stroke-dashoffset:34;animation:lDraw .3s .15s ease-out forwards}
 #launch b{font-family:var(--f-display);font-size:28px;font-weight:800;letter-spacing:.01em}
 #launch span{font-size:14px;opacity:.78}
 @keyframes lmIn{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
@@ -687,6 +689,8 @@ footer{font-size:13px;color:var(--muted);padding-block:8px 32px}
   /* app-naam in het midden van de kopbalk (niet tijdens een oefenronde: dan staan er knoppen rechts) */
   body:not(.inses) .bar .wrap{justify-content:center}
 }
+/* lange schermen: wat buiten beeld is, wordt pas opgemaakt als je ernaartoe scrollt (sneller openen op trage telefoons) */
+.pdeel{content-visibility:auto;contain-intrinsic-size:auto 640px}
 /* leerpad (pad.js): een slingerend pad met lessen, sterren en een toets per deel */
 .padview{max-width:720px;margin-left:auto;margin-right:auto}
 .modrow.padmods{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}

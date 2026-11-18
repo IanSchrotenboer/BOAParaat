@@ -9,7 +9,7 @@
   try{var S=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.SplashScreen;if(S)requestAnimationFrame(function(){S.hide({fadeOutDuration:200})})}catch(e){}
   if(navigator.webdriver){L.parentNode.removeChild(L);L=null}
   window.__launchDone=function(){if(klaar)return;klaar=true;if(!L)return;
-    setTimeout(function(){L.classList.add("uit");var a=document.getElementById("app");if(a&&!stil)a.classList.add("enter");setTimeout(function(){if(L.parentNode)L.parentNode.removeChild(L)},450)},stil?0:Math.max(0,850-(Date.now()-t0)))};
+    setTimeout(function(){L.classList.add("uit");var a=document.getElementById("app");if(a&&!stil)a.classList.add("enter");setTimeout(function(){if(L.parentNode)L.parentNode.removeChild(L)},350)},stil?0:Math.max(0,500-(Date.now()-t0)))};
   setTimeout(function(){window.__launchDone()},3000);
 })();
 </script>
@@ -137,11 +137,16 @@ const dom = () => (lic()&&LIC[lic()].dom)||(store.p.dom==="4"?"4":"1");
 const seen = id => !!store.s[id];
 const lastOk = id => store.s[id] && store.s[id][2]===1;
 const lastWrong = id => store.s[id] && store.s[id][2]===0;
-const inCat = c => ALL.filter(q=>q.c===c);
+// vragen per onderwerp en per module: de vragenbank verandert niet, dus één keer uitrekenen (per domein) en bewaren.
+// Bevroren, zodat niemand per ongeluk de gedeelde lijst aanpast (shuffle en filter maken altijd een kopie).
+const _inCat={},_inMod={};
+const inCat = c => _inCat[c]||(_inCat[c]=Object.freeze(ALL.filter(q=>q.c===c)));
 // uitklapblok met steekwoorden (minder tekst op het scherm)
 const info=(t,l)=>`<details class="info"><summary>${esc(t)}</summary><ul>${(l||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul></details>`;
-const inMod = m => ALL.filter(q=>q.m===m&&(m!=="phb1"||(dom()==="4"?!D1.has(q.c):!D4.has(q.c)))&&(m!=="phb4"||dom()!=="4"||!NOT4.has(q.c)));
-function catsOf(m){let cats=[...new Set(inMod(m.id).map(q=>q.c))];if(m.id==="phb1"&&dom()==="4")cats=["wp","bp","ovt","spw"].concat(cats.filter(c=>!D4.has(c)));return cats}
+const inMod = m => {const k=m+"|"+dom();return _inMod[k]||(_inMod[k]=Object.freeze(ALL.filter(q=>q.m===m&&(m!=="phb1"||(dom()==="4"?!D1.has(q.c):!D4.has(q.c)))&&(m!=="phb4"||dom()!=="4"||!NOT4.has(q.c)))))};
+const _catsOf={};
+function catsOf(m){const k=m.id+"|"+dom();if(_catsOf[k])return _catsOf[k];
+  let cats=[...new Set(inMod(m.id).map(q=>q.c))];if(m.id==="phb1"&&dom()==="4")cats=["wp","bp","ovt","spw"].concat(cats.filter(c=>!D4.has(c)));return _catsOf[k]=Object.freeze(cats)}
 // toetsmatrijs van het eigen domein (domein I–III volgt de matrijs van domein I); per toetsterm de vragen
 const MTX=()=>MATRIJS[dom()==="4"?"4":"1"];
 const mtxGroups=()=>MTX().delen.flatMap(d=>d[2]);
@@ -280,7 +285,10 @@ function refHtml(q){
   const f=refFor(q);if(!f)return "";const s=STOFBY[f.sec];
   return `<div class="ref"><span class="eyebrow">Studiestof</span><a href="#stof-${s.id}">Samenvatting: ${esc(s.titel)} →</a></div>`;
 }
-// op een telefoon staat elk onderwerp ingeklapt; op een breed scherm (met inhoudsopgave ernaast) open
+// op een telefoon staat elk onderwerp ingeklapt; op een breed scherm (met inhoudsopgave ernaast) open. Een ingeklapt onderwerp krijgt
+// zijn tekst pas bij openen: op een telefoon scheelt dat driekwart van het werk bij het tonen van Studiestof.
+document.addEventListener("toggle",e=>{const d=e.target;if(!d.open||!d.classList||!d.classList.contains("stofsec"))return;
+  const p=d.querySelector(".prose"),x=STOFBY[d.id.slice(2)];if(p&&x&&!p.firstChild)p.innerHTML=x.html},true);
 const stofSmal=()=>{try{return matchMedia("(max-width:999px)").matches}catch(e){return false}};
 function viewStof(){
   const groups=[...new Set(STOF.map(s=>s.deel))];
@@ -292,7 +300,7 @@ function viewStof(){
     <div class="stofgrid"${zoekWoorden(zoekQ).length?" hidden":""}><nav class="toc panel" aria-label="Onderwerpen">${groups.map(g=>`<div class="stack" style="gap:6px"><span class="eyebrow">${esc(g)}</span><ol>${STOF.filter(s=>s.deel===g).map(s=>`<li><a href="#stof-${s.id}">${esc(s.titel)}</a></li>`).join("")}</ol></div>`).join("")}</nav>
     <div class="stack">${groups.map(g=>`<h2 class="deel">${esc(g)}</h2>`+STOF.filter(s=>s.deel===g).map(s=>{const cs=catsFor(s.id);const open=!stofSmal()||route()==="stof-"+s.id;return `<details class="stofsec" id="s-${s.id}"${open?" open":""}>
       <summary><h3>${esc(s.titel)}</h3></summary>
-      <div class="prose">${s.html}</div>
+      <div class="prose">${open?s.html:""}</div>
       ${cs.length?`<div class="row">${cs.map(c=>`<button class="btn" data-act="oefen" data-cat="${c}">Oefen: ${esc(CATS[c][1])}</button>`).join("")}</div>`:""}
     </details>`}).join("")).join("")}</div></div>
   </div>`;
