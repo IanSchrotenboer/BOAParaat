@@ -36,6 +36,12 @@ De knop "Inloggen met e-mail" verschijnt pas als in `bron/cloud.json` `"email": 
 2. Supabase → Authentication → Emails → SMTP Settings: host `smtp.resend.com`, poort `465`, gebruikersnaam `resend`, wachtwoord de API-sleutel van Resend, afzender `inloggen@boaparaat.nl`, naam `Boa Paraat`.
 3. Supabase → Authentication → Sign In / Providers → Email: aan, Email OTP Length `6`.
 4. Supabase → Authentication → Emails → Templates: in **Magic Link** én **Confirm signup** de code tonen met `{{ .Token }}` (geen link).
+   **Er mag helemaal geen link in staan** (geen `{{ .ConfirmationURL }}`, ook niet als "of klik hier"). Beveiligingsscanners van school- en werkmail (bijvoorbeeld Microsoft Defender bij een ROC) openen links in binnenkomende mail automatisch; daarmee is de eenmalige code meteen verbruikt en werkt de code die de gebruiker intypt niet meer. Gezien op 17 nov: een nieuwe gebruiker met schoolmail, 18 seconden na het versturen werd de link al geopend (`GET /verify`), daarna lukte inloggen niet. Sjabloon (voor beide):
+   - Onderwerp: `Je inlogcode voor Boa Paraat`
+   - Inhoud: `<h2>Je inlogcode</h2><p>Vul deze code in de app in:</p><p style="font-size:30px;font-weight:700;letter-spacing:6px">{{ .Token }}</p><p>De code is een uur geldig. Heb je geen code aangevraagd? Dan kun je deze mail negeren.</p><p>Boa Paraat</p>`
+5. Supabase → Authentication → Rate Limits: **Rate limit for sending emails** staat op 30 per uur voor het hele project. Bij een klas die tegelijk inlogt is dat te weinig; zet hem op 100 (maar niet hoger dan wat je Resend-abonnement per dag toestaat; gratis: 100 per dag, 3.000 per maand).
+6. Resend → Domains: `boaparaat.nl` moet op **Verified** staan (SPF en DKIM). Voeg bij STRATO ook een DMARC-record toe (`_dmarc` TXT `v=DMARC1; p=none;`); zonder DMARC zet Microsoft (Outlook, school- en werkmail) mail vaker in ongewenst of quarantaine. Of een mail echt is afgeleverd, zie je per mail in Resend → Emails (Delivered, Delayed, Bounced).
+7. De app vangt het op als iemand toch een link uit een (oude) mail gebruikt: op de website logt de link gewoon in, en is hij al gebruikt dan krijgt de gebruiker uitleg en meteen het veld om een nieuwe code te vragen (`loginLink` in `bron/cloud.js`). Na 30 seconden zonder code legt de app uit dat schoolmail kan vertragen en biedt hij Google aan.
 
 ## Beheer
 

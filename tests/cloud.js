@@ -29,6 +29,8 @@ const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);r
   if(u.pathname==='/auth/v1/otp'&&req.method==='POST'){const b=JSON.parse(body||'{}');
     if(req.headers.apikey!=='pk-test'||!b.email)return json(res,400,{error:'bad'});
     if(db.otpTe429)return json(res,429,{error:'over_email_send_rate_limit'});
+    if(db.otpSec)return json(res,429,{code:429,error_code:'over_email_send_rate_limit',msg:'For security purposes, you can only request this after 37 seconds.'});
+    if(db.otpUur)return json(res,429,{code:429,error_code:'over_email_send_rate_limit',msg:'email rate limit exceeded'});
     db.otp=db.otp||{};db.otp[b.email]='482916';db.otpMails=(db.otpMails||0)+1;return json(res,200,{})}
   if(u.pathname==='/auth/v1/verify'&&req.method==='POST'){const b=JSON.parse(body||'{}');
     if(b.type!=='email'||!db.otp||db.otp[b.email]!==b.token)return json(res,403,{error:'otp_expired',error_description:'Token has expired or is invalid'});
@@ -41,6 +43,7 @@ const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);r
       if(!id||!db.users[id])return json(res,400,{error:'invalid_grant'});db.vernieuwd=(db.vernieuwd||0)+1;return json(res,200,tokensVoor(db.users[id]))}
     return json(res,400,{error:'grant'})}
   if(u.pathname==='/auth/v1/logout')return json(res,204,null);
+  if(u.pathname==='/auth/v1/user'&&req.method==='GET'){const t0=(req.headers.authorization||'').replace('Bearer ','');const ss=db.tokens[t0];if(!ss)return json(res,401,{error:'bad_jwt'});const us=db.users[ss.u];return json(res,200,{id:us.id,email:us.email,user_metadata:{}})}
   // REST met row level security
   const tok=(req.headers.authorization||'').replace('Bearer ','');const ses=db.tokens[tok];
   if(u.pathname.startsWith('/rest/v1/')){
@@ -229,6 +232,29 @@ const nS=s=>Object.keys((s&&s.s)||{}).length;
     const s=await pm.evaluate(()=>JSON.parse(localStorage.getItem('boa-sessie')||'null'));
     t(s&&s.u&&s.u.email==='eva@voorbeeld.nl'&&await pm.locator('#obForm').count()===1,'e-mail: juiste code (ook met spaties geplakt) logt in, daarna het welkomstscherm');
     t(!pm._errs.length,'e-mail: geen JS-fouten'+(pm._errs.length?': '+pm._errs.join(' | '):''));
+    await ctx.close()}
+  // ---------- 15b. e-mail: trage mail, wachttijd van Supabase, link uit de mail ----------
+  {const ctx=await b.newContext({viewport:{width:390,height:844}});const pm=await ctx.newPage();pm._errs=[];pm.on('pageerror',e=>pm._errs.push(e.message));
+    await pm.addInitScript(()=>{const echt=Date.now;let extra=0;window.__vooruit=ms=>{extra+=ms};Date.now=()=>echt()+extra});
+    await pm.goto(APP+'/mail.html#home');await w(300);await pm.click('[data-act="login-mail"]');await w(150);
+    db.otpSec=true;await pm.fill('#mailIn','fien@school.nl');await pm.click('#mailForm button[type="submit"]');await w(400);
+    t(/Over 37 seconden kun je een nieuwe vragen/.test(await pm.textContent('.login')),'e-mail: wachttijd van Supabase wordt in seconden getoond');
+    db.otpSec=false;db.otpUur=true;await pm.click('#mailForm button[type="submit"]');await w(400);
+    t(/heel veel codes verstuurd/.test(await pm.textContent('.login'))&&await pm.locator('.login [data-act="login"]').count()===1,'e-mail: grens per uur bereikt: duidelijke melding en Google als alternatief');
+    db.otpUur=false;await pm.click('#mailForm button[type="submit"]');await w(400);
+    t(await pm.locator('#mailTraag').isHidden(),'e-mail: meteen na versturen nog geen uitleg over trage mail');
+    await pm.evaluate(()=>window.__vooruit(31000));await w(1300);
+    t(await pm.locator('#mailTraag').isVisible()&&/School- en werkmail/.test(await pm.textContent('#mailTraag'))&&await pm.locator('#mailTraag [data-act="login"]').count()===1,'e-mail: na een halve minuut uitleg (spam, schoolmail) en Google als alternatief');
+    t(await pm.evaluate(()=>document.activeElement&&document.activeElement.id)!=='body','e-mail: invoer blijft staan tijdens het wachten');
+    await ctx.close()}
+  {const ctx=await b.newContext({viewport:{width:390,height:844}});const pm=await ctx.newPage();pm._errs=[];pm.on('pageerror',e=>pm._errs.push(e.message));
+    await pm.goto(APP+'/mail.html#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired');await w(600);
+    t(/inloglink is al gebruikt of verlopen/.test(await pm.textContent('.login'))&&await pm.locator('#mailIn').count()===1&&!/error_code/.test(await pm.evaluate(()=>location.hash)),'link uit de mail al gebruikt (bijv. door een virusscanner): uitleg en meteen een nieuwe code vragen');
+    const usr={id:'u-link',email:'link@example.com',naam:''};db.users[usr.id]=usr;const tk=tokensVoor(usr);
+    await pm.goto('about:blank');await pm.goto(APP+'/mail.html#access_token='+tk.access_token+'&expires_in=3600&refresh_token='+tk.refresh_token+'&token_type=bearer&type=signup');await w(1300);
+    const s2=await pm.evaluate(()=>JSON.parse(localStorage.getItem('boa-sessie')||'null'));
+    t(s2&&s2.u&&s2.u.email==='link@example.com'&&!/access_token/.test(await pm.evaluate(()=>location.href)),'link uit de mail werkt ook: ingelogd, gegevens weg uit het adres');
+    t(!pm._errs.length,'e-mail link: geen JS-fouten'+(pm._errs.length?': '+pm._errs.join(' | '):''));
     await ctx.close()}
   // ---------- 13. ingesloten (zoals in claude.ai) en los bestand: geen inloggen mogelijk ----------
   const p4=await (await b.newContext()).newPage();await p4.goto(APP+'/frame.html');await w(800);

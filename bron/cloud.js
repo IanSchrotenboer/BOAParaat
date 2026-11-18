@@ -38,7 +38,7 @@ async function loginStart(prov){prov=prov==="apple"&&CLOUD.apple?"apple":"google
   }catch(e){cloudBezig="";cloudFout="Inloggen kon niet worden gestart. Probeer het opnieuw.";render()}}
 async function authFetch(pad,body){
   const r=await fetch(CLOUD.url+"/auth/v1/"+pad,{method:"POST",headers:{apikey:CLOUD.key,"Content-Type":"application/json"},body:JSON.stringify(body)});
-  const j=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(j.error_description||j.msg||j.error||("HTTP "+r.status));e.status=r.status;throw e}return j}
+  const j=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(j.error_description||j.msg||j.error||("HTTP "+r.status));e.status=r.status;e.code=j.error_code||j.error||"";throw e}return j}
 function sesVan(j){const m=(j.user&&j.user.user_metadata)||{};
   return {a:j.access_token,r:j.refresh_token,x:Date.now()+((j.expires_in||3600)*1000),u:{id:j.user.id,email:j.user.email||"",naam:str(m.full_name||m.name,60)}}}
 // terugkomst van Google: ?code=… (website) of nl.boa.phbtrainer://login?code=… (app)
@@ -69,41 +69,62 @@ let obNaamVoor="";
 // ----- inloggen met een code per e-mail (voor wie geen Google-account heeft) -----
 // Supabase stuurt een code van 6 cijfers (mailsjabloon 'Magic Link' en 'Confirm signup' met {{ .Token }}).
 // Een code werkt ook in de app op het beginscherm van de iPhone; een link in de mail zou in Safari openen.
-let mail={stap:0,adres:"",t:0};
+// Zet in de mailsjablonen GEEN link ({{ .ConfirmationURL }}): beveiligingsscanners van school- en werkmail (zoals
+// Microsoft Defender) openen links in binnenkomende mail automatisch, en daarmee is de code meteen verbruikt.
+// Klikt iemand toch op een link uit een oude mail, dan vangt loginLink() dat op de website op.
+let mail={stap:0,adres:"",t:0},mailUur=false;
 const mailGeldig=a=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(a);
 async function mailStuur(adres){adres=String(adres||"").trim().toLowerCase();
   if(!mailGeldig(adres)){cloudFout="Vul een geldig e-mailadres in.";render();const i=document.getElementById("mailIn");if(i){i.value=adres;i.focus()}return}
   if(!navigator.onLine){cloudFout="Je bent offline. Om in te loggen heb je internet nodig.";render();return}
-  cloudFout="";cloudHint="";cloudBezig="De code wordt verstuurd…";render();
+  cloudFout="";cloudHint="";mailUur=false;cloudBezig="De code wordt verstuurd…";render();
   try{await authFetch("otp",{email:adres,create_user:true});mail={stap:2,adres,t:Date.now()};cloudBezig="";render();mailTikker();
     const i=document.getElementById("mailCode");if(i)i.focus()}
-  catch(e){cloudBezig="";cloudFout=e.status===429?"Je hebt net al een code gekregen. Wacht een minuut en probeer het opnieuw.":e.status>=500||!navigator.onLine?"Geen verbinding met de server. Probeer het zo opnieuw.":"De code kon niet worden verstuurd. Controleer je e-mailadres.";
+  catch(e){cloudBezig="";const sec=/after (\d+) second/.exec(e.message||"");
+    // 429 met 'after N seconds': deze persoon vroeg net al een code; 'email rate limit exceeded': de grens per uur voor het hele project
+    mailUur=e.status===429&&/rate limit exceeded/i.test(e.message||"");
+    cloudFout=mailUur?"Er zijn net heel veel codes verstuurd. Probeer het over een kwartier opnieuw, of log in met Google."
+      :e.status===429?(sec?`Je hebt net al een code gekregen. Over ${sec[1]} seconden kun je een nieuwe vragen.`:"Je hebt net al een code gekregen. Wacht een minuut en probeer het opnieuw.")
+      :e.status>=500||!navigator.onLine?"Geen verbinding met de server. Probeer het zo opnieuw.":"De code kon niet worden verstuurd. Controleer je e-mailadres.";
     mail.stap=mail.stap||1;mail.adres=adres;render()}}
 async function mailCheck(code){code=String(code||"").replace(/\D/g,"");
   if(code.length<6){cloudFout="Vul de code uit de mail in.";render();const i=document.getElementById("mailCode");if(i)i.focus();return}
   cloudFout="";cloudBezig="Bezig met inloggen…";render();
   try{const j=await authFetch("verify",{type:"email",email:mail.adres,token:code});await loginKlaar(j)}
-  catch(e){cloudBezig="";cloudFout=e.status>=500||!navigator.onLine?"Geen verbinding met de server. Probeer het zo opnieuw.":"Deze code klopt niet of is verlopen. Controleer de code of vraag een nieuwe aan.";render();
+  catch(e){cloudBezig="";cloudFout=e.status>=500||!navigator.onLine?"Geen verbinding met de server. Probeer het zo opnieuw.":"Deze code klopt niet of is verlopen (of al gebruikt). Controleer de code of vraag een nieuwe aan.";render();
     const i=document.getElementById("mailCode");if(i)i.focus()}}
 function mailBlok(){
   if(mail.stap===1)return `<form class="stack lmail" id="mailForm" novalidate><div class="field"><label for="mailIn">E-mailadres</label>
       <input id="mailIn" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" value="${esc(mail.adres)}" placeholder="naam@voorbeeld.nl"${cloudFout?' aria-invalid="true" aria-describedby="mailErr"':""}></div>
-      <button class="btn hi lgoogle" type="submit">Stuur mij een code</button><button class="linkbtn" type="button" data-act="mail-terug">Terug</button></form>`;
+      <button class="btn hi lgoogle" type="submit">Stuur mij een code</button>
+      <div class="row"><button class="linkbtn" type="button" data-act="mail-terug">Terug</button>${mailUur?'<button class="linkbtn" type="button" data-act="login">Log in met Google</button>':""}</div></form>`;
   if(mail.stap===2){const wacht=Math.max(0,60-Math.round((Date.now()-mail.t)/1000));
     return `<form class="stack lmail" id="mailCodeForm" novalidate><p class="lhint" role="status">We hebben een code gestuurd naar <b>${esc(mail.adres)}</b>. Zie je niets? Kijk ook bij ongewenste mail.</p>
       <div class="field"><label for="mailCode">Code uit de mail</label>
       <input id="mailCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="10" placeholder="123456"${cloudFout?' aria-invalid="true" aria-describedby="mailErr"':""}></div>
       <button class="btn hi lgoogle" type="submit">Inloggen</button>
+      <p class="lhint" id="mailTraag"${Date.now()-mail.t>MAIL_TRAAG?"":" hidden"}>Nog geen mail? Soms duurt het een paar minuten. School- en werkmail houden een mail soms even vast of zetten hem in quarantaine. Kijk ook bij ongewenste e-mail, of gebruik een persoonlijk e-mailadres${CLOUD&&CLOUD.url?' of <button class="linkbtn" type="button" data-act="login">log in met Google</button>':""}.</p>
       <div class="row"><button class="linkbtn" type="button" data-act="mail-opnieuw"${wacht?" disabled":""}>${wacht?"Nieuwe code over "+wacht+" s":"Stuur een nieuwe code"}</button><button class="linkbtn" type="button" data-act="mail-ander">Ander e-mailadres</button></div></form>`}
   return `<button class="btn lmailbtn" data-act="login-mail">Inloggen met e-mail</button>`}
 document.addEventListener("submit",e=>{
   if(e.target.id==="mailForm"){e.preventDefault();mailStuur((document.getElementById("mailIn")||{}).value)}
   if(e.target.id==="mailCodeForm"){e.preventDefault();mailCheck((document.getElementById("mailCode")||{}).value)}});
 // aftellen tot je een nieuwe code mag vragen, zonder het scherm opnieuw op te bouwen (dan blijft je invoer staan)
-let mailTik=0;
+// na een halve minuut zonder code: uitleg waarom een mail kan blijven hangen
+let mailTik=0;const MAIL_TRAAG=30000;
 function mailTikker(){clearInterval(mailTik);mailTik=setInterval(()=>{const b=document.querySelector('[data-act="mail-opnieuw"]');
-  const w=Math.max(0,60-Math.round((Date.now()-mail.t)/1000));
+  const w=Math.max(0,60-Math.round((Date.now()-mail.t)/1000)),tr=document.getElementById("mailTraag");
+  if(tr&&tr.hidden&&Date.now()-mail.t>MAIL_TRAAG)tr.hidden=false;
   if(mail.stap!==2||!b||!w)clearInterval(mailTik);if(!b)return;b.disabled=!!w;b.textContent=w?"Nieuwe code over "+w+" s":"Stuur een nieuwe code"},1000)}
+// op de website na een klik op een link uit de mail: #access_token=…&refresh_token=… of #error_code=otp_expired
+async function loginLink(){const h=location.hash.slice(1);if(!/(^|&)(access_token|error_code|error)=/.test(h))return;
+  const q=new URLSearchParams(h);try{history.replaceState(null,"",location.pathname+location.search+"#home")}catch(e){}
+  const err=q.get("error_code")||q.get("error"),a=q.get("access_token"),rt=q.get("refresh_token");
+  if(err||!a||!rt){mail={stap:1,adres:"",t:0};cloudFout=err==="otp_expired"?"Deze inloglink is al gebruikt of verlopen. Vraag hieronder een nieuwe code aan en vul die in.":"Inloggen via de link is niet gelukt. Vraag hieronder een code aan.";render();return}
+  cloudBezig="Bezig met inloggen…";cloudFout="";render();
+  try{const r=await fetch(CLOUD.url+"/auth/v1/user",{headers:{apikey:CLOUD.key,Authorization:"Bearer "+a}});if(!r.ok)throw new Error("HTTP "+r.status);
+    await loginKlaar({access_token:a,refresh_token:rt,expires_in:+q.get("expires_in")||3600,user:await r.json()})}
+  catch(e){cloudBezig="";mail={stap:1,adres:"",t:0};cloudFout="Inloggen via de link is niet gelukt. Vraag hieronder een code aan.";render()}}
 // code automatisch versturen als hij volledig is ingevuld of geplakt
 document.addEventListener("input",e=>{if(e.target&&e.target.id==="mailCode"){const v=e.target.value.replace(/\D/g,"");if(v!==e.target.value)e.target.value=v;
   if(v.length===6&&!cloudBezig)mailCheck(v)}});
@@ -236,6 +257,7 @@ setTimeout(function(){
   if(!cloudKan())return;
   const ot=document.getElementById("opslagTekst");if(ot)ot.textContent="Je profiel en voortgang worden bewaard in je account, beveiligd in een database in de EU.";
   if(!isNative()&&/[?&](code|error)=/.test(location.search))loginTerug(location.href);
+  if(!isNative())loginLink();
   if(DESK()&&DESK().onLoginUrl)DESK().onLoginUrl(u=>{if(typeof u==="string"&&(u.indexOf(REDIR_APP)===0||/^http:\/\/127\.0\.0\.1:\d+\/login(\?|$)/.test(u)))loginTerug(u)});
   const A=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.App;
   if(isNative()&&A){try{A.addListener("appUrlOpen",e=>{if(e&&e.url&&e.url.indexOf(REDIR_APP)===0)loginTerug(e.url)});
