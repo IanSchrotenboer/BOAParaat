@@ -195,13 +195,12 @@ Een push naar een tak die met `proef-` begint, bouwt een proefversie die naast d
 - `bron/zoek.js`: zoeken in studiestof en vragen, in de app zelf (ook offline).
 - Test: `tests/groot.js`.
 
-## Naslag: wetsartikelen, toetstermen en feitcodes
+## Naslag: wetsartikelen en toetstermen
 
 `bron/naslag.js` (sinds 1.13.3).
 
 - **Wetslinks:** de bron bij een vraag (`art. 142 Sv`) is een link naar dat artikel op wetten.overheid.nl, via de vaste link `https://wetten.overheid.nl/jci1.3:c:<BWB-id>&artikel=<nr>` (altijd de geldende tekst). De wetten en hun BWB-id's staan in `WET_ID`; de AVG gaat naar EUR-Lex en het EVRM naar het verdrag. Bronnen zonder wet (lesstof, rubrics) en de Model-APV (verschilt per gemeente) blijven tekst. Nieuwe wet in een bron: voeg de afkorting en het BWB-id toe aan `WET_ID` (id controleren op wetten.overheid.nl, pagina Informatie).
 - **Toetsterm:** onder de uitleg staat bij PHB 1 de toetsterm uit de toetsmatrijs van je domein (`matrijs.js`). Bij een fout antwoord is "Lees de stof" een knop.
-- **Feitcodes:** Studiestof → Feitcodes en boetes (`#stof-feitcodes`). Bron: OM, Lijst van feiten (Feitenboekje) 2026, geldig vanaf 1 januari 2026; bedragen voor volwassenen zonder € 9 administratiekosten. **Elk jaar bijwerken** (nieuw Feitenboekje per 1 januari) in `FEITEN`: code, omschrijving, grondslag, bedrag (0 = OM-feit), domein, studiestof en oefencategorie.
 - Test: `tests/naslag.js`.
 
 ## Goed om te weten

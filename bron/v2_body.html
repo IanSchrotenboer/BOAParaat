@@ -264,7 +264,6 @@ function render(){
   else if(r==="wv"){v="wv";h=viewWV()}
   else if(r.indexOf("verslag-")===0){v="verslag";h=viewWVResult(r.slice(8))}
   else if(r==="profiel"||r==="profiel-examens"||r==="profiel-phb3"||r==="profiel-fouten"||r==="fouten"){v="profiel";h=viewProfile(r==="profiel-examens"?"examens":r==="profiel-fouten"||r==="fouten"?"fouten":"voortgang")}
-  else if(r==="stof-feitcodes"){v="stof";h=viewFeiten()}
   else if(r==="stof"||r.indexOf("stof-")===0){v="stof";h=viewStof()}
   else if(r==="pad-les"&&!PL){location.replace("#pad");return}
   else if(r==="pad"||r.indexOf("pad-")===0){v="pad";h=viewPad(r)}
@@ -299,7 +298,6 @@ function viewStof(){
     <div class="stack" style="gap:8px"><span class="eyebrow">Samenvattingen</span><h1>Studiestof</h1>
     <p class="lede">Samenvattingen per onderwerp.</p></div>
     ${zoekVeld()}
-    ${feitKaartStof()}
     <div class="stofgrid"${zoekWoorden(zoekQ).length?" hidden":""}><nav class="toc panel" aria-label="Onderwerpen">${groups.map(g=>`<div class="stack" style="gap:6px"><span class="eyebrow">${esc(g)}</span><ol>${STOF.filter(s=>s.deel===g).map(s=>`<li><a href="#stof-${s.id}">${esc(s.titel)}</a></li>`).join("")}</ol></div>`).join("")}</nav>
     <div class="stack">${groups.map(g=>`<h2 class="deel">${esc(g)}</h2>`+STOF.filter(s=>s.deel===g).map(s=>{const cs=catsFor(s.id);const open=!stofSmal()||route()==="stof-"+s.id;return `<details class="stofsec" id="s-${s.id}"${open?" open":""}>
       <summary><h3>${esc(s.titel)}</h3></summary>
