@@ -219,7 +219,7 @@ function paintNav(){
 }
 
 // ---------- sessie ----------
-let S=null,tick=null,confirmStop=false,confirmSubmit=false,confirmReset=false,showExport=false,showImport=false;
+let S=null,tick=null,confirmStop=false,confirmSubmit=false,confirmReset=false,showExport=false,showImport=false,histOpen=false,histAlles=false;
 function start(opts){
   S={...opts,items:opts.qs.map(q=>({id:q.id,ord:shuffle(q.o.map((_,k)=>k)),pick:null,flag:false})),i:0,done:false,started:Date.now()};
   S.base=opts.base||opts.qs.map(q=>q.id);
@@ -499,9 +499,18 @@ function viewProfile(tab){
     </div>
     ${foutKaart("profiel")}
     <div class="section stack"><div><h2>Voortgang per module</h2><p class="small">Beheerst = de laatste keer goed. Tik op een module voor details.${wrong?` Waar je fouten zitten, zie je in de <a href="#profiel-fouten">foutenanalyse</a>.`:""}</p></div>${modCards}</div>
-    ${store.h.length?`<div class="section stack"><h2>Toets- en examenhistorie</h2><div class="panel"><ul class="hist">${store.h.slice(0,12).map(x=>`<li><span>${esc(x.t)}<br><span class="small mono">${fmtDate(x.d)} · ${fmtTime(x.d)}</span></span><span class="row" style="gap:8px;flex-wrap:nowrap"><span class="mono">${x.g}/${x.n}</span><span class="pill ${x.p?"pass":"fail"}">${x.p?"Geslaagd":"Gezakt"}</span></span></li>`).join("")}</ul></div></div>`:""}
+    ${histSectie()}
   </div>`;
 }
+// Profiel → Voortgang: toets- en examenhistorie, ingeklapt met een samenvatting; open één regel per resultaat
+// (de laatste 5, met "Toon meer" tot 20)
+function histSectie(){const h=store.h;if(!h.length)return "";
+  const n=h.length,gh=h.filter(x=>x.p).length,l=h[0],lijst=h.slice(0,histAlles?20:5);
+  const kort=d=>new Date(d).toLocaleDateString("nl-NL",{day:"numeric",month:"short"}).replace(".","");
+  return `<details class="section hsec" id="historie"${histOpen?" open":""}><summary><span class="stack" style="gap:2px"><b>Toets- en examenhistorie</b><span class="small">${n} ${n===1?"resultaat":"resultaten"} · ${gh} gehaald · laatst: ${esc(l.t)}, ${l.g}/${l.n}</span></span></summary>
+    <ul class="hist">${lijst.map(x=>`<li><span class="ht" title="${esc(x.t)}">${esc(x.t)}</span><span class="small mono hd" title="${fmtDate(x.d)} · ${fmtTime(x.d)}">${kort(x.d)}</span><span class="mono hs">${x.g}/${x.n}</span><span class="pill ${x.p?"pass":"fail"}">${x.p?"Gehaald":"Gezakt"}</span></li>`).join("")}</ul>
+    ${n>5?`<button type="button" class="linkbtn hmeer" data-act="hist-meer">${histAlles?"Toon minder":"Toon meer ("+(Math.min(n,20)-5)+")"}</button>`:""}</details>`}
+document.addEventListener("toggle",e=>{if(e.target.id==="historie")histOpen=e.target.open},true);
 // Profiel → Account: alles wat je zelf instelt, in vaste volgorde: wie je bent, hoe je inlogt, je licentie,
 // hoe de app werkt, en je gegevens op dit apparaat. Voortgang, Fouten en Examens gaan alleen over je resultaten.
 function viewAccountTab(head){const p=store.p;
@@ -699,6 +708,7 @@ document.addEventListener("click",e=>{
   if(act==="ex-del-no"){exDel=null;render();return}
   if(act==="ex-del-yes"){store.x=store.x.filter(x=>x.id!==d.id);wegZet("x",d.id);exDel=null;if(exEdit===d.id)exEdit=null;save();render();toast("Examen verwijderd");return}
   if(act==="reset"){confirmReset=true;render();return}
+  if(act==="hist-meer"){histAlles=!histAlles;histOpen=true;render();return}
   if(act==="reset-no"){confirmReset=false;render();return}
   if(act==="reset-yes"){const eig=store.eig;store=blank();store.r=Date.now();if(eig)store.eig=eig;save();applyTheme();confirmReset=false;obDom=null;obExam=false;obErr={};obDraft=null;location.hash="home";render();toast("Alles gewist");return}
   if(act==="export"){showExport=!showExport;showImport=false;render();if(showExport){const t=$("#expCode");const code=t.value;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(code).then(()=>toast("Code gekopieerd"),()=>{t.focus();t.select();toast("Selecteer en kopieer de code")})}else{t.focus();t.select()}}return}
