@@ -23,7 +23,7 @@ async function kies(p,id,label){await p.click('#'+id+'-cs');await w(120);await p
   let ctx=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});let p=await ctx.newPage();p._errs=[];p.on('pageerror',e=>p._errs.push(e.message));
   await p.goto(BOA_URL+'#home');await p.evaluate(()=>localStorage.setItem('phb-trainer-v1',JSON.stringify({s:{},h:[],x:[],p:{naam:'Sam de Vries',dom:'1',werk:'NS',rol:'werkend',akte:'2029-01-01',ob:1,gezien:'9',mld:{gevraagd:1}}})));await p.reload();await w(200);
   const gewoon=await kleur(p);
-  await ga(p,'profiel');await p.fill('#licCode','NS-AAAA-BBBB');await p.click('#licForm button[type=submit]');await w(200);
+  await ga(p,'profiel-account');await p.fill('#licCode','NS-AAAA-BBBB');await p.click('#licForm button[type=submit]');await w(200);
   t(/klopt niet/.test(await p.textContent('#licentie'))&&!(await store(p)).p.lic,'verkeerde code: melding, geen licentie');
   await p.fill('#licCode',CODE);await p.click('#licForm button[type=submit]');await w(300);
   t((await store(p)).p.lic==='ns'&&await p.evaluate(()=>document.documentElement.getAttribute('data-lic'))==='ns','juiste code (ook met kleine letters en spaties): NS-licentie actief');
@@ -40,7 +40,7 @@ async function kies(p,id,label){await p.click('#'+id+'-cs');await w(120);await p
   const c=await p.evaluate(()=>{const b=document.querySelector('.btn.hi')||document.querySelector('.btn.go');if(!b)return null;const s=getComputedStyle(b);return [s.color,s.backgroundColor]});
   t(c&&c[0]!==c[1],'knoppen in NS-stijl: tekst en achtergrond verschillen ('+(c||[]).join(' op ')+')');
   // verwijderen
-  await ga(p,'profiel');await p.click('[data-act="lic-weg"]');await w(150);await p.click('[data-act="lic-weg-ja"]');await w(300);
+  await ga(p,'profiel-account');await p.click('[data-act="lic-weg"]');await w(150);await p.click('[data-act="lic-weg-ja"]');await w(300);
   t(!(await store(p)).p.lic&&!(await p.evaluate(()=>document.documentElement.getAttribute('data-lic')))&&await p.locator('[data-act="dom"]').count()===2,'licentie verwijderen: gewone stijl en weer zelf je domein kiezen');
   // donker
   await p.context().close();

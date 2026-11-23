@@ -101,11 +101,11 @@ process.on('unhandledRejection',e=>{console.log(out.join('\n'));console.log('FAI
   await p.evaluate(()=>location.hash='stof');await p.waitForTimeout(150);
   {const tx=await p.textContent('#app');(!/Kennisboekje|Lesdia/i.test(tx)&&!(await p.locator('#app .chip.ref').count()))?ok('studiestof: geen kopjes of verwijzingen naar Kennisboekje en Lesdia\'s'):fail('studiestof noemt nog Kennisboekje of Lesdia\'s')}
   // profiel opslaan, export/import
-  await p.evaluate(()=>location.hash='profiel');await p.waitForTimeout(80);await p.fill('#pWerk','NS');await p.click('#profForm button[type=submit]');await p.waitForTimeout(60);
+  await p.evaluate(()=>location.hash='profiel-account');await p.waitForTimeout(80);await p.fill('#pWerk','NS');await p.click('#profForm button[type=submit]');await p.waitForTimeout(60);
   (await p.evaluate(()=>JSON.parse(localStorage.getItem('phb-trainer-v1')).p.werk))==='NS'?ok('profiel opslaan'):fail('profiel opslaan');
   await p.click('[data-act="export"]');await p.waitForTimeout(60);const code=await p.inputValue('#expCode');
   await p.evaluate(()=>{const s=JSON.parse(localStorage.getItem('phb-trainer-v1'));s.p.naam='Anders';localStorage.setItem('phb-trainer-v1',JSON.stringify(s))});await p.reload();await p.waitForTimeout(100);
-  await p.evaluate(()=>location.hash='profiel');await p.click('[data-act="import"]');await p.fill('#impCode',code);await p.click('[data-act="import-go"]');await p.waitForTimeout(80);
+  await p.evaluate(()=>location.hash='profiel-account');await p.click('[data-act="import"]');await p.fill('#impCode',code);await p.click('[data-act="import-go"]');await p.waitForTimeout(80);
   (await p.evaluate(()=>JSON.parse(localStorage.getItem('phb-trainer-v1')).p.naam))==='Test Boa'?ok('voortgang exporteren/importeren'):fail('import');
   // examens + agenda + custom select
   await p.evaluate(()=>location.hash='profiel-examens');await p.waitForTimeout(80);await p.click('[data-act="ex-new"]');
@@ -137,7 +137,7 @@ process.on('unhandledRejection',e=>{console.log(out.join('\n'));console.log('FAI
   (await p.evaluate(()=>JSON.parse(localStorage.getItem('phb-trainer-v1')).yt[0].vid))==='dQw4w9WgXcQ'?ok('YouTube-link herkend'):fail('YouTube-link');
   await p.click('.ytsec [data-act="yt-del"]');await p.click('[data-act="yt-del-yes"]');await p.waitForTimeout(60);
   // reset -> welkom
-  await p.evaluate(()=>location.hash='profiel');await p.waitForTimeout(80);await p.click('[data-act="reset"]');await p.click('[data-act="reset-yes"]');await p.waitForTimeout(100);
+  await p.evaluate(()=>location.hash='profiel-account');await p.waitForTimeout(80);await p.click('[data-act="reset"]');await p.click('[data-act="reset-yes"]');await p.waitForTimeout(100);
   (await p.locator('#obForm').count())?ok('alles wissen -> welkomstscherm'):fail('reset');
   if(p._errs.length)fail('functioneel: JS-fouten: '+p._errs.slice(0,4).join(' | '));
   await p.context().close();

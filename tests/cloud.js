@@ -134,31 +134,31 @@ const nS=s=>Object.keys((s&&s.s)||{}).length;
   await welkom(p1);
   await oefen(p1,'sr',5);await w(4800);
   t(db.rows['u-anna']&&nS(db.rows['u-anna'].data)>=5&&db.rows['u-anna'].data.p.werk==='Gemeente Utrecht','voortgang en profiel staan na een paar seconden in de cloud');
-  await p1.evaluate(()=>location.hash='profiel');await w(300);
+  await p1.evaluate(()=>location.hash='profiel-account');await w(300);
   t((await p1.textContent('#account')).includes('anna@example.com')&&/Bewaard in je account/.test(await p1.textContent('#account')),'profiel: account met e-mailadres en "bewaard in je account"');
   // ---------- 2. tweede apparaat: zelfde account ----------
   const p2=await apparaat(b,{viewport:{width:1280,height:800},isMobile:false,hasTouch:false});
   await inloggen(p2);
   t(!(await p2.locator('#obForm').count())&&(await store(p2)).p.werk==='Gemeente Utrecht'&&nS(await store(p2))>=5,'tweede apparaat: na inloggen meteen je profiel en voortgang, geen welkomstscherm');
   await oefen(p2,'ro',4);await w(4800);
-  await p1.evaluate(()=>location.hash='profiel');await w(200);await p1.click('[data-act="sync"]');await w(800);
+  await p1.evaluate(()=>location.hash='profiel-account');await w(200);await p1.click('[data-act="sync"]');await w(800);
   const s1=await store(p1);
   t(nS(s1)>=9&&nS(db.rows['u-anna'].data)>=9,'apparaat 1 na bijwerken: voortgang van beide apparaten samengevoegd');
   // ---------- 3. offline oefenen ----------
   await p1.context().setOffline(true);await oefen(p1,'pol',3);await w(4800);
-  await p1.evaluate(()=>location.hash='profiel');await w(300);
+  await p1.evaluate(()=>location.hash='profiel-account');await w(300);
   t(/Offline/.test(await p1.textContent('#account')),'offline: profiel meldt dat het bewaren wacht op verbinding');
   await p1.context().setOffline(false);await w(2500);
   t(nS(db.rows['u-anna'].data)>=12,'weer online: offline geoefende vragen alsnog in de cloud');
   // ---------- 4. verwijderd examen komt niet terug, 'Alles wissen' geldt overal ----------
   await p1.evaluate(()=>location.hash='profiel-examens');await w(250);await p1.click('[data-act="ex-new"]');await w(200);
   await p1.fill('#exDatum','2027-03-01');await p1.click('#exForm button[type=submit]');await w(300);
-  const xid=((await store(p1)).x[0]||{}).id;await p1.evaluate(()=>location.hash='profiel');await w(150);await p1.click('[data-act="sync"]');await w(800);
-  await p2.evaluate(()=>location.hash='profiel');await w(150);await p2.click('[data-act="sync"]');await w(800);
+  const xid=((await store(p1)).x[0]||{}).id;await p1.evaluate(()=>location.hash='profiel-account');await w(150);await p1.click('[data-act="sync"]');await w(800);
+  await p2.evaluate(()=>location.hash='profiel-account');await w(150);await p2.click('[data-act="sync"]');await w(800);
   const had2=(await store(p2)).x.some(x=>x.id===xid);
   await p1.evaluate(()=>location.hash='profiel-examens');await w(250);
   await p1.evaluate(()=>{const b=document.querySelector('[data-act="ex-del"]');b&&b.click()});await w(150);await p1.evaluate(()=>{const b=document.querySelector('[data-act="ex-del-yes"]');b&&b.click()});await w(200);
-  await p1.evaluate(()=>location.hash='profiel');await w(150);await p1.click('[data-act="sync"]');await w(800);
+  await p1.evaluate(()=>location.hash='profiel-account');await w(150);await p1.click('[data-act="sync"]');await w(800);
   await p2.click('[data-act="sync"]');await w(800);
   t(xid&&had2&&!(await store(p2)).x.some(x=>x.id===xid)&&!db.rows['u-anna'].data.x.some(x=>x.id===xid),'een op apparaat 1 verwijderd examen verdwijnt ook op apparaat 2 en komt niet terug');
   // ---------- 5. sessie verlopen ----------
@@ -187,12 +187,12 @@ const nS=s=>Object.keys((s&&s.s)||{}).length;
   t(!(await p3.locator('#obForm').count())&&c&&nS(c.data)===3&&c.data.h.length===1&&c.data.p.dom==='4','bestaande tester: eerdere voortgang en profiel gaan mee naar het nieuwe account');
   // ---------- 9. ingetrokken sessie ----------
   for(const k of Object.keys(db.refresh))if(db.refresh[k]==='u-cor')delete db.refresh[k];for(const v of Object.values(db.tokens))v.exp=0;
-  await p3.evaluate(()=>location.hash='profiel');await w(200);await p3.click('[data-act="sync"]');await w(900);
+  await p3.evaluate(()=>location.hash='profiel-account');await w(200);await p3.click('[data-act="sync"]');await w(900);
   t(await p3.locator('[data-act="login"]').count()===1&&nS(await store(p3))===3,'sessie ingetrokken: terug naar inloggen, voortgang op het apparaat blijft tot je weer inlogt');
   await inloggen(p3);await w(500);
   t(!(await p3.locator('[data-act="login"]').count())&&nS(await store(p3))===3,'opnieuw ingelogd: alles is er nog');
   // ---------- 10. account verwijderen ----------
-  await p3.evaluate(()=>location.hash='profiel');await w(250);await p3.click('[data-act="acc-del"]');await w(150);
+  await p3.evaluate(()=>location.hash='profiel-account');await w(250);await p3.click('[data-act="acc-del"]');await w(150);
   t(/definitief/.test(await p3.textContent('#account')),'account verwijderen vraagt eerst om bevestiging');
   await p3.click('[data-act="acc-del-yes"]');await w(900);
   t(!db.rows['u-cor']&&!db.users['u-cor']&&await p3.locator('[data-act="login"]').count()===1&&!nS(await store(p3)),'account verwijderd: in de cloud en op het apparaat, terug naar inloggen');
@@ -322,7 +322,7 @@ const nS=s=>Object.keys((s&&s.s)||{}).length;
     // Profiel: wachtwoord instellen na inloggen met een code
     pm=await nieuwePagina();await pm.evaluate(()=>{localStorage.setItem('phb-trainer-v1',JSON.stringify({s:{},h:[],x:[],p:{naam:'Sem',dom:'1',werk:'ROC',rol:'scholier',ob:1,gezien:'9',mld:{gevraagd:1}}}))});await pm.reload();await w(300);
     await pm.click('[data-act="login-mail"]');await pm.fill('#mailIn','sem@school.nl');await pm.click('#mailForm button[type="submit"]');await w(400);
-    await pm.fill('#mailCode','482916');await w(1200);await pm.evaluate(()=>location.hash='profiel');await w(400);
+    await pm.fill('#mailCode','482916');await w(1200);await pm.evaluate(()=>location.hash='profiel-account');await w(400);
     await pm.click('[data-act="ww-zet"]');await w(150);await pm.fill('#wwZetIn','abc');await pm.click('#wwZetForm button[type="submit"]');await w(200);
     t(/te zwak/.test(await pm.textContent('#account')),'Profiel: zwak wachtwoord geweigerd');
     await pm.fill('#wwZetIn','Sem2026boa!');await pm.click('#wwZetForm button[type="submit"]');await w(600);
@@ -333,7 +333,7 @@ const nS=s=>Object.keys((s&&s.s)||{}).length;
     const prof=async pm=>{await pm.evaluate(()=>{localStorage.setItem('phb-trainer-v1',JSON.stringify({s:{},h:[],x:[],p:{naam:'Fien',dom:'1',werk:'NS',rol:'werkend',akte:'2029-01-01',ob:1,gezien:'9',mld:{gevraagd:1}}}))});await pm.reload();await w(300)};
     const metCode=async(pm,adres)=>{await pm.click('[data-act="login-mail"]');await pm.fill('#mailIn',adres);await pm.click('#mailForm button[type="submit"]');await w(400);await pm.fill('#mailCode','482916');await w(1200)};
     let ctx=await b.newContext({viewport:{width:390,height:844},permissions:['clipboard-read','clipboard-write']});let pm=await ctx.newPage();pm._errs=[];pm.on('pageerror',e=>pm._errs.push(e.message));
-    await pm.goto(APP+'/mail.html#home');await prof(pm);await metCode(pm,'fien@ns.nl');await pm.evaluate(()=>location.hash='profiel');await w(800);
+    await pm.goto(APP+'/mail.html#home');await prof(pm);await metCode(pm,'fien@ns.nl');await pm.evaluate(()=>location.hash='profiel-account');await w(800);
     t(/Tweestapsverificatie/.test(await pm.textContent('#mfa'))&&await pm.locator('[data-act="mfa-aan"]').count()===1,'Profiel: tweestapsverificatie staat uit, met een knop om aan te zetten');
     await pm.click('[data-act="mfa-aan"]');await w(600);
     t(await pm.locator('#mfa img[alt*="QR"]').count()===1&&/JBSW Y3DP EHPK 3PXP/.test(await pm.textContent('#mfa'))&&await pm.locator('#mfa a[href^="otpauth://"]').count()===1,'aanzetten: QR-code, sleutel om over te typen en een link voor de app op deze telefoon');
@@ -354,7 +354,7 @@ const nS=s=>Object.keys((s&&s.s)||{}).length;
     await pm.fill('#mfaIn','135790');await pm.click('#mfaForm button[type="submit"]');await w(1000);
     const s2=await ses(pm);t(s2&&s2.u.email==='fien@ns.nl'&&db.tokens[s2.a].aal==='aal2','tweede stap goed: ingelogd met een sessie mét tweede stap');
     // uitzetten
-    await pm.evaluate(()=>location.hash='profiel');await w(800);await pm.click('[data-act="mfa-uit"]');await w(150);
+    await pm.evaluate(()=>location.hash='profiel-account');await w(800);await pm.click('[data-act="mfa-uit"]');await w(150);
     t(/uitzetten\?/i.test(await pm.textContent('#mfa')),'uitzetten: eerst bevestigen');
     await pm.click('[data-act="mfa-uit-ja"]');await w(500);
     t(!db.factors[uid].length&&await pm.locator('[data-act="mfa-aan"]').count()===1,'uitgezet: inloggen is weer zonder tweede stap');

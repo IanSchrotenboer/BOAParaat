@@ -263,7 +263,7 @@ function render(){
   if(r==="sessie"&&S){v="sessie";h=S.done?viewResult():viewQuestion()}
   else if(r==="wv"){v="wv";h=viewWV()}
   else if(r.indexOf("verslag-")===0){v="verslag";h=viewWVResult(r.slice(8))}
-  else if(r==="profiel"||r==="profiel-examens"||r==="profiel-phb3"||r==="profiel-fouten"||r==="fouten"){v="profiel";h=viewProfile(r==="profiel-examens"?"examens":r==="profiel-fouten"||r==="fouten"?"fouten":"voortgang")}
+  else if(r==="profiel"||r==="profiel-examens"||r==="profiel-phb3"||r==="profiel-fouten"||r==="fouten"||r==="profiel-account"){v="profiel";h=viewProfile(r==="profiel-examens"?"examens":r==="profiel-fouten"||r==="fouten"?"fouten":r==="profiel-account"?"account":"voortgang")}
   else if(r==="stof"||r.indexOf("stof-")===0){v="stof";h=viewStof()}
   else if(r==="pad-les"&&!PL){location.replace("#pad");return}
   else if(r==="pad"||r.indexOf("pad-")===0){v="pad";h=viewPad(r)}
@@ -324,7 +324,7 @@ function viewHome(){
   const tgt=nx&&nx.mod&&MODBY[nx.mod]?nx.mod:(lastMod&&MODBY[lastMod]?lastMod:"phb1");const tm=MODBY[tgt];
   const started=!!lastMod;const topic=nextTopic(tm);
   const sub=nx?`${countdownText(nx.datum)} tot je examen ${esc(exLabel(nx))}.`.replace(/^Vandaag tot je examen/,"Vandaag is je examen").replace(/^Morgen tot je examen/,"Morgen is je examen")
-    :store.p.naam?"Kies een module of ga verder.":`Oefen per onderwerp en doe oefenexamens. <a href="#profiel">Vul je profiel in</a> voor je domein en voortgang.`;
+    :store.p.naam?"Kies een module of ga verder.":`Oefen per onderwerp en doe oefenexamens. <a href="#profiel-account">Vul je profiel in</a> voor je domein en voortgang.`;
   const hero=`<div class="hero"><div class="stack" style="gap:4px"><span class="eyebrow">${nx?"Oefenen voor je examen":started?"Verder waar je was":"Begin hier"}</span><h2>${esc(tm.code)} · ${esc(tm.name)}</h2>${topic?`<span class="small">${started?"Volgend onderwerp":"Eerste onderwerp"}: ${esc(topic.charAt(0).toLowerCase()+topic.slice(1))}</span>`:""}</div><a class="btn hi" href="#${tgt}">${started?"Verder oefenen":"Start met oefenen"}</a></div>`;
   return `<div class="homegrid"><div class="stack home">
     <div class="stack" style="gap:6px"><h1>${naam?`Hoi ${esc(naam)}`:"Klaar voor je PHB?"}</h1>
@@ -486,7 +486,8 @@ function viewProfile(tab){
       <div class="meta"><span>${sn}/${l.length} geoefend</span><span>${ac==null?"nog geen antwoorden":pct(ac)+" goed"}</span>${m.exam?`<span>${best==null?"nog geen examen":"beste examen "+best+"/"+m.exam.n}</span>`:""}<span>${tt.length?tp+"/"+tt.length+" toetsen gehaald":"nog geen toets"}</span>${isW?`<span>${wrecs.length?wrecs.length+(wrecs.length===1?" verslag":" verslagen")+" · beste "+Math.max(...wrecs.map(r=>r.score))+"/100":"nog geen verslag"}</span>`:""}${la?`<span>laatst ${fmtDate(la)}</span>`:""}<span class="more">Details per onderwerp</span></div>
     </summary><div class="body">${cats}${isW?wvProfileList():""}<div class="row"><a class="btn" href="#${m.id}">Naar ${m.code}</a>${l.some(q=>lastWrong(q.id))?`<button class="btn hi" data-act="fouten" data-mod="${m.id}">Fouten wegwerken (${l.filter(q=>lastWrong(q.id)).length})</button>`:""}</div></div></details>`}).join("");
   const head=`<div class="idcard"><span class="ava lg">${esc(initials(p.naam))}</span><div class="stack" style="gap:4px;min-width:0"><span class="eyebrow">Mijn profiel</span><h2>${p.naam?esc(p.naam):"Naam nog niet ingevuld"}</h2><p class="small">${p.rol==="scholier"?"Boa in opleiding, ":"Boa "}${dom()==="4"?"domein IV · openbaar vervoer":"domein I–III"}${p.werk?" · "+esc(p.werk):""}</p>${countdown?`<p class="small mono">${countdown}</p>`:""}</div>${akteStatus(p)}</div>
-    <nav class="ptabs" aria-label="Profiel"><a href="#profiel"${tab==="voortgang"?' aria-current="page"':""}>Voortgang</a><a href="#profiel-fouten"${tab==="fouten"?' aria-current="page"':""}>Fouten${wrong?` <span class="pbadge">${wrong}</span>`:""}</a><a href="#profiel-examens"${tab==="examens"?' aria-current="page"':""}>Examens <span class="small">ExTH</span></a></nav>`;
+    <nav class="ptabs" aria-label="Profiel"><a href="#profiel"${tab==="voortgang"?' aria-current="page"':""}>Voortgang</a><a href="#profiel-fouten"${tab==="fouten"?' aria-current="page"':""}>Fouten${wrong?` <span class="pbadge">${wrong}</span>`:""}</a><a href="#profiel-examens"${tab==="examens"?' aria-current="page"':""}>Examens <span class="small">ExTH</span></a><a href="#profiel-account"${tab==="account"?' aria-current="page"':""}>Account</a></nav>`;
+  if(tab==="account")return viewAccountTab(head);
   if(tab==="examens")return `<div class="stack">${head}${viewExams()}</div>`;
   if(tab==="fouten")return `<div class="stack">${head}<div class="stack" style="gap:6px"><h2>Foutenanalyse</h2><p class="small">Waar je fouten zitten, per module, onderwerp en toetsterm</p></div>${foutInhoud()}</div>`;
   return `<div class="stack">${head}
@@ -498,8 +499,14 @@ function viewProfile(tab){
     </div>
     ${foutKaart("profiel")}
     <div class="section stack"><div><h2>Voortgang per module</h2><p class="small">Beheerst = de laatste keer goed. Tik op een module voor details.${wrong?` Waar je fouten zitten, zie je in de <a href="#profiel-fouten">foutenanalyse</a>.`:""}</p></div>${modCards}</div>
-    ${viewAccount()}
-    <div class="section stack"><h2>Gegevens</h2>
+    ${store.h.length?`<div class="section stack"><h2>Toets- en examenhistorie</h2><div class="panel"><ul class="hist">${store.h.slice(0,12).map(x=>`<li><span>${esc(x.t)}<br><span class="small mono">${fmtDate(x.d)} · ${fmtTime(x.d)}</span></span><span class="row" style="gap:8px;flex-wrap:nowrap"><span class="mono">${x.g}/${x.n}</span><span class="pill ${x.p?"pass":"fail"}">${x.p?"Geslaagd":"Gezakt"}</span></span></li>`).join("")}</ul></div></div>`:""}
+  </div>`;
+}
+// Profiel → Account: alles wat je zelf instelt, in vaste volgorde: wie je bent, hoe je inlogt, je licentie,
+// hoe de app werkt, en je gegevens op dit apparaat. Voortgang, Fouten en Examens gaan alleen over je resultaten.
+function viewAccountTab(head){const p=store.p;
+  return `<div class="stack">${head}
+    <div class="section stack" id="gegevens"><div><h2>Persoonlijke gegevens</h2><p class="small">Je naam, werkgever en tot wanneer je akte geldig is.</p></div>
       <form class="panel stack" id="profForm" autocomplete="off">
         <div class="fields">
           <div class="field"><label for="pNaam">Naam</label><input id="pNaam" name="naam" value="${esc(p.naam)}" placeholder="Voor- en achternaam"></div>
@@ -507,14 +514,18 @@ function viewProfile(tab){
           <div class="field"><label for="pRol">Ik ben</label><select id="pRol"><option value="werkend"${p.rol!=="scholier"?" selected":""}>Werkend</option><option value="scholier"${p.rol==="scholier"?" selected":""}>Scholier</option></select></div>
           <div class="field" id="pAkteF"${p.rol==="scholier"?" hidden":""}><label for="pAkte">Akte van opsporingsbevoegdheid geldig tot</label><input id="pAkte" name="akte" type="date" value="${esc(p.akte)}"></div>
         </div>
-        <div class="field"><span style="font-size:13px;font-weight:600;color:var(--muted)">Domein</span>${domSwitch()}</div>
-        <div class="field"><span style="font-size:13px;font-weight:600;color:var(--muted)" id="themaL">Weergave</span>${themeSwitch()}</div>
-        <div><button class="btn go" type="submit">Profiel opslaan</button></div>
+        <div><button class="btn go" type="submit">Gegevens opslaan</button></div>
       </form>
     </div>
+    ${viewAccount()}
     ${licSectie()}
+    <div class="section stack" id="instellingen"><h2>Instellingen</h2>
+      <div class="panel stack">
+        <div class="field"><span style="font-size:13px;font-weight:600;color:var(--muted)">Domein</span>${domSwitch()}</div>
+        <div class="field"><span style="font-size:13px;font-weight:600;color:var(--muted)" id="themaL">Weergave</span>${themeSwitch()}</div>
+      </div>
+    </div>
     ${mldSection()}
-    ${store.h.length?`<div class="section stack"><h2>Toets- en examenhistorie</h2><div class="panel"><ul class="hist">${store.h.slice(0,12).map(x=>`<li><span>${esc(x.t)}<br><span class="small mono">${fmtDate(x.d)} · ${fmtTime(x.d)}</span></span><span class="row" style="gap:8px;flex-wrap:nowrap"><span class="mono">${x.g}/${x.n}</span><span class="pill ${x.p?"pass":"fail"}">${x.p?"Geslaagd":"Gezakt"}</span></span></li>`).join("")}</ul></div></div>`:""}
     <div class="section stack"><div><h2>Voortgang overzetten</h2><p class="small">Kopieer je code en plak die op je andere apparaat.</p></div>
       <div class="row"><button class="btn" data-act="export">${showExport?"Code verbergen":"Code kopiëren"}</button><button class="btn" data-act="import">${showImport?"Annuleren":"Code plakken"}</button></div>
       ${showExport?`<div class="field"><label for="expCode">Jouw voortgangscode</label><textarea id="expCode" readonly>${esc(exportCode())}</textarea></div>`:""}
@@ -674,7 +685,7 @@ document.addEventListener("click",e=>{
   if(["login","login-apple","login-ms","login-mail","ww-start","ww-in","ww-nieuw","ww-vergeten","ww-zet","ww-zet-nee","mfa-weg","mfa-aan","mfa-annuleer","mfa-kopieer","mfa-uit","mfa-uit-nee","mfa-uit-ja","mail-terug","mail-ander","mail-opnieuw","sync","logout","logout-no","acc-del","acc-del-no","acc-del-yes"].includes(act)&&cloudAct(act))return;
   if((act.indexOf("lic-")===0||act==="ob-lic")&&licAct(act))return;
   if(["oefen","mix","fouten","herhaal","toets","examen","mtx"].includes(act)){launch(act,{...d});return}
-  if(act==="akte-edit"){const go=()=>{const f=$("#pAkte");if(f){f.scrollIntoView({block:"center"});f.focus()}};if($("#pAkte"))go();else{location.hash="profiel";setTimeout(go,120)}return}
+  if(act==="akte-edit"){const go=()=>{const f=$("#pAkte");if(f){f.scrollIntoView({block:"center"});f.focus()}};if($("#pAkte"))go();else{location.hash="profiel-account";setTimeout(go,120)}return}
   if(act==="thema"){store.p.thema=d.v;save();applyTheme();render();toast(d.v==="donker"?"Donkere weergave":d.v==="licht"?"Lichte weergave":"Weergave volgt je systeem");return}
   if(act==="dom"){if(lic())return;store.p.dom=d.v;save();render();toast(d.v==="4"?"Domein IV openbaar vervoer gekozen":"Domein I–III gekozen");return}
   if(act==="ex-new"){exOpen=true;exEdit=null;lastAdded=null;render();const f=$("#exDatum");if(f)f.focus();return}

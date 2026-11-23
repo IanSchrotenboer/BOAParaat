@@ -468,7 +468,7 @@ function homeNudges(tgt){
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-act]");if(!b)return;const a=b.dataset.act;
   if(a==="mld"){mldSet(b.dataset.k,b.getAttribute("aria-checked")!=="true");return}
-  if(a==="mld-ja"){(async()=>{if(!(await mldPerm())){store.p.mld.gevraagd=1;save();mldNote="Meldingen staan uit voor Boa Paraat in de instellingen van je telefoon.";location.hash="profiel";return}
+  if(a==="mld-ja"){(async()=>{if(!(await mldPerm())){store.p.mld.gevraagd=1;save();mldNote="Meldingen staan uit voor Boa Paraat in de instellingen van je telefoon.";location.hash="profiel-account";return}
     Object.assign(store.p.mld,{oefen:true,examen:true,pad:true,gevraagd:1});save();render();mldPlan();toast("Herinneringen staan aan. Wijzigen kan onder Profiel.")})();return}
   if(a==="mld-nee"){store.p.mld.gevraagd=1;save();render();toast("Je kunt herinneringen later aanzetten onder Profiel");return}
   if(a==="mld-padnee"){store.p.mld.padNee=1;save();render();return}

@@ -209,7 +209,7 @@ async function wwHerstel(code,ww){code=String(code||"").replace(/\D/g,"");ww=Str
   catch(e){cloudBezig="";if(e.code==="weak_password")return fout("Dit wachtwoord is te zwak. "+WW_EIS,"wwNieuw");
     if(e.code!=="same_password"){toast("Je bent ingelogd, maar je nieuwe wachtwoord is niet opgeslagen. Stel het in Profiel opnieuw in.")}}
   await loginKlaar(j)}
-// Profiel → Account: wachtwoord instellen of wijzigen (ook voor wie met Google of een code inlogde)
+// Profiel → Account (tabblad): wachtwoord instellen of wijzigen (ook voor wie met Google of een code inlogde)
 let wwZetOpen=false;
 async function wwZet(ww){ww=String(ww||"");
   if(!wwSterk(ww)){cloudFout="Dit wachtwoord is te zwak. "+WW_EIS;render();const i=document.getElementById("wwZetIn");if(i)i.focus();return}
@@ -221,7 +221,7 @@ async function wwZet(ww){ww=String(ww||"");
 // Profiel → Account: tweestapsverificatie aan- of uitzetten
 let mfa={geladen:false,aan:false,fid:"",nieuw:null,uit:false,fout:""};
 async function mfaLaad(){if(mfa.geladen||mfa.laden)return;mfa.laden=true;
-  try{const u=await authMet(await token(),"GET","user");const f=mfaFactor(u);mfa={...mfa,geladen:true,aan:!!f,fid:f?f.id:""};if(route()==="profiel")render()}
+  try{const u=await authMet(await token(),"GET","user");const f=mfaFactor(u);mfa={...mfa,geladen:true,aan:!!f,fid:f?f.id:""};if(route()==="profiel-account")render()}
   catch(e){}finally{mfa.laden=false}}
 async function mfaStart(){mfa.fout="";cloudBezig="";render();
   try{const tok=await token();const u=await authMet(tok,"GET","user");
@@ -371,12 +371,12 @@ const beheerUrl=()=>(SITE||"https://app.boaparaat.nl/").replace(/\/?$/,"/")+"beh
 function beheerVraag(){const s=sesGet();if(beheerGevraagd||!s||s.x-Date.now()<60000||!navigator.onLine)return;beheerGevraagd=true;
   // los verzoek met het huidige toegangsbewijs: vernieuwen en uitloggen laten we aan het synchroniseren over
   fetch(CLOUD.url+"/rest/v1/rpc/ben_ik_beheerder",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+s.a,"Content-Type":"application/json"},body:"{}"})
-    .then(r=>r.ok?r.json():Promise.reject(r.status)).then(b=>{if((b===true)!==benBeheer){benBeheer=b===true;if(route()==="profiel")render()}},()=>{beheerGevraagd=false})}
+    .then(r=>r.ok?r.json():Promise.reject(r.status)).then(b=>{if((b===true)!==benBeheer){benBeheer=b===true;if(route()==="profiel-account")render()}},()=>{beheerGevraagd=false})}
 function viewAccount(){
-  if(!cloudKan())return `<div class="section stack"><h2>Account</h2><p class="small">Voortgang staat op dit apparaat. Inloggen kan in de app en op de website.</p></div>`;
+  if(!cloudKan())return `<div class="section stack" id="account"><h2>Inloggen en beveiliging</h2><p class="small">Voortgang staat op dit apparaat. Inloggen kan in de app en op de website.</p></div>`;
   const s=sesGet();if(!s)return "";setTimeout(beheerVraag,0);
   const st=cloudSync.bezig?"Bezig met bijwerken…":!cloudSync.t?"Nog niet bijgewerkt":cloudSync.ok?"Bewaard in je account, laatst bijgewerkt om "+fmtTime(new Date(cloudSync.t)):"Offline: je voortgang wordt bewaard zodra je weer verbinding hebt";
-  return `<div class="section stack" id="account"><h2>Account</h2>
+  return `<div class="section stack" id="account"><h2>Inloggen en beveiliging</h2>
     <div class="panel stack"><div class="acc"><span class="ava">${esc(initials(s.u.naam||store.p.naam||s.u.email))}</span><div class="stack" style="gap:2px;min-width:0"><b class="accmail">${esc(s.u.email)}</b><span class="small${cloudSync.ok?"":" accoff"}">${esc(st)}</span></div></div>
     ${cloudFout?`<p class="ferr" role="alert">${esc(cloudFout)}</p>`:""}
     ${cloudBezig?`<p class="lbezig" role="status"><span class="spin" aria-hidden="true"></span>${esc(cloudBezig)}</p>`:

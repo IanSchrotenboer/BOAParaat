@@ -123,7 +123,7 @@ Publiceren kan op twee manieren:
 
 **Installeren op de pc:** in Chrome en Edge verschijnt op het overzicht de knop **Installeren** (of klik in de adresbalk op het installeer-icoon). Boa Paraat opent dan in een eigen venster, met een icoon in het startmenu of dock, en werkt ook zonder internet. In Safari op de Mac: **Archief → Voeg toe aan Dock**.
 
-Voortgang staat per browser. Wie op telefoon én pc oefent, zet de voortgang over via **Profiel → Voortgang overzetten**.
+Voortgang staat per browser. Wie op telefoon én pc oefent, zet de voortgang over via **Profiel → Account → Voortgang overzetten**.
 
 ## Iets aanpassen en een nieuwe versie maken
 
@@ -178,10 +178,10 @@ Vanaf versie 1.9 log je in de app en op de website in met je Google-account. De 
 
 ## Licenties (huisstijl per organisatie)
 
-Met een licentiecode van de werkgever krijgt de app de kleuren en het logo van die organisatie, in de rustige opmaak van Boa Paraat, en de inhoud die bij die boa's hoort. De gebruiker vult de code in bij Profiel → Licentie of op het welkomstscherm.
+Met een licentiecode van de werkgever krijgt de app de kleuren en het logo van die organisatie, in de rustige opmaak van Boa Paraat, en de inhoud die bij die boa's hoort. De gebruiker vult de code in bij Profiel → Account → Licentie of op het welkomstscherm.
 
 - **NS:** blauw als hoofdkleur, geel alleen als dunne lijn onder de kopbalk, vast op domein IV openbaar vervoer. In donkere weergave een rustiger lichtblauw.
-- **Logo:** zet het officiële logo dat de organisatie aanlevert in `bron/licenties/ns-logo.svg` (of `.png`). Het releasescript voegt het in de kopbalk en bij Profiel → Licentie in. Zonder dat bestand staat alleen "Examentrainer voor NS" in de kopbalk.
+- **Logo:** zet het officiële logo dat de organisatie aanlevert in `bron/licenties/ns-logo.svg` (of `.png`). Het releasescript voegt het in de kopbalk en bij Profiel → Account → Licentie in. Zonder dat bestand staat alleen "Examentrainer voor NS" in de kopbalk.
 - **Codes:** in `bron/v2_body.html` (`LIC`) staan alleen controlegetallen van geldige codes, niet de codes zelf. Een nieuwe code voeg je toe met het controlegetal van `hash("boa-lic:" + CODE)`, met CODE in hoofdletters zonder streepjes of spaties. Dit is geen echte beveiliging; toegang per gebruiker volgt met de accounts.
 - **Test:** `tests/licentie.js`.
 
@@ -203,11 +203,15 @@ Een push naar een tak die met `proef-` begint, bouwt een proefversie die naast d
 - **Toetsterm:** onder de uitleg staat bij PHB 1 de toetsterm uit de toetsmatrijs van je domein (`matrijs.js`). Bij een fout antwoord is "Lees de stof" een knop.
 - Test: `tests/naslag.js`.
 
+## Profiel
+
+Vier tabbladen (`viewProfile` in `bron/v2_body.html`): **Voortgang** (`#profiel`: cijfers, modules, historie), **Fouten** (`#profiel-fouten`), **Examens** (`#profiel-examens`) en **Account** (`#profiel-account`, `viewAccountTab`): persoonlijke gegevens, inloggen en beveiliging (`viewAccount` in `cloud.js`), licentie, instellingen (domein, weergave), meldingen, voortgang overzetten en alles wissen.
+
 ## Goed om te weten
 
-- Meldingen: onder **Profiel → Meldingen** zet je de oefenherinnering (dagelijks op een gekozen tijd, alleen als je nog niet hebt geoefend) en de examenherinnering (7, 3 en 1 dag ervoor, om 18:00) aan of uit. Meldingen buiten de app werken in de Android- en iOS-app; in de browser verschijnen ze als kaart op het overzicht.
-- Weergave: onder **Profiel → Gegevens → Weergave** kies je **Systeem** (volgt licht/donker van je telefoon of computer), **Licht** of **Donker**.
-- Voortgang en profiel worden per telefoon of browser bewaard. Met **Profiel → Voortgang overzetten** neem je ze mee naar een ander apparaat.
+- Meldingen: onder **Profiel → Account → Meldingen** zet je de oefenherinnering (dagelijks op een gekozen tijd, alleen als je nog niet hebt geoefend) en de examenherinnering (7, 3 en 1 dag ervoor, om 18:00) aan of uit. Meldingen buiten de app werken in de Android- en iOS-app; in de browser verschijnen ze als kaart op het overzicht.
+- Weergave: onder **Profiel → Account → Instellingen → Weergave** kies je **Systeem** (volgt licht/donker van je telefoon of computer), **Licht** of **Donker**.
+- Voortgang en profiel worden per telefoon of browser bewaard. Met **Profiel → Account → Voortgang overzetten** neem je ze mee naar een ander apparaat.
 - App-naam: Boa Paraat. App-ID: `nl.boa.phbtrainer`. Dit staat in `capacitor.config.json`.
 
 ## Beheer
@@ -216,4 +220,4 @@ Op `app.boaparaat.nl/beheer` (bron: `bron/beheer.html`, gebouwd naar `www/beheer
 
 ## Leerpad (proef, `bron/pad.js`)
 
-Tabblad in het midden van de tabbalk (`#pad`, `#pad-<module>`, les: `#pad-les`). Per module een pad in de volgorde van `blocksOf(m)`: per onderwerp eerst 'Lees de stof' (`STOF_CAT`), dan 2–5 lessen met de vragen van dat onderwerp, gesorteerd van makkelijk naar moeilijk (`padMoeite`: lengte, situatie, ontkenning, wetsartikel, lengte van de antwoorden; per vraag te overschrijven in `PAD_MOEITE`). Elk deel eindigt met een toets (10 vragen uit de moeilijkere helft, 8 goed); die halen telt de lessen van dat deel als gedaan. Les: 3 levens, fout = vraag komt terug, sterren 3/2/1. Eerste pogingen gaan via `record()` in `store.s`; voortgang in `store.pad` (`"<module>:<onderwerp>:<les>"` en `"<module>:T:<deel>"` → `[sterren, tijd]`), samengevoegd in `mergeStore` (meeste sterren). Herinnering: `store.p.mld.pad` (Profiel → Meldingen, of de vraag op het leerpad); `mldPlan` in `ui_extra.js` plant dan dagelijks één melding met `padHerinnering()` (volgende stap, reeks, examen) en route `pad-<module>`; in de browser een kaart op het overzicht met **Volgende les**. Test: `tests/pad.js`, `tests/meldingen.js`.
+Tabblad in het midden van de tabbalk (`#pad`, `#pad-<module>`, les: `#pad-les`). Per module een pad in de volgorde van `blocksOf(m)`: per onderwerp eerst 'Lees de stof' (`STOF_CAT`), dan 2–5 lessen met de vragen van dat onderwerp, gesorteerd van makkelijk naar moeilijk (`padMoeite`: lengte, situatie, ontkenning, wetsartikel, lengte van de antwoorden; per vraag te overschrijven in `PAD_MOEITE`). Elk deel eindigt met een toets (10 vragen uit de moeilijkere helft, 8 goed); die halen telt de lessen van dat deel als gedaan. Les: 3 levens, fout = vraag komt terug, sterren 3/2/1. Eerste pogingen gaan via `record()` in `store.s`; voortgang in `store.pad` (`"<module>:<onderwerp>:<les>"` en `"<module>:T:<deel>"` → `[sterren, tijd]`), samengevoegd in `mergeStore` (meeste sterren). Herinnering: `store.p.mld.pad` (Profiel → Account → Meldingen, of de vraag op het leerpad); `mldPlan` in `ui_extra.js` plant dan dagelijks één melding met `padHerinnering()` (volgende stap, reeks, examen) en route `pad-<module>`; in de browser een kaart op het overzicht met **Volgende les**. Test: `tests/pad.js`, `tests/meldingen.js`.

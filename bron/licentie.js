@@ -28,7 +28,7 @@ function licSectie(){const l=lic();
     <form class="panel stack" id="licForm" autocomplete="off"><div class="field"><label for="licCode">Licentiecode</label><input id="licCode" autocapitalize="characters" spellcheck="false" placeholder="Bijvoorbeeld NS-XXXX-XXXX"${licFout?' aria-invalid="true" aria-describedby="licErr"':""}>${licFout?`<p class="ferr" id="licErr">${esc(licFout)}</p>`:""}</div><div><button class="btn go" type="submit">Activeren</button></div></form></div>`}
 function domVast(){const l=lic();return l&&LIC[l].dom?`<p class="small domvast">Domein IV openbaar vervoer, vast door je licentie van ${esc(LIC[l].kort)}.</p>`:""}
 document.addEventListener("submit",e=>{if(e.target.id!=="licForm")return;e.preventDefault();const c=(document.getElementById("licCode")||{}).value||"";
-  if(licActiveer(c)){location.hash="profiel";render();toast("Licentie van "+LIC[lic()].naam+" geactiveerd")}else{render();const i=document.getElementById("licCode");if(i){i.value=c;i.focus()}}});
+  if(licActiveer(c)){location.hash="profiel-account";render();toast("Licentie van "+LIC[lic()].naam+" geactiveerd")}else{render();const i=document.getElementById("licCode");if(i){i.value=c;i.focus()}}});
 function licAct(act){
   if(act==="lic-weg"){licWeg=true;render();return true}
   if(act==="lic-weg-nee"){licWeg=false;render();return true}

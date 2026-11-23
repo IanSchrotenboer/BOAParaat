@@ -75,7 +75,7 @@ const ln=p=>p.evaluate(()=>window.__ln);
   t(!s.pending.some(n=>n.id<200&&new Date(n.schedule.at).toDateString()===vandaag),'na oefenen vandaag: geen oefenherinnering meer voor vandaag');
   await p.click('#stopBtn');await w(150);
   // instellingen in het profiel
-  await p.evaluate(()=>location.hash='profiel');await w(150);
+  await p.evaluate(()=>location.hash='profiel-account');await w(150);
   t(await p.locator('#meldingen .switch[aria-checked="true"]').count()===3,'profiel: oefenen, examen en leerpad aan');
   await p.evaluate(()=>document.getElementById('meldingen').scrollIntoView({block:'center'}));await w(100);
   await p.screenshot({path:SHOTS+'/meld_profiel_licht.png'});
@@ -130,7 +130,7 @@ const ln=p=>p.evaluate(()=>window.__ln);
   await p.context().close();
   // geweigerde toestemming
   p=await open(b,{fake:true,perm:'denied'});
-  await p.evaluate(()=>location.hash='profiel');await w(150);await p.click('#meldingen .switch[data-k="oefen"]');await w(300);
+  await p.evaluate(()=>location.hash='profiel-account');await w(150);await p.click('#meldingen .switch[data-k="oefen"]');await w(300);
   t(await p.locator('#meldingen .switch[aria-checked="true"]').count()===0&&await p.locator('.mldwarn').count()===1,'toestemming geweigerd: schakelaar blijft uit, met uitleg');
   await p.context().close();
   // ---------- in de browser (geen app) ----------
@@ -140,7 +140,7 @@ const ln=p=>p.evaluate(()=>window.__ln);
   t((await p.locator('.nudge b').first().innerText()).startsWith('Over 3 dagen: examen PHB 1'),'browser: examenherinnering met dezelfde tekst als de melding');
   await p.screenshot({path:SHOTS+'/meld_home_donker.png'});
   await p.click('[data-act="mld-weg"]');await w(150);t(await p.locator('.nudge').count()===0,'herinnering verbergen voor vandaag');
-  await p.evaluate(()=>location.hash='profiel');await w(150);
+  await p.evaluate(()=>location.hash='profiel-account');await w(150);
   t((await p.locator('#meldingen p.small').first().innerText()).includes('Android-app'),'browser: uitleg dat meldingen buiten de app via de Android-app gaan');
   t(await p.locator('[data-act="mld-test"]').count()===0,'browser: geen testmelding-knop');
   await p.evaluate(()=>document.getElementById('meldingen').scrollIntoView({block:'center'}));await w(100);

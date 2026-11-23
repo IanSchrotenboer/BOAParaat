@@ -29,7 +29,7 @@ process.on('unhandledRejection',e=>{console.log(out.join('\n'));console.log('FAI
     await p.keyboard.press('s');await w(80);t(await hash(p)==='#stof',L+'toets S → studiestof');
     await p.keyboard.press('e');await w(80);t(await hash(p)==='#profiel-examens',L+'toets E → mijn examens');
     await p.keyboard.press('p');await w(80);t(await hash(p)==='#profiel',L+'toets P → profiel');
-    await p.focus('#pNaam');await p.keyboard.press('h');await w(80);t(await hash(p)==='#profiel'&&(await p.inputValue('#pNaam')).length===9,L+'typen in een veld activeert geen sneltoets');
+    await p.evaluate(()=>location.hash='profiel-account');await w(80);await p.focus('#pNaam');await p.keyboard.press('h');await w(80);t(await hash(p)==='#profiel-account'&&(await p.inputValue('#pNaam')).length===9,L+'typen in een veld activeert geen sneltoets');
     await p.evaluate(()=>document.activeElement.blur());await p.keyboard.press('h');await w(80);t(await hash(p)==='#home',L+'toets H → overzicht');
     // hulpvenster
     await p.keyboard.press('Shift+Slash');await w(80);
@@ -65,6 +65,7 @@ process.on('unhandledRejection',e=>{console.log(out.join('\n'));console.log('FAI
     await p.emulateMedia({media:'print'});r=await p.evaluate(()=>getComputedStyle(document.querySelector('.bar')).display);t(r==='none',L+'afdrukken zonder menubalk');await p.emulateMedia({media:'screen'});
     // profiel en praktijkoefening
     await p.evaluate(()=>location.hash='profiel');await w(100);t(await overflow(p)<=0,L+'geen horizontale scroll op profiel');
+    await p.evaluate(()=>location.hash='profiel-account');await w(100);t(await overflow(p)<=0,L+'geen horizontale scroll op profiel → account');
     await p.evaluate(()=>location.hash='phb3');await w(100);t(await overflow(p)<=0,L+'geen horizontale scroll op PHB 3');
     t(!p._errs.length,L+'geen JS-fouten'+(p._errs.length?': '+p._errs.join(' | '):''));
     await p.context().close();

@@ -32,7 +32,7 @@ async function kies(p,id,label){await p.click('#'+id+'-cs');await w(120);await p
   await p.click('.wgo');await w(200);
   let s=await store(p);
   t(!(await p.locator('#obForm').count())&&s.p.rol==='scholier'&&s.p.akte==='','scholier kan door zonder akte');
-  await p.evaluate(()=>location.hash='profiel');await w(150);
+  await p.evaluate(()=>location.hash='profiel-account');await w(150);
   t((await p.locator('.idcard').innerText()).includes('in opleiding'),'profiel toont "Boa in opleiding"');
   t(await p.locator('#pAkteF').isHidden(),'profiel: aktenveld verborgen bij scholier');
   await kies(p,'pRol','Werkend');
@@ -85,12 +85,12 @@ async function kies(p,id,label){await p.click('#'+id+'-cs');await w(120);await p
   await p.screenshot({path:SHOTS+'/nieuw.png'});
   await p.keyboard.press('Escape');await w(150);t(!(await p.locator('.nieuwdlg').count()),'Esc sluit het venster');
   await p.reload();await w(2400);t(!(await p.locator('.nieuwdlg').count()),'venster komt maar één keer');
-  await p.evaluate(()=>location.hash='profiel');await w(150);await p.click('[data-act="nieuw"]');await w(150);
+  await p.evaluate(()=>location.hash='profiel-account');await w(150);await p.click('[data-act="nieuw"]');await w(150);
   t(await p.locator('.nieuwdlg').isVisible(),'profiel: "Wat is er nieuw" opent het venster opnieuw');
   await p.click('.nieuwdlg .btn.hi');await w(150);t(!(await p.locator('.nieuwdlg').count()),'knop "Aan de slag" sluit het venster');
   }else{
   t(!(await p.locator('.nieuwdlg').count()),`onderhoudsversie ${VN}: geen venster "Nieuw"`);
-  await p.evaluate(()=>location.hash='profiel');await w(150);
+  await p.evaluate(()=>location.hash='profiel-account');await w(150);
   t(!(await p.locator('[data-act="nieuw"]').count())&&(await p.locator('.vers').innerText()).includes(VN),`profiel toont versie ${VN} zonder lege "Wat is er nieuw"`);
   }
   await p.evaluate(()=>localStorage.clear());await p.reload();await w(1500);
@@ -101,7 +101,7 @@ async function kies(p,id,label){await p.click('#'+id+'-cs');await w(120);await p
   // bestaande gebruiker van vóór deze keuze: wordt als werkend gezien
   p=await fresh(b,true);
   await p.evaluate(()=>{localStorage.setItem('phb-trainer-v1',JSON.stringify({s:{},h:[],x:[],p:{naam:'Oud',dom:'1',werk:'X',akte:'2027-01-01',ob:1}}))});await p.reload();await w(150);
-  await p.evaluate(()=>location.hash='profiel');await w(150);
+  await p.evaluate(()=>location.hash='profiel-account');await w(150);
   t((await p.inputValue('#pRol'))==='werkend'&&await p.locator('#pAkteF').isVisible(),'bestaande gebruiker: Werkend met zijn akte');
   await p.context().close();
   await b.close();

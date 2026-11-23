@@ -167,10 +167,10 @@ async function routes(p,label,lim){
     w:[{id:'w1',sc:'perron',seed:1,d:Date.now(),txt:XSS,notes:XSS,hdr:{nr:XSS,functie:XSS,org:XSS,afd:XSS,akte:XSS,naam:XSS,eed:XSS}}],yt:[{id:'y1',url:'javascript:window.__xss=3',titel:XSS,punten:XSS}],
     p:{naam:XSS+lang(20000,'Heel lange naam '),werk:XSS+lang(5000,'Werkgever '),akte:iso(-3),rol:'werkend',dom:'1',ob:1,gezien:'9.9.9',mld:{gevraagd:1,examen:true}}};
   p=await nieuw(b,kwaad);
-  for(const r of ['home','profiel','profiel-examens','phb3','profiel-phb3','verslag-w1'])await p.evaluate(r=>location.hash=r,r).then(()=>w(120));
-  await p.evaluate(()=>location.hash='profiel');await w(120);await p.click('[data-act="export"]').catch(()=>{});await w(100);
+  for(const r of ['home','profiel','profiel-account','profiel-examens','phb3','profiel-phb3','verslag-w1'])await p.evaluate(r=>location.hash=r,r).then(()=>w(120));
+  await p.evaluate(()=>location.hash='profiel-account');await w(120);await p.click('[data-act="export"]').catch(()=>{});await w(100);
   t(await p.evaluate(()=>window.__xss===undefined),'geen code uitgevoerd vanuit ingevoerde tekst (XSS)');
-  await p.evaluate(()=>location.hash='profiel');await w(150);
+  await p.evaluate(()=>location.hash='profiel-account');await w(150);
   t(await p.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth)<=0,'extreem lange naam: geen horizontale scroll');
   t(!p._errs.length,'kwaadaardige invoer: geen JS-fouten'+(p._errs.length?': '+p._errs.slice(0,2).join(' | '):''));
   // importcode: rommel en enorm
