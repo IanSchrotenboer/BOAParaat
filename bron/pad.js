@@ -71,7 +71,7 @@ function viewPadPad(m){
   const p=padVan(m),s=padStand(p);const reeks=streak(),vandaag=store.d[dayKey()]||0;
   const chips=`<nav class="modrow padmods" aria-label="Kies een leerpad">${MODS.map(x=>`<a href="#pad-${x.id}"${x.id===m.id?' aria-current="page"':""} title="${esc(x.name)}">${esc(x.code)}</a>`).join("")}</nav>`;
   const doel=Math.min(100,Math.round(vandaag/PAD_DAGDOEL*100));
-  const kop=`<div class="padkop"><div class="stack" style="gap:2px"><span class="eyebrow">Leerpad</span><h1>${esc(m.name)}</h1></div>
+  const kop=`<div class="padkop"><div class="stack" style="gap:2px"><h1>${esc(m.name)}</h1><p class="small">Leerpad · ${esc(m.code)}</p></div>
     <div class="padstats">
       <span class="pstat${reeks?" vuur":""}" title="Dagen op rij geoefend"><i aria-hidden="true">${PADI.vlam}</i><b class="num">${reeks}</b><span>${reeks===1?"dag":"dagen"} op rij</span></span>
       <span class="pstat goud" title="Sterren op dit pad"><i aria-hidden="true">${PADI.ster}</i><b class="num">${s.sterren}</b><span>van ${s.max}</span></span>

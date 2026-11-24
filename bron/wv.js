@@ -434,7 +434,7 @@ function mountFilm(host,sc,onEnd){
     const d=new Date(new Date(sc.start).getTime()+t*1000);
     const ts=`${pad2(d.getDate())}-${pad2(d.getMonth()+1)}-${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;if(ts!==lastTs){lastTs=ts;fts.textContent=ts}
     sc.frame&&sc.frame.call(sc,t,svg);
-    const sec=Math.floor(t);if(sec!==last){last=sec;const pb=document.getElementById("wvProg");if(pb)pb.style.width=(t/sc.dur*100).toFixed(1)+"%"}
+    const sec=Math.floor(t);if(sec!==last){last=sec;const pb=document.getElementById("wvProg");if(pb)pb.style.transform="scaleX("+Math.min(1,t/sc.dur).toFixed(4)+")"}
     if(t>=sc.dur){st.stopped=true;try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}wvFilm=null;try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}onEnd&&onEnd();return}
     st.raf=requestAnimationFrame(frame);
   }

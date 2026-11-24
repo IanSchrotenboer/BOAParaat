@@ -295,7 +295,7 @@ function viewStof(){
   const groups=[...new Set(STOF.map(s=>s.deel))];
   const catsFor=id=>Object.keys(CATS).filter(c=>STOF_CAT[c]===id&&inCat(c).length&&(!D4.has(c)||dom()==="4"));
   return `<div class="stack">
-    <div class="stack" style="gap:8px"><span class="eyebrow">Samenvattingen</span><h1>Studiestof</h1>
+    <div class="stack" style="gap:8px"><h1>Studiestof</h1>
     <p class="lede">Samenvattingen per onderwerp.</p></div>
     ${zoekVeld()}
     <div class="stofgrid"${zoekWoorden(zoekQ).length?" hidden":""}><nav class="toc panel" aria-label="Onderwerpen">${groups.map(g=>`<div class="stack" style="gap:6px"><span class="eyebrow">${esc(g)}</span><ol>${STOF.filter(s=>s.deel===g).map(s=>`<li><a href="#stof-${s.id}">${esc(s.titel)}</a></li>`).join("")}</ol></div>`).join("")}</nav>
@@ -325,7 +325,7 @@ function viewHome(){
   const started=!!lastMod;const topic=nextTopic(tm);
   const sub=nx?`${countdownText(nx.datum)} tot je examen ${esc(exLabel(nx))}.`.replace(/^Vandaag tot je examen/,"Vandaag is je examen").replace(/^Morgen tot je examen/,"Morgen is je examen")
     :store.p.naam?"Kies een module of ga verder.":`Oefen per onderwerp en doe oefenexamens. <a href="#profiel-account">Vul je profiel in</a> voor je domein en voortgang.`;
-  const hero=`<div class="hero"><div class="stack" style="gap:4px"><span class="eyebrow">${nx?"Oefenen voor je examen":started?"Verder waar je was":"Begin hier"}</span><h2>${esc(tm.code)} · ${esc(tm.name)}</h2>${topic?`<span class="small">${started?"Volgend onderwerp":"Eerste onderwerp"}: ${esc(topic.charAt(0).toLowerCase()+topic.slice(1))}</span>`:""}</div><a class="btn hi" href="#${tgt}">${started?"Verder oefenen":"Start met oefenen"}</a></div>`;
+  const hero=`<div class="hero"><div class="stack" style="gap:4px"><h2>${esc(tm.code)} · ${esc(tm.name)}</h2><span class="small">${nx?"Oefenen voor je examen":started?"Verder waar je was":"Begin hier"}${topic?` · ${started?"volgend onderwerp":"eerste onderwerp"}: ${esc(topic.charAt(0).toLowerCase()+topic.slice(1))}`:""}</span></div><a class="btn hi" href="#${tgt}">${started?"Verder oefenen":"Start met oefenen"}</a></div>`;
   return `<div class="homegrid"><div class="stack home">
     <div class="stack" style="gap:6px"><h1>${naam?`Hoi ${esc(naam)}`:"Klaar voor je PHB?"}</h1>
     <p class="lede">${sub}</p></div>
@@ -350,7 +350,7 @@ function domSwitch(){
 function viewModule(m){
   const list=inMod(m.id);const wrong=list.filter(q=>lastWrong(q.id)).length;const cats=catsOf(m);
   return `<div class="stack">${modChips(m.id)}
-    <div class="stack" style="gap:8px"><span class="eyebrow">${m.code} · ${list.length} vragen</span><h1>${esc(m.name)}</h1><p class="lede">${esc(m.desc)}</p></div>
+    <div class="stack" style="gap:8px"><h1>${esc(m.name)}</h1><p class="lede">${esc(m.desc)}</p><p class="small mono modmeta">${m.code} · ${list.length} vragen</p></div>
     ${["phb1","phb2","phb3"].includes(m.id)?`<div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}</div>`:""}
     ${m.info?info("Over het examen",m.info[dom()]||m.info.all||m.info["1"]):""}
     ${m.id==="phb3"?wvCard():""}${m.id==="phb2"?kzKaart():""}
@@ -485,7 +485,7 @@ function viewProfile(tab){
       <div class="ring" style="--p:${Math.round(ms*100)}" role="img" aria-label="${pct(ms)} beheerst"><b>${pct(ms)}</b></div>
       <div class="meta"><span>${sn}/${l.length} geoefend</span><span>${ac==null?"nog geen antwoorden":pct(ac)+" goed"}</span>${m.exam?`<span>${best==null?"nog geen examen":"beste examen "+best+"/"+m.exam.n}</span>`:""}<span>${tt.length?tp+"/"+tt.length+" toetsen gehaald":"nog geen toets"}</span>${isW?`<span>${wrecs.length?wrecs.length+(wrecs.length===1?" verslag":" verslagen")+" · beste "+Math.max(...wrecs.map(r=>r.score))+"/100":"nog geen verslag"}</span>`:""}${la?`<span>laatst ${fmtDate(la)}</span>`:""}<span class="more">Details per onderwerp</span></div>
     </summary><div class="body">${cats}${isW?wvProfileList():""}<div class="row"><a class="btn" href="#${m.id}">Naar ${m.code}</a>${l.some(q=>lastWrong(q.id))?`<button class="btn hi" data-act="fouten" data-mod="${m.id}">Fouten wegwerken (${l.filter(q=>lastWrong(q.id)).length})</button>`:""}</div></div></details>`}).join("");
-  const head=`<div class="idcard"><span class="ava lg">${esc(initials(p.naam))}</span><div class="stack" style="gap:4px;min-width:0"><span class="eyebrow">Mijn profiel</span><h2>${p.naam?esc(p.naam):"Naam nog niet ingevuld"}</h2><p class="small">${p.rol==="scholier"?"Boa in opleiding, ":"Boa "}${dom()==="4"?"domein IV · openbaar vervoer":"domein I–III"}${p.werk?" · "+esc(p.werk):""}</p>${countdown?`<p class="small mono">${countdown}</p>`:""}</div>${akteStatus(p)}</div>
+  const head=`<div class="idcard"><span class="ava lg">${esc(initials(p.naam))}</span><div class="stack" style="gap:4px;min-width:0"><h1 class="idnaam">${p.naam?esc(p.naam):"Naam nog niet ingevuld"}</h1><p class="small">${p.rol==="scholier"?"Boa in opleiding, ":"Boa "}${dom()==="4"?"domein IV · openbaar vervoer":"domein I–III"}${p.werk?" · "+esc(p.werk):""}</p>${countdown?`<p class="small mono">${countdown}</p>`:""}</div>${akteStatus(p)}</div>
     <nav class="ptabs" aria-label="Profiel"><a href="#profiel"${tab==="voortgang"?' aria-current="page"':""}>Voortgang</a><a href="#profiel-fouten"${tab==="fouten"?' aria-current="page"':""}>Fouten${wrong?` <span class="pbadge">${wrong}</span>`:""}</a><a href="#profiel-examens"${tab==="examens"?' aria-current="page"':""}>Examens <span class="small">ExTH</span></a><a href="#profiel-account"${tab==="account"?' aria-current="page"':""}>Account</a></nav>`;
   if(tab==="account")return viewAccountTab(head);
   if(tab==="examens")return `<div class="stack">${head}${viewExams()}</div>`;
@@ -529,10 +529,8 @@ function viewAccountTab(head){const p=store.p;
     ${viewAccount()}
     ${licSectie()}
     <div class="section stack" id="instellingen"><h2>Instellingen</h2>
-      <div class="panel stack">
-        <div class="field"><span style="font-size:13px;font-weight:600;color:var(--muted)">Domein</span>${domSwitch()}</div>
-        <div class="field"><span style="font-size:13px;font-weight:600;color:var(--muted)" id="themaL">Weergave</span>${themeSwitch()}</div>
-      </div>
+      <div class="field"><span style="font-size:13px;font-weight:600;color:var(--muted)">Domein</span>${domSwitch()}</div>
+      <div class="field"><span style="font-size:13px;font-weight:600;color:var(--muted)" id="themaL">Weergave</span>${themeSwitch()}</div>
     </div>
     ${mldSection()}
     <div class="section stack"><div><h2>Voortgang overzetten</h2><p class="small">Kopieer je code en plak die op je andere apparaat.</p></div>
@@ -632,10 +630,10 @@ function viewResult(){
     const msg=S.locked?"Dit onderwerp vraagt nog wat oefening.":ratio===1?`Alles goed${nm}!`:ratio>=.8?`Mooi gedaan${nm}.`:ratio>=.6?`Goed bezig${nm}.`:`Je bent op weg${nm}.`;
     const fu=S.herh?foutUitslag():null;
     const sub=fu?`Je hebt ${fu.weg} van de ${fu.n} ${fu.n===1?"fout":"fouten"} weggewerkt.${fu.open?` Nog ${fu.open} open in totaal.`:" Je hebt geen open fouten meer."}`:cat?`Je beheerst nu ${known} van de ${pl.length} vragen over ${esc(lc(CATS[cat][1]))}.`:`${pct(ratio)} goed.${wrongs.length?" Hieronder zie je wat je nog eens kunt bekijken.":""}`;
-    head=`<div class="verdict">${ring}<div class="stack" style="gap:4px"><span class="eyebrow">Ronde klaar</span><h2>${msg}</h2><p>${sub}</p></div></div>`;
+    head=`<div class="verdict">${ring}<div class="stack" style="gap:4px"><h2>${msg}</h2><p>${sub}</p></div></div>`;
     const st=streak();stats=fu?[[fu.weg+"/"+fu.n,"opgelost"],[fu.open,"nog open"],[mins+" min","tijd"]]:[[pct(mastery(pl)),"beheerst"],[mins+" min","tijd"],[st,st===1?"dag op rij":"dagen op rij"]];
   }else{const allowed=S.pass.maxWrong!=null?S.pass.maxWrong:r.n-Math.ceil(r.n*S.pass.ratio);
-    head=`<div class="verdict ${r.pass?"pass":"fail"}">${ring}<div class="stack" style="gap:4px"><span class="eyebrow">${S.mode==="examen"?"Oefenexamen nagekeken":"Toets nagekeken"}</span><h2>${r.pass?"Geslaagd":"Niet geslaagd"}</h2><p>${r.wrong} fout, maximaal ${allowed} toegestaan.${S.auto?" De tijd was om; onbeantwoorde vragen tellen als fout.":""}</p></div></div>`;
+    head=`<div class="verdict ${r.pass?"pass":"fail"}">${ring}<div class="stack" style="gap:4px"><h2>${r.pass?"Geslaagd":"Niet geslaagd"}</h2><p>${S.mode==="examen"?"Oefenexamen":"Toets"} nagekeken: ${r.wrong} fout, maximaal ${allowed} toegestaan.${S.auto?" De tijd was om; onbeantwoorde vragen tellen als fout.":""}</p></div></div>`;
     stats=[[pct(ratio),"goed"],[r.wrong+"/"+allowed,"fout (maximaal)"],[mins+" min","tijd"]]}
   head+=`<dl class="rstats">${stats.map(s=>`<div><dt>${s[1]}</dt><dd>${s[0]}</dd></div>`).join("")}</dl>`;
   const rows=Object.entries(byCat).sort((a,b)=>a[1][0]/a[1][1]-b[1][0]/b[1][1]).map(([c,v])=>`<tr><td>${esc(CATS[c][1])}</td><td style="width:35%"><div class="meter"><i style="width:${pct(v[0]/v[1])};background:${v[0]/v[1]>=.7?"var(--ok)":"var(--bad)"}"></i></div></td><td class="n">${v[0]}/${v[1]}</td></tr>`).join("");
