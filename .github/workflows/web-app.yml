@@ -14,17 +14,24 @@ concurrency:
   group: pages
   cancel-in-progress: true
 
+# Twee stappen, zoals GitHub het voorschrijft: eerst de map www inpakken, daarna in een aparte taak publiceren.
+# (In één taak vond het publiceren het pakket op 24 nov 2026 niet terug, ook niet na opnieuw starten.)
 jobs:
-  deploy:
+  inpakken:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
           path: www
+
+  publiceren:
+    needs: inpakken
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v4
