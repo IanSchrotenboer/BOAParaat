@@ -195,6 +195,15 @@ Een push naar een tak die met `proef-` begint, bouwt een proefversie die naast d
 - `bron/zoek.js`: zoeken in studiestof en vragen, in de app zelf (ook offline).
 - Test: `tests/groot.js`.
 
+## Vraag van de dag
+
+`bron/vraag.js` (proef, 1.13.4).
+
+- Elke dag één meerkeuzevraag op een eigen tijdstip (`store.p.mld.vraag`, `vtijd`, standaard 08:00; Profiel → Account → Meldingen). In de app een melding op het kanaal **Vraag van de dag** (id's 200–206): de vraag met de antwoorden A–D in de uitgeklapte melding. Een tik opent `#vraag-<dag>.<id>.<volgorde>`; daar kies je het antwoord (in de melding zelf kan niet goed: Android toont hooguit drie knoppen). In de browser een kaart op het overzicht vanaf het tijdstip tot je antwoordt.
+- Na het antwoord: uitleg, bron, toetsterm en **Oefen 10 vragen** over hetzelfde onderwerp (`launch("oefen")`, de vraag van de dag achteraan).
+- Keuze: bij een examen binnen 30 dagen alleen die module; de helft van de keren een open fout, anders een vraag die je nog niet goed had uit een onderwerp onder 70%. Planning en antwoorden in `store.p.mld.vp` (per dag `[id, volgorde, antwoord of -1]`, 21 dagen bewaard); `mergeStore` houdt een beantwoorde dag vast. Het antwoord telt via `record()` mee in je voortgang.
+- Test: `tests/vraagmelding.js`.
+
 ## Naslag: wetsartikelen en toetstermen
 
 `bron/naslag.js` (sinds 1.13.3).

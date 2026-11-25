@@ -308,6 +308,8 @@ function mergeStore(a,b){
   // leerpad: per les de meeste sterren (bij gelijk de laatste keer)
   o.pad=o.pad||{};for(const [k,v] of Object.entries(od.pad||{}))if(v[1]>=R){const w=o.pad[k];if(!w||v[0]>w[0]||(v[0]===w[0]&&v[1]>w[1]))o.pad[k]=v.slice()}
   for(const k of Object.keys(o.pad))if(o.pad[k][1]<R)delete o.pad[k];
+  // vraag van de dag: een dag die op het andere apparaat is beantwoord, gaat voor
+  const vo=o.p&&o.p.mld&&o.p.mld.vp,vd=od.p&&od.p.mld&&od.p.mld.vp;if(vo&&vd)for(const [k,v] of Object.entries(vd))if(Array.isArray(v)&&v[2]>=0&&(!vo[k]||vo[k][2]<0))vo[k]=v.slice();
   const hk=x=>x.d+"|"+x.t+"|"+x.m+"|"+x.k;const hs=new Map();
   for(const x of [].concat(o.h||[],od.h||[]))if(x.d>=R&&!hs.has(hk(x)))hs.set(hk(x),x);
   o.h=[...hs.values()].sort((x,y)=>y.d-x.d).slice(0,50);

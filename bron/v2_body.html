@@ -80,7 +80,7 @@ const KEY="phb-trainer-v1";
 // licenties per organisatie (zie licentie.js); h = controlegetallen van geldige codes
 const LIC={ns:{naam:"Nederlandse Spoorwegen",kort:"NS",dom:"4",h:["q7psou2"],logo:/*__LOGO_ns__*/""}};
 const licVan=c=>{const h=hash("boa-lic:"+String(c||"").toUpperCase().replace(/[^A-Z0-9]/g,""));return Object.keys(LIC).find(k=>LIC[k].h.includes(h))||""};
-const blank = () => ({s:{},h:[],x:[],e:{},w:[],wd:null,yt:[],k:[],d:{},pad:{},p:{naam:"",dom:"1",werk:"",datum:"",akte:"",rol:"",thema:"systeem",mld:{oefen:false,examen:false,tijd:"19:00"}}});
+const blank = () => ({s:{},h:[],x:[],e:{},w:[],wd:null,yt:[],k:[],d:{},pad:{},p:{naam:"",dom:"1",werk:"",datum:"",akte:"",rol:"",thema:"systeem",mld:{oefen:false,examen:false,vraag:false,tijd:"19:00",vtijd:"08:00",vp:{}}}});
 let store=blank();
 // opgeslagen gegevens controleren: verkeerde soorten waarden (bijv. door een oude of beschadigde versie) worden hersteld
 const isObj=v=>!!v&&typeof v==="object"&&!Array.isArray(v);
@@ -103,7 +103,9 @@ function normalize(p){const b=blank();if(!isObj(p))return b;
   P.dom=q.dom==="4"?"4":"1";P.rol=q.rol==="scholier"||q.rol==="werkend"?q.rol:"";P.thema=["licht","donker"].includes(q.thema)?q.thema:"systeem";
   if(typeof q.lic==="string"&&LIC[q.lic])P.lic=q.lic;
   if(q.ob)P.ob=1;if(typeof q.pm==="string"&&/^[a-z0-9]{2,8}$/.test(q.pm))P.pm=q.pm;if(typeof q.gezien==="string")P.gezien=q.gezien;
-  const m=isObj(q.mld)?q.mld:{};P.mld={oefen:m.oefen===true,examen:m.examen===true,pad:m.pad===true,tijd:/^\d{2}:\d{2}$/.test(m.tijd)?m.tijd:"19:00"};if(m.gevraagd)P.mld.gevraagd=1;if(m.padNee)P.mld.padNee=1;if(typeof m.weg==="string")P.mld.weg=m.weg;
+  const m=isObj(q.mld)?q.mld:{};P.mld={oefen:m.oefen===true,examen:m.examen===true,pad:m.pad===true,vraag:m.vraag===true,tijd:/^\d{2}:\d{2}$/.test(m.tijd)?m.tijd:"19:00",vtijd:/^\d{2}:\d{2}$/.test(m.vtijd)?m.vtijd:"08:00",vp:{}};if(m.gevraagd)P.mld.gevraagd=1;if(m.padNee)P.mld.padNee=1;if(m.vraagNee)P.mld.vraagNee=1;
+  // vraag van de dag: per dag [vraag-id, volgorde van de antwoorden, gekozen antwoord of -1]
+  if(isObj(m.vp))for(const [k,v] of Object.entries(m.vp))if(ISO.test(k)&&Array.isArray(v)&&typeof v[0]==="string"&&/^\w{1,40}$/.test(v[0])&&typeof v[1]==="string"&&/^[0-3]{2,4}$/.test(v[1])&&typeof v[2]==="number"&&v[2]>=-1&&v[2]<=3)P.mld.vp[k]=[v[0],v[1],Math.round(v[2])];if(typeof m.weg==="string")P.mld.weg=m.weg;
   if(!P.rol&&(P.akte||P.naam))P.rol="werkend";
   if(typeof p.t==="number")b.t=p.t;if(typeof p.r==="number")b.r=p.r;if(typeof p.eig==="string")b.eig=p.eig.slice(0,60);
   if(Array.isArray(p.weg))b.weg=p.weg.filter(x=>typeof x==="string").slice(-300);return b}
@@ -265,6 +267,7 @@ function render(){
   else if(r.indexOf("verslag-")===0){v="verslag";h=viewWVResult(r.slice(8))}
   else if(r==="profiel"||r==="profiel-examens"||r==="profiel-phb3"||r==="profiel-fouten"||r==="fouten"||r==="profiel-account"){v="profiel";h=viewProfile(r==="profiel-examens"?"examens":r==="profiel-fouten"||r==="fouten"?"fouten":r==="profiel-account"?"account":"voortgang")}
   else if(r==="stof"||r.indexOf("stof-")===0){v="stof";h=viewStof()}
+  else if(r==="vraag"||r.indexOf("vraag-")===0){v="vraag";h=viewVraag(r)}
   else if(r==="pad-les"&&!PL){location.replace("#pad");return}
   else if(r==="pad"||r.indexOf("pad-")===0){v="pad";h=viewPad(r)}
   else if(r==="casus"||r.indexOf("casus-")===0||r.indexOf("gesprek-")===0){v="casus";store.p.lm="phb2";h=viewKz(r)}
