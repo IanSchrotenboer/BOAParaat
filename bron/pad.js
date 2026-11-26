@@ -97,7 +97,7 @@ function viewPadPad(m){
         ${springen?`<button class="btn sm" data-pad="start" data-k="${esc(d.toets)}">Spring vooruit: doe de toets</button>`:""}</div>
       ${ond}<ol class="ppad">${(z=0,knoop(d.toets,"Toets deel "+d.letter,PAD_TOETS+" vragen, "+PAD_TOETS_GOED+" goed om te halen","toets"))}</ol></section>`}).join("");
   const af=!s.nu?`<div class="panel stack"><b>Je hebt dit pad helemaal afgerond.</b><p class="small">Doe een les nog eens voor meer sterren, of kies een ander pad.</p></div>`:"";
-  return `<div class="stack padview">${chips}${kop}${padMldVraag()}${af}${delen}<p class="small">De vragen worden per onderwerp steeds wat lastiger. In een les heb je ${PAD_LEVENS} levens; wat je fout doet, komt aan het eind terug.</p></div>`}
+  return `<div class="stack padview" data-impeccable-ignore="hard-offset-shadow">${chips}${kop}${padMldVraag()}${af}${delen}<p class="small">De vragen worden per onderwerp steeds wat lastiger. In een les heb je ${PAD_LEVENS} levens; wat je fout doet, komt aan het eind terug.</p></div>`}
 // ---------- herinnering (meldingen in ui_extra.js) ----------
 // tekst voor de dagelijkse melding en de kaart op het overzicht: wat je volgende stap in het leerpad is.
 // i = hoeveel dagen vanaf vandaag (de meldingen voor de komende 7 dagen staan klaar en worden steeds opnieuw ingepland).

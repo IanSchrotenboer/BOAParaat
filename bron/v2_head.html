@@ -281,7 +281,7 @@ details.review .rbody{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .prose{max-width:60ch}
 .prose ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
 .prose p{margin:0 0 8px}
-.prose h4{font-family:var(--f-display);font-size:17px;margin:20px 0 6px;font-stretch:90%;line-height:1.25}
+.prose h4{font-family:var(--f-display);font-size:17px;margin:20px 0 6px;font-stretch:90%;line-height:1.25;text-wrap:balance}
 /* telefoon en tablet: onderwerpen buiten beeld pas opbouwen bij het scrollen (studiestof opent sneller) */
 @media (max-width:999px){.stofsec[open]{content-visibility:auto;contain-intrinsic-size:auto 640px}}
 details.stofsec{display:block}details.stofsec:not([open]){padding:12px 18px}details.stofsec>*+*{margin-top:12px}
@@ -522,7 +522,7 @@ body.inses footer{display:none}
 .secttl{font-family:var(--f-body);font-size:15px;letter-spacing:0;color:var(--muted);font-weight:600;font-stretch:100%}
 .qsegs{display:grid;gap:4px}
 .qsegs i{display:block;height:6px;border-radius:3px;background:var(--track)}
-.qsegs i.ok{background:var(--navy)} .qsegs i.no{background:repeating-linear-gradient(135deg,var(--bad) 0 3px,var(--bad-bg) 3px 5px)} .qsegs i.cur{box-shadow:inset 0 0 0 1.5px var(--navy)}
+.qsegs i.ok{background:var(--navy)} .qsegs i.no{background:transparent;box-shadow:inset 0 0 0 1.5px var(--bad)} .qsegs i.cur{box-shadow:inset 0 0 0 1.5px var(--navy)}
 .opt .mk{width:20px;height:20px;margin-top:5px;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .opt.right .mk{stroke:var(--ok)} .opt.wrong .mk{stroke:var(--bad)}
 .opts.done .opt:not(.right):not(.wrong) .tx{color:var(--muted)}
@@ -554,6 +554,7 @@ body.inses footer{display:none}
 .hlkop{justify-content:space-between;align-items:baseline}
 a.terug,.linkbtn.terug{align-self:flex-start;display:inline-flex;align-items:center;min-height:44px;margin-block:-10px}
 .exnav{flex-wrap:nowrap}.exnav .btn{white-space:nowrap}.flagbtn{min-width:8.5em;justify-content:center}
+.keyscard .linkbtn{font-size:14px}
 .fklink,.rlink{display:inline-flex;align-items:center;justify-content:center;min-height:40px}
 /* Opstartscherm en overgangen: kort, rustig, en uit bij "minder beweging" */
 #launch{position:fixed;top:0;right:0;bottom:0;left:0;z-index:100;display:grid;place-items:center;background:var(--l-bg);color:var(--l-ink);transition:opacity .3s ease,visibility .3s}
@@ -744,10 +745,10 @@ a.terug,.linkbtn.terug{align-self:flex-start;display:inline-flex;align-items:cen
 .pdeelkop h2{font-size:19px;color:inherit}.pdeelkop .eyebrow{color:inherit;opacity:.8}
 .pdeelkop .btn{background:var(--surface);color:var(--ink);border-color:transparent}
 .pdeel.af .pdeelkop{background:var(--ok);color:var(--ok-ink)}
-.pmeter{flex:1 1 120px;max-width:200px;height:8px;border-radius:99px;background:rgba(255,255,255,.28);overflow:hidden}.pmeter i{display:block;height:100%;background:currentColor;border-radius:inherit}
+.pmeter{flex:1 1 120px;max-width:200px;height:8px;border-radius:99px;background:transparent;box-shadow:inset 0 0 0 1.5px currentColor;overflow:hidden}.pmeter i{display:block;height:100%;background:currentColor;border-radius:inherit}
 .pond{display:flex;flex-direction:column;gap:12px}
 .pond h3{font-family:var(--f-display);font-size:17px;font-weight:700;text-align:center}
-.plees{display:flex;align-items:center;gap:12px;align-self:center;max-width:100%;padding:10px 14px;border:1.5px dashed var(--line);border-radius:var(--r);color:var(--ink);text-decoration:none;background:var(--sunk)}
+.plees{display:flex;align-items:center;gap:12px;align-self:center;max-width:100%;padding:10px 14px;border:1.5px solid var(--line);border-radius:var(--r);color:var(--ink);text-decoration:none;background:var(--sunk)}
 .plees:hover{border-color:var(--navy)}.plees .pic{display:grid;width:30px;height:30px;color:var(--navy)}.plees .pic svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round}
 .plees.af{border-style:solid}.pvink{display:grid;width:22px;height:22px;color:var(--ok)}.pvink svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .ppad{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;align-items:center;gap:14px}
