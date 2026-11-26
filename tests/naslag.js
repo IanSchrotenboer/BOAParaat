@@ -46,7 +46,8 @@ const opts=p=>p.evaluate(()=>[...document.querySelectorAll('.opt')].map(o=>o.dat
     if(await p.evaluate(()=>!!document.querySelector('.fb .reftt')&&!!document.querySelector('.fb .art a.wet')))break;
     await p.click('[data-act="next"]');await w(120)}
   const tt4=(await p.textContent('.fb .reftt').catch(()=>'')).trim();
-  t(/^Toetsterm 3\.\d/.test(tt4),'domein IV: toetsterm uit de toetsmatrijs domein IV OV ('+tt4+')');
+  // domein IV: toetstermen uit deel 1 (algemeen) of deel 3 (openbaar vervoer) van de matrijs van domein IV
+  t(/^Toetsterm [13]\.\d/.test(tt4),'domein IV: toetsterm uit de toetsmatrijs domein IV OV ('+tt4+')');
   t(await p.locator('.fb .art a.wet[href*="BWBR0011470"]').count()>=1||await p.locator('.fb .art a.wet').count()>=1,'domein IV: Wp2000-bron als wetslink');
   t(!p._errs.length,'domein IV: geen JS-fouten'+(p._errs.length?': '+p._errs.join(' | '):''));
   await b.close();
