@@ -27,7 +27,7 @@ const store=p=>p.evaluate(()=>JSON.parse(localStorage.getItem('phb-trainer-v1')|
   t((await p.textContent('#app h1')).includes('Ambtsinstructie'),'tabblad RTGB opent met de juiste titel');
   t(await p.locator('#app .cat').count()===6,'zes onderwerpen om te oefenen');
   t(await p.locator('#app .block').count()===2,'twee tussentijdse toetsen');
-  t((await p.textContent('#app .exam')).includes('Oefentoets ambtsinstructie')&&(await p.textContent('#app .exam .big')).trim()==='20','oefentoets ambtsinstructie met 20 vragen (lange vorm van de echte toets)');
+  t((await p.textContent('#app .exam')).includes('Oefentoets ambtsinstructie')&&/ 20 vragen|^20 vragen|\D20 vragen/.test(await p.textContent('#app .exam')),'oefentoets ambtsinstructie met 20 vragen (lange vorm van de echte toets)');
   // oefenen per onderwerp, met verwijzing naar de samenvatting
   await p.locator('#app .cat [data-act="oefen"][data-cat="aim"]').click();await w(400);
   t(await p.evaluate(()=>location.hash)==='#sessie','oefenen "Melden en registreren" gestart');

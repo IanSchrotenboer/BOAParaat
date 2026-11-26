@@ -193,7 +193,7 @@ const nS=s=>Object.keys((s&&s.s)||{}).length;
   t(!(await p3.locator('[data-act="login"]').count())&&nS(await store(p3))===3,'opnieuw ingelogd: alles is er nog');
   // ---------- 10. account verwijderen ----------
   await p3.evaluate(()=>location.hash='profiel-account');await w(250);await p3.click('[data-act="acc-del"]');await w(150);
-  t(/definitief/.test(await p3.textContent('#account')),'account verwijderen vraagt eerst om bevestiging');
+  t(/definitief/.test(await p3.textContent('#app .gevaar'))&&!(await p3.locator('#account [data-act="acc-del"]').count()),'account verwijderen staat onderaan bij Wissen en vraagt eerst om bevestiging');
   await p3.click('[data-act="acc-del-yes"]');await w(900);
   t(!db.rows['u-cor']&&!db.users['u-cor']&&await p3.locator('[data-act="login"]').count()===1&&!nS(await store(p3)),'account verwijderd: in de cloud en op het apparaat, terug naar inloggen');
   // ---------- 11. inloggen geweigerd, server onbereikbaar ----------
