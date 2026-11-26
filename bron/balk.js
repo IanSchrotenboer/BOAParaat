@@ -9,7 +9,7 @@ const BI={oef:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" r
   pad:'<svg viewBox="0 0 24 24"><circle cx="7" cy="5" r="2.2"/><circle cx="17" cy="12" r="2.2"/><circle cx="7" cy="19" r="2.2"/><path d="M9.2 5.6c4 .8 6.4 2.4 6.6 4.4M15.4 13.6c-1.6 2-4 3.6-6.4 4.6"/></svg>'};
 const oefenRoute=()=>MODBY[store.p.lm]?store.p.lm:"phb1";
 function balkTab(r){
-  if(r==="home")return "home";
+  if(r==="home"||r==="vraag"||r.indexOf("vraag-")===0)return "home";
   if(r==="pad"||r.indexOf("pad-")===0)return "pad";
   if(r==="stof"||r.indexOf("stof-")===0)return "stof";
   if(r.indexOf("profiel")===0||r==="fouten")return "profiel";

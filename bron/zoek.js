@@ -32,7 +32,7 @@ function zoekResultaten(q){const ws=zoekWoorden(q);if(!ws.length)return "";
       ${toon.map(q=>`<details class="zoekq"><summary><span class="chip">${esc(MODBY[q.m].code)} · ${esc(CATS[q.c][1])}</span><span>${zoekMark(q.q,ws)}</span></summary><p class="corr">Juist: ${zoekMark(q.o[0],ws)}</p><p class="small">${zoekMark(q.e,ws)}</p>${q.r?`<span class="chip ref">${bronHtml(q.r)}</span>`:""}</details>`).join("")}
       ${vr.length>toon.length?`<p class="small">En nog ${vr.length-toon.length} ${vr.length-toon.length===1?"vraag":"vragen"}. Maak je zoekopdracht specifieker.</p>`:""}</div>`:""}`}
 function zoekVeld(){return `<div class="zoek" role="search"><label class="vh" for="zoekIn">Zoek in studiestof en vragen</label>
-  <input type="search" id="zoekIn" placeholder="Zoek, bijvoorbeeld cautie of 5:34" value="${esc(zoekQ)}" autocomplete="off" enterkeyhint="search">
+  <input type="search" id="zoekIn" placeholder="Zoek, bijvoorbeeld cautie of artikel 5:34 Awb" value="${esc(zoekQ)}" autocomplete="off" enterkeyhint="search">
 </div><div id="zoekRes" class="stack">${zoekQ?zoekResultaten(zoekQ):""}</div>`}
 function zoekBijwerken(){const r=document.getElementById("zoekRes");if(r)r.innerHTML=zoekQ?zoekResultaten(zoekQ):"";
   const g=document.querySelector("#app .stofgrid");if(g)g.hidden=!!zoekWoorden(zoekQ).length}

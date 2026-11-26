@@ -374,6 +374,10 @@ function beheerVraag(){const s=sesGet();if(beheerGevraagd||!s||s.x-Date.now()<60
   // los verzoek met het huidige toegangsbewijs: vernieuwen en uitloggen laten we aan het synchroniseren over
   fetch(CLOUD.url+"/rest/v1/rpc/ben_ik_beheerder",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+s.a,"Content-Type":"application/json"},body:"{}"})
     .then(r=>r.ok?r.json():Promise.reject(r.status)).then(b=>{if((b===true)!==benBeheer){benBeheer=b===true;if(route()==="profiel-account")render()}},()=>{beheerGevraagd=false})}
+// account verwijderen staat onderaan bij 'Wissen', apart van de gewone knoppen
+const accDelKan=()=>!!(cloudKan()&&sesGet());
+const accDelBlok=()=>accDelKan()&&!cloudDel?`<button class="btn danger" data-act="acc-del">Account verwijderen</button>`:"";
+const accDelBev=()=>accDelKan()&&cloudDel?`<div class="confirm stack" style="gap:10px"><span><b>Account verwijderen?</b> Je account en al je voortgang, examens en verslagen worden definitief verwijderd, ook van dit apparaat. Dit kan niet ongedaan worden gemaakt.</span><div class="row"><button class="btn danger" data-act="acc-del-yes">Ja, definitief verwijderen</button><button class="btn" data-act="acc-del-no">Annuleren</button></div></div>`:"";
 function viewAccount(){
   if(!cloudKan())return `<div class="section stack" id="account"><h2>Inloggen en beveiliging</h2><p class="small">Voortgang staat op dit apparaat. Inloggen kan in de app en op de website.</p></div>`;
   const s=sesGet();if(!s)return "";setTimeout(beheerVraag,0);
@@ -383,8 +387,7 @@ function viewAccount(){
     ${cloudFout?`<p class="ferr" role="alert">${esc(cloudFout)}</p>`:""}
     ${cloudBezig?`<p class="lbezig" role="status"><span class="spin" aria-hidden="true"></span>${esc(cloudBezig)}</p>`:
       confirmUitOffline?`<div class="confirm stack" style="gap:10px"><span><b>Je bent offline.</b> Wat je sinds de laatste keer bijwerken hebt geoefend, staat nog niet in je account. Als je nu uitlogt, ben je dat kwijt.</span><div class="row"><button class="btn danger" data-act="logout">Toch uitloggen</button><button class="btn" data-act="logout-no">Annuleren</button></div></div>`:
-      cloudDel?`<div class="confirm stack" style="gap:10px"><span><b>Account verwijderen?</b> Je account en al je voortgang, examens en verslagen worden definitief verwijderd, ook van dit apparaat. Dit kan niet ongedaan worden gemaakt.</span><div class="row"><button class="btn danger" data-act="acc-del-yes">Ja, definitief verwijderen</button><button class="btn" data-act="acc-del-no">Annuleren</button></div></div>`:
-      `<div class="row"><button class="btn" data-act="sync">Nu bijwerken</button><button class="btn" data-act="logout">Uitloggen</button><button class="btn danger" data-act="acc-del">Account verwijderen</button></div>${wwZetBlok()}`}
+      `<div class="row"><button class="btn" data-act="sync">Nu synchroniseren</button><button class="btn" data-act="logout">Uitloggen</button></div>${wwZetBlok()}`}
     ${SITE?`<p class="small"><a href="${SITE}privacy.html" target="_blank" rel="noopener" data-ext>Privacyverklaring</a></p>`:""}
     </div>${mfaAccountBlok()}${benBeheer?`<div class="panel stack" id="beheer"><b>Beheer</b><p class="small">Zie wie de app gebruikt en waar ze mee bezig zijn, en welke codes je hebt uitgegeven.</p><div class="row"><a class="btn" href="${esc(beheerUrl())}">Open het beheer</a></div></div>`:""}</div>`}
 function cloudAct(act){

@@ -181,7 +181,7 @@ function kzResults(id){return (store.k||[]).filter(r=>r.cs===id)}
 function viewCasusLijst(){
   const ts=kzTypes();const D4=dom()==="4";
   return `<div class="stack">${modChips("phb2")}
-    <div class="stack" style="gap:8px"><a class="small" href="#phb2">← PHB 2 Bejegening</a><span class="eyebrow">Praktijk · domein ${D4?"IV":"I–III"}</span><h1>Gesprekken oefenen</h1>
+    <div class="stack" style="gap:8px"><a class="small terug" href="#phb2">← PHB 2 Bejegening</a><h1>Gesprekken oefenen</h1><p class="small">Praktijk · domein ${D4?"IV":"I–III"}</p>
     <p class="lede">Gesprek met een acteur · ${D4?"aanwijzing en strafbaar feit":"calamiteit, aanwijzing en balie"} · 30 min</p></div>
     <div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}</div>
     <div class="section stack"><div><h2>Kies je antwoord</h2><p class="small">Jij kiest wat je zegt, de persoon reageert</p></div>
@@ -201,7 +201,7 @@ function viewCasus(id){
   const rec=kzRec&&kzRec.state==="recording";
   if(kzBeoord===id)return viewKzBeoordeel(c);
   return `<div class="stack kzkaart">
-    <div class="stack" style="gap:8px"><a class="small" href="#casus">← Alle gesprekken</a><span class="eyebrow">Casus ${esc(T.naam.toLowerCase())} · domein ${T.dom==="4"?"IV":"I–III"}</span><h1>${esc(c.titel)}</h1></div>
+    <div class="stack" style="gap:8px"><a class="small terug" href="#casus">← Alle gesprekken</a><h1>${esc(c.titel)}</h1><p class="small">Casus ${esc(T.naam.toLowerCase())} · domein ${T.dom==="4"?"IV":"I–III"}</p></div>
     <div class="panel stack"><h2>De situatie</h2><p>${esc(c.s)}</p><h3>Doel</h3><p>${esc(c.d)}</p><details class="info mini"><summary>Tips</summary><p class="small">${esc(c.l)}</p></details></div>
     <details class="panel kzrol"><summary><b>Rolkaart oefenpartner</b></summary><p>${esc(c.r)}</p></details>
     <div class="panel stack"><div class="row" style="justify-content:space-between;align-items:center"><div><h2>Oefenen</h2><p class="small">Richttijd ${T.min} min · hardop</p></div>
@@ -216,7 +216,7 @@ function viewCasus(id){
 }
 function kzKlok(){const T=KZT[(KZBY[route().slice(6)]||{}).t];const rest=Math.max(0,(T?T.min*60:600)-Math.floor((Date.now()-KZ_T)/1000));return String(Math.floor(rest/60))+":"+String(rest%60).padStart(2,"0")}
 function viewKzBeoordeel(c){const T=KZT[c.t];
-  return `<div class="stack kzkaart"><div class="stack" style="gap:8px"><button class="linkbtn small" data-act="kz-terug">← Terug naar de casus</button><span class="eyebrow">Zelfbeoordeling · ${esc(T.naam)}</span><h1>${esc(c.titel)}</h1>
+  return `<div class="stack kzkaart"><div class="stack" style="gap:8px"><button class="linkbtn small terug" data-act="kz-terug">← Terug naar de casus</button><h1>${esc(c.titel)}</h1><p class="small">Zelfbeoordeling · ${esc(T.naam)}</p>
     <p class="lede">Kies per criterium wat het best past.</p></div>
     <form id="kzForm" class="stack">${T.crit.map((k,i)=>{const C=KZC[k];return `<fieldset class="kzcrit"><legend><span class="mono small">${i+1}</span> ${esc(C[0])}</legend>${C[1].map((t,p)=>`<label class="kzlvl"><input type="radio" name="kz${i}" value="${p+1}"><span><b>${p+1} ${p?"punten":"punt"}</b> ${esc(t)}</span></label>`).join("")}</fieldset>`}).join("")}
     <p class="small err" id="kzErr" hidden>Kies bij elk criterium een niveau.</p>
@@ -248,7 +248,7 @@ function viewGesprek(id){const g=GBY[id];if(!g)return viewCasusLijst();
       <div class="row"><button class="btn hi" data-act="kz-g-opnieuw" data-id="${id}">Opnieuw</button><a class="btn" href="#casus">Andere gesprekken</a></div>`}
   else if(!gekozen)onder=`<div class="stack" style="gap:8px"><span class="eyebrow">Wat zeg je?</span>${kzVolgorde(id,G.stap).map(k=>`<button class="btn kzopt" data-act="kz-kies" data-k="${k}">${esc(s.o[k][0])}</button>`).join("")}</div>`;
   else onder=`<div class="row"><button class="btn hi" data-act="kz-verder">${G.stap+1<g.stappen.length?"Volgende beurt":"Bekijk je score"}</button></div>`;
-  return `<div class="stack kzgesprek"><div class="stack" style="gap:8px"><a class="small" href="#casus">← Alle gesprekken</a><span class="eyebrow">${esc(T.naam)} · beurt ${Math.min(G.stap+1,g.stappen.length)} van ${g.stappen.length}</span><h1>${esc(g.titel)}</h1><p class="lede">${esc(g.intro)}</p></div>
+  return `<div class="stack kzgesprek"><div class="stack" style="gap:8px"><a class="small terug" href="#casus">← Alle gesprekken</a><h1>${esc(g.titel)}</h1><p class="small">${esc(T.naam)} · beurt ${Math.min(G.stap+1,g.stappen.length)} van ${g.stappen.length}</p><p class="lede">${esc(g.intro)}</p></div>
     <div class="kzchat" aria-live="polite">${bubbels.join("")}</div>${onder}</div>`}
 // vaste maar per beurt verschillende volgorde van de antwoorden (het beste antwoord staat niet altijd bovenaan)
 function kzVolgorde(id,stap){const h=parseInt(hash(id+":"+stap).slice(1),36);return [[0,1,2],[1,0,2],[2,0,1],[1,2,0],[0,2,1],[2,1,0]][h%6]}

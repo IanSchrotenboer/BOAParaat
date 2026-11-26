@@ -143,7 +143,10 @@ const pend=p=>p.evaluate(()=>window.__ln.pending.filter(n=>n.id>=200&&n.id<300).
   // nieuw profiel: "Niet nu" op de algemene vraag om herinneringen = geen extra aanbod
   await p.context().close();
   p=await open(b,PROF({}),{vp:{width:1280,height:800}});
-  t(await p.locator('.nudge',{hasText:'Herinneringen aanzetten?'}).count()===1,'nieuw profiel: één vraag om herinneringen (met vraag van de dag)');
+  t(await p.locator('.nudge',{hasText:'Herinneringen aanzetten?'}).count()===0,'nieuw profiel zonder antwoorden: nog geen vraag om herinneringen');
+  await p.context().close();
+  p=await open(b,PROF({},{s:Object.fromEntries(['a1','a2','a3','a4','a5'].map(k=>[k,[1,1,0,Date.now()]]))}),{vp:{width:1280,height:800}});
+  t(await p.locator('.nudge',{hasText:'Herinneringen aanzetten?'}).count()===1,'na de eerste oefenronde: één vraag om herinneringen (met vraag van de dag)');
   await p.click('[data-act="mld-nee"]');await w(200);
   t(await p.locator('.nudge',{hasText:'vraag van de dag'}).count()===0,'na "Niet nu" geen apart aanbod voor de vraag van de dag');
   t(!p._errs.length,'browser: geen JS-fouten'+(p._errs.length?': '+p._errs.join(' | '):''));

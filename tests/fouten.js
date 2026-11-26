@@ -38,7 +38,7 @@ const ga=async(p,h)=>{await p.evaluate(h=>location.hash=h,h);await w(300)};
   // per onderwerp oefenen vanuit de analyse
   await ga(p,'fouten');const c=await p.getAttribute('ol.zwak li [data-act="fouten"]','data-cat');
   await p.click('ol.zwak li [data-act="fouten"]');await w(300);
-  const cats=await p.evaluate(()=>document.querySelector('#app .chip').textContent);
+  const cats=await p.evaluate(()=>(document.querySelector('#app .chip')||document.querySelector('#app .qtitle')).textContent);
   t(c&&/Fouten wegwerken ·/.test(await p.textContent('#app')),'oefen deze fouten: ronde met alleen dat onderwerp ('+cats+')');
   await p.evaluate(()=>{const s=document.getElementById('stopBtn');s&&s.click()});await w(150);await p.evaluate(()=>{const y=document.querySelector('[data-act="stop-yes"],[data-act="finish"]');y&&y.click()});await w(200);await ga(p,'fouten');
   // fouten wegwerken: eerste vraag fout, die komt terug

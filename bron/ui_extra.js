@@ -1,6 +1,8 @@
 // ---------- welkomstscherm (eerste keer openen) ----------
 // Na het inloggen (zie cloud.js): profiel invullen. Wie al een naam heeft (of voortgang importeert) slaat dit over.
 let obErr={},obExam=false,obDom=null;
+document.addEventListener("input",e=>{const el=e.target,d=el.getAttribute&&el.getAttribute("aria-describedby");if(!d||d.indexOf("err-")!==0)return;
+  const k=d.slice(4);if(!obErr[k])return;delete obErr[k];const p=document.getElementById(d);if(p)p.remove();el.removeAttribute("aria-invalid");el.removeAttribute("aria-describedby")});
 const WMARK='<svg viewBox="0 0 64 64"><path d="M32 4 L54 11 V30 C54 44.5 44.5 54.5 32 60 C19.5 54.5 10 44.5 10 30 V11 Z" fill="var(--navy)"/><path d="M32 8.5 L50.5 14.3 V30 C50.5 42.3 42.6 50.9 32 55.8 C21.4 50.9 13.5 42.3 13.5 30 V14.3 Z" fill="none" stroke="#c9a24a" stroke-width="1.8"/><path d="M21.5 28.5 L28.5 35.5 L43 21" fill="none" stroke="var(--navy-ink)" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round"/><g fill="#c9a24a"><rect x="21" y="42" width="4.6" height="3.4" rx="1"/><rect x="27.1" y="42" width="4.6" height="3.4" rx="1"/><rect x="33.2" y="42" width="4.6" height="3.4" rx="1"/><rect x="39.3" y="42" width="4.6" height="3.4" rx="1"/></g></svg>';
 const needsWelcome=()=>needsLogin()||(!store.p.ob&&!(store.p.naam||"").trim());
 function viewWelcome(){
@@ -17,7 +19,7 @@ function viewWelcome(){
       <div class="field"><label for="obWerk">${rol==="scholier"?"Werkgever of opleiding":"Werkgever"} <span class="req" aria-hidden="true">*</span></label><input id="obWerk" name="organization" autocomplete="organization" autocapitalize="words" enterkeyhint="next" placeholder="${rol==="scholier"?"Bijvoorbeeld gemeente Utrecht of je opleiding":"Bijvoorbeeld gemeente Utrecht of NS"}" value="${esc(p.werk||"")}" required${inv("werk")}>${err("werk")}</div>
       <div class="field"><label for="obRol">Ik ben <span class="req" aria-hidden="true">*</span></label><select id="obRol" required${inv("rol")}><option value=""${rol?"":" selected"}>Kies scholier of werkend</option><option value="werkend"${rol==="werkend"?" selected":""}>Werkend</option><option value="scholier"${rol==="scholier"?" selected":""}>Scholier</option></select><p class="small fhelp">${rol==="scholier"?"Als scholier heb je nog geen akte, dus die vul je niet in.":"Werkend: je hebt een akte van opsporingsbevoegdheid."}</p>${err("rol")}</div>
       ${rol==="werkend"?`<div class="field"><label for="obAkte">Akte van opsporingsbevoegdheid geldig tot <span class="req" aria-hidden="true">*</span></label><input id="obAkte" type="date" value="${esc(p.akte||"")}" required${inv("akte")}><p class="small fhelp">Staat op je akte. De app rekent hiermee terug, zodat je je PHB-modules op tijd afrondt.</p>${err("akte")}</div>`:""}
-      ${lic()?`<div class="field"><span class="flabel">Licentie</span><p class="small domvast">${esc(LIC[lic()].naam)}</p></div>`:`<div class="field"><label for="obLic">Licentiecode <span class="small" style="font-weight:400">(optioneel, van je werkgever)</span></label><div class="row licrow"><input id="obLic" autocapitalize="characters" spellcheck="false" placeholder="Bijvoorbeeld NS-XXXX-XXXX"${licFout?' aria-invalid="true" aria-describedby="err-lic"':""}><button type="button" class="btn" data-act="ob-lic">Toepassen</button></div>${licFout?`<p class="ferr" id="err-lic">${esc(licFout)}</p>`:""}</div>`}
+      ${lic()?`<div class="field"><span class="flabel">Licentie</span><p class="small domvast">${esc(LIC[lic()].naam)}</p></div>`:`<div class="field"><label for="obLic">Licentiecode <span class="small" style="font-weight:400">(optioneel, van je werkgever)</span></label><div class="row licrow"><input id="obLic" autocapitalize="characters" spellcheck="false" placeholder="NS-XXXX-XXXX"${licFout?' aria-invalid="true" aria-describedby="err-lic"':""}><button type="button" class="btn" data-act="ob-lic">Toepassen</button></div>${licFout?`<p class="ferr" id="err-lic">${esc(licFout)}</p>`:""}</div>`}
       ${lic()&&LIC[lic()].dom?domVast():`<div class="field"><span class="flabel" id="obDomL">Domein <span class="req" aria-hidden="true">*</span></span>
         <div class="seg" role="radiogroup" aria-labelledby="obDomL"${obErr.dom?' aria-describedby="err-dom"':""}><button type="button" role="radio" data-act="ob-dom" data-v="1" aria-checked="${d==="1"}" aria-pressed="${d==="1"}">Domein I–III<small>Algemeen en openbare ruimte</small></button><button type="button" role="radio" data-act="ob-dom" data-v="4" aria-checked="${d==="4"}" aria-pressed="${d==="4"}">Domein IV<small>Openbaar vervoer</small></button></div>${err("dom")}</div>`}
       <div class="obexam">
@@ -301,7 +303,7 @@ function homeSide(wrong){
     <section class="sidecard keyscard"><h2>Sneltoetsen</h2><ul class="keys">${keyRows([["H","Overzicht"],["1 2 3 4","PHB 1 t/m 4"],["5 of R","RTGB"],["S","Studiestof"],["P","Profiel"]])}</ul><div><button class="linkbtn" data-act="keys">Alle sneltoetsen <span class="kbd">?</span></button></div></section>
   </aside>`;
 }
-const keyRows=rows=>rows.map(([k,l])=>`<li><span>${l}</span><span>${k.split(" ").map(x=>`<span class="kbd">${x}</span>`).join(" ")}</span></li>`).join("");
+const keyRows=rows=>rows.map(([k,l])=>`<li><span>${l}</span><span>${k.split(" ").map(x=>x==="of"||x==="t/m"?`<span class="small">${x}</span>`:`<span class="kbd">${x}</span>`).join(" ")}</span></li>`).join("");
 // één venster tegelijk (sneltoetsen, nieuw in deze versie); Esc, terug of klik ernaast sluit het
 function openDlg(html){
   if(keysOpen)return;keysOpen=true;keysRet=document.activeElement;
@@ -442,13 +444,13 @@ async function mldSet(k,on){
 function mldSection(){
   const m=store.p.mld,app=!!LNp();
   const sw=(k,lid,did)=>`<button type="button" class="switch" role="switch" aria-checked="${!!m[k]}" aria-labelledby="${lid}" aria-describedby="${did}" data-act="mld" data-k="${k}"><span></span></button>`;
-  return `<div class="section stack" id="meldingen"><div><h2>Meldingen</h2><p class="small">${app?"Ook als de app dicht is.":"In de browser op het overzicht. Meldingen op je telefoon: Android-app."}</p></div>
+  return `<div class="section stack" id="meldingen"><div><h2>Meldingen</h2><p class="small">${app?"Ook als de app dicht is.":"In de browser zie je herinneringen als kaart op het overzicht. Echte meldingen op je telefoon krijg je in de app."}</p></div>
     <div class="setlist">
       <div class="setrow"><div><b id="mlOL">Herinnering om te oefenen</b><p class="small" id="mlOD">Dagelijks om ${esc(m.tijd)}, als je nog niet oefende.</p></div>${sw("oefen","mlOL","mlOD")}</div>
       <div class="setrow"><div><b id="mlPL">Herinnering voor je leerpad</b><p class="small" id="mlPD">Dagelijks om ${esc(m.tijd)}: je volgende les, als je nog niet oefende.</p></div>${sw("pad","mlPL","mlPD")}</div>
-      ${m.oefen||m.pad?`<div class="setrow sub"><label for="mlTijd">Tijdstip</label><select id="mlTijd">${MLD_UUR.map(u=>`<option${u===m.tijd?" selected":""}>${u}</option>`).join("")}</select></div>`:""}
+      ${m.oefen||m.pad?`<div class="setrow sub"><label for="mlTijd">Tijdstip oefen- en leerpadherinnering</label><select id="mlTijd">${MLD_UUR.map(u=>`<option${u===m.tijd?" selected":""}>${u}</option>`).join("")}</select></div>`:""}
       <div class="setrow"><div><b id="mlVL">Vraag van de dag</b><p class="small" id="mlVD">Dagelijks om ${esc(m.vtijd)} één vraag over wat je nog niet beheerst. ${app?"Tik op de melding en je antwoordt in de app.":"Op het overzicht."}</p></div>${sw("vraag","mlVL","mlVD")}</div>
-      ${m.vraag?`<div class="setrow sub"><label for="mlVTijd">Tijdstip vraag</label><select id="mlVTijd">${MLD_UUR.map(u=>`<option${u===m.vtijd?" selected":""}>${u}</option>`).join("")}</select></div>`:""}
+      ${m.vraag?`<div class="setrow sub"><label for="mlVTijd">Tijdstip vraag van de dag</label><select id="mlVTijd">${MLD_UUR.map(u=>`<option${u===m.vtijd?" selected":""}>${u}</option>`).join("")}</select></div>`:""}
       <div class="setrow"><div><b id="mlEL">Herinnering voor je examen</b><p class="small" id="mlED">7, 3 en 1 dag voor een gepland examen.</p></div>${sw("examen","mlEL","mlED")}</div>
     </div>
     ${mldNote?`<p class="small mldwarn" role="status">${esc(mldNote)}</p>`:""}
@@ -461,7 +463,7 @@ function homeNudges(tgt){
   const m=store.p.mld,out=[];const today=dayKey();
   const card=(ic,t,p,act)=>`<div class="nudge" role="status"><span class="ni">${mIcon(ic)}</span><div><b>${t}</b><p>${p}</p></div><div class="nact">${act}</div></div>`;
   const weg=`<button type="button" class="x" data-act="mld-weg" aria-label="Verbergen voor vandaag">${mIcon("x")}</button>`;
-  if(!m.gevraagd&&!m.oefen&&!m.examen&&!m.pad&&!m.vraag)return card("bel","Herinneringen aanzetten?","Elke dag een seintje voor je volgende les in het leerpad en een vraag van de dag, en 7, 3 en 1 dag voor je examen. Wijzigen kan altijd onder Profiel.",`<button type="button" class="btn hi sm" data-act="mld-ja">Aanzetten</button><button type="button" class="btn ghost sm" data-act="mld-nee">Niet nu</button>`);
+  if(!m.gevraagd&&!m.oefen&&!m.examen&&!m.pad&&!m.vraag&&Object.keys(store.s).length>=5)return card("bel","Herinneringen aanzetten?","Elke dag een seintje voor je volgende les in het leerpad en een vraag van de dag, en 7, 3 en 1 dag voor je examen. Wijzigen kan altijd onder Profiel.",`<button type="button" class="btn hi sm" data-act="mld-ja">Aanzetten</button><button type="button" class="btn ghost sm" data-act="mld-nee">Niet nu</button>`);
   const vk=vrKaart(card);
   if(mldWeg===today||m.weg===today)return vk;
   if(m.examen){const nx=nextExam();const dd=nx?daysTo(nx.datum):null;

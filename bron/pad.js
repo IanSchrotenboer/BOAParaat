@@ -74,7 +74,7 @@ function viewPadPad(m){
   const kop=`<div class="padkop"><div class="stack" style="gap:2px"><h1>${esc(m.name)}</h1><p class="small">Leerpad · ${esc(m.code)}</p></div>
     <div class="padstats">
       <span class="pstat${reeks?" vuur":""}" title="Dagen op rij geoefend"><i aria-hidden="true">${PADI.vlam}</i><b class="num">${reeks}</b><span>${reeks===1?"dag":"dagen"} op rij</span></span>
-      <span class="pstat goud" title="Sterren op dit pad"><i aria-hidden="true">${PADI.ster}</i><b class="num">${s.sterren}</b><span>van ${s.max}</span></span>
+      <span class="pstat goud" title="Sterren op dit pad"><i aria-hidden="true">${PADI.ster}</i><b class="num">${s.sterren}</b><span>van ${s.max} sterren</span></span>
       <span class="pstat" title="Dagdoel: ${PAD_DAGDOEL} vragen per dag"><span class="ring mini" style="--p:${doel}" aria-hidden="true"></span><b class="num">${Math.min(vandaag,PAD_DAGDOEL)}/${PAD_DAGDOEL}</b><span>vandaag</span></span>
     </div></div>`;
   let z=0;
@@ -147,7 +147,7 @@ function padVraag(){
     <div class="pleskop"><button class="pdicht" data-pad="stop" aria-label="Stoppen">${PADI.dicht}</button>
       <span class="pvoortgang" role="progressbar" aria-label="Voortgang in de ${PL.toets?"toets":"les"}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></span>
       ${PL.toets?`<span class="mono small">${PL.i+1}/${PL.rij.length}</span>`:`<span class="plevens" role="img" aria-label="${PL.levens} van ${PAD_LEVENS} levens">${[1,2,3].map(i=>`<i class="${i<=PL.levens?"aan":""}">${PADI.hart}</i>`).join("")}</span>`}</div>
-    ${plStop?`<div class="confirm row"><span>Stoppen? Je voortgang in deze ${PL.toets?"toets":"les"} gaat verloren.</span><button class="btn danger" data-pad="stop-ja">Stoppen</button><button class="btn" data-pad="stop-nee">Doorgaan</button></div>`:""}
+    ${plStop?`<div class="confirm row"><span>Stoppen? Je voortgang in deze ${PL.toets?"toets":"les"} gaat verloren.</span><button class="btn hi" data-pad="stop-nee">Doorgaan</button><button class="btn danger" data-pad="stop-ja">Stoppen</button></div>`:""}
     <div><span class="chip">${esc(PL.titel)}</span>${PL.niv?` <span class="chip niv">${esc(PL.niv)}</span>`:""}${it.terug?` <span class="chip rep">Nog een keer</span>`:""}</div>
     <p class="qtext" id="qtext">${esc(q.q)}</p>
     <ul class="opts${PL.check?" done":""}" aria-labelledby="qtext">${opts}</ul>

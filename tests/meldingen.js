@@ -53,7 +53,7 @@ const ln=p=>p.evaluate(()=>window.__ln);
   await w(400);t(await p.evaluate(()=>!document.getElementById('app').classList.contains('enter')),'overgang is na afloop klaar');
   await p.context().close();
   // ---------- meldingen in de app ----------
-  p=await open(b,{fake:true,seed:PROF({x:[{id:'ex1',mod:'phb1',soort:'Theorie',datum:iso(10),tijd:'09:30',loc:'Utrecht',status:'gepland',score:'',note:''}]})});
+  p=await open(b,{fake:true,seed:PROF({s:Object.fromEntries(['a1','a2','a3','a4','a5'].map(k=>[k,[1,1,0,Date.now()]])),x:[{id:'ex1',mod:'phb1',soort:'Theorie',datum:iso(10),tijd:'09:30',loc:'Utrecht',status:'gepland',score:'',note:''}]})});
   t(await p.locator('[data-act="mld-ja"]').count()===1,'overzicht vraagt eenmalig om herinneringen');
   await p.screenshot({path:SHOTS+'/meld_vraag.png'});
   await p.click('[data-act="mld-ja"]');await w(1900);
@@ -143,7 +143,7 @@ const ln=p=>p.evaluate(()=>window.__ln);
   await p.screenshot({path:SHOTS+'/meld_home_donker.png'});
   await p.click('[data-act="mld-weg"]');await w(150);t(await p.locator('.nudge').count()===0,'herinnering verbergen voor vandaag');
   await p.evaluate(()=>location.hash='profiel-account');await w(150);
-  t((await p.locator('#meldingen p.small').first().innerText()).includes('Android-app'),'browser: uitleg dat meldingen buiten de app via de Android-app gaan');
+  t((await p.locator('#meldingen p.small').first().innerText()).includes('in de app'),'browser: uitleg dat echte meldingen via de app gaan');
   t(await p.locator('[data-act="mld-test"]').count()===0,'browser: geen testmelding-knop');
   await p.evaluate(()=>document.getElementById('meldingen').scrollIntoView({block:'center'}));await w(100);
   await p.screenshot({path:SHOTS+'/meld_profiel_donker.png'});

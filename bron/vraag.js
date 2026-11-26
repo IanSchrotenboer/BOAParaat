@@ -78,7 +78,7 @@ function vrKaart(card){const m=store.p.mld;
       `<button type="button" class="btn hi sm" data-act="mld" data-k="vraag">Aanzetten</button><button type="button" class="btn ghost sm" data-act="mld-vraagnee">Niet nu</button>`)}
   const [hh,mm]=(m.vtijd||"08:00").split(":").map(Number),n=new Date();if(n.getHours()*60+n.getMinutes()<hh*60+mm)return "";
   if(vrPlan(1))save();const k=vrDag(0),e=m.vp[k];if(!e||e[2]>=0)return "";const q=BYID[e[0]];
-  return card("vraag","Vraag van de dag · "+esc(CATS[q.c][1]),esc(vrKort(q.q,150)),`<a class="btn hi sm" href="#${vrRoute(k)}">Beantwoorden</a>`);
+  return card("vraag","Vraag van de dag · "+esc(CATS[q.c][1]),esc(vrKort(q.q,150)),`<a class="btn go sm" href="#${vrRoute(k)}">Beantwoorden</a>`);
 }
 // proefbouw in de browser: een nagebootste melding (zoals op Android, uitgeklapt), zodat je de weg melding → vraag kunt testen
 function vrDemo(){if(vrPlan(1))save();const k=vrDag(0);if(!store.p.mld.vp[k])return;const n=vrMelding(k);

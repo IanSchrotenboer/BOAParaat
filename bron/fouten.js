@@ -48,5 +48,5 @@ function foutInhoud(){
 function foutKaart(waar){
   const st=foutStat(MODS.flatMap(m=>inMod(m.id)));if(!st.open)return "";
   const zw=zwakkePlekken()[0];
-  return `<section class="fkaart panel" aria-labelledby="fkT-${waar}"><div class="fkkop"><span class="fkn mono" aria-hidden="true">${st.open}</span><div class="stack" style="gap:2px;min-width:0"><h2 id="fkT-${waar}">${st.open===1?"1 open fout":st.open+" open fouten"}</h2>${zw?`<span class="small">Meeste fouten: ${esc(CATS[zw.c][1])} (${esc(zw.m.code)}, ${zw.st.open})</span>`:""}</div></div>
-    <div class="row"><button class="btn hi" data-act="fouten" data-mod="">Fouten wegwerken</button><a class="btn" href="#profiel-fouten">${waar==="profiel"?"Bekijk de analyse":"Foutenanalyse"}</a></div></section>`}
+  return `<section class="fkaart panel" aria-labelledby="fkT-${waar}"><div class="fkkop"><span class="fkn mono" aria-hidden="true">${st.open}</span><div class="stack" style="gap:2px;min-width:0"><h2 id="fkT-${waar}">${st.open===1?"1 open fout":st.open+" open fouten"}</h2>${zw?`<span class="small">Meeste fouten: ${esc(CATS[zw.c][1])} (${esc(zw.m.code)}) · ${zw.st.open} open</span>`:""}</div></div>
+    <div class="row"><button class="btn ${waar==="profiel"?"hi":"go"}" data-act="fouten" data-mod="">Fouten wegwerken</button><a class="linkbtn fklink" href="#profiel-fouten">${waar==="profiel"?"Bekijk de analyse":"Foutenanalyse"}</a></div></section>`}
