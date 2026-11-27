@@ -211,6 +211,8 @@ p{margin:0}
 .stoftbl td{vertical-align:top}.stoftbl th{overflow-wrap:normal;word-break:normal}.stoftbl td:first-child{white-space:nowrap}.stoftbl.tk td:first-child{white-space:normal}
 .tblwrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
 .pmod .tblwrap,.prose .tblwrap{border:0;border-radius:0;background:transparent}
+.prose .tbl td,.prose .tbl th{hyphens:auto;-webkit-hyphens:auto;overflow-wrap:normal;word-break:normal;vertical-align:top}
+@media (max-width:560px){.prose .tbl{font-size:14px}.prose .tbl th,.prose .tbl td{padding:8px 6px}}
 .review{position:relative;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:16px 16px 16px 32px;display:flex;flex-direction:column;gap:8px}
 .review .yours{color:var(--bad)} .review .corr{color:var(--ok)}
 details.review{display:block}details.review>summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:8px;padding-right:28px;position:relative;border-radius:6px}

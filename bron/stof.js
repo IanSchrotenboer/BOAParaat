@@ -191,6 +191,174 @@ const STOF = [
 <li><b>Herstelsancties</b>: last onder bestuursdwang en last onder dwangsom. <b>Bestraffende sanctie</b>: bestuurlijke boete. Intrekken van een vergunning kan allebei zijn.</li>
 <li>Bezwaar schorst een sanctie niet; een voorlopige voorziening bij de rechter kan dat wel. Bij een bestraffende sanctie hoeft de betrokkene geen verklaring af te leggen (art. 5:10a Awb) en dat moet je vooraf meedelen.</li>
 </ul>`},
+{id:"vtoezicht", deel:"Verdieping rechtskennis", titel:"Toezicht en opsporing: twee petten", html:`
+<p>Als boa heb je vaak twee rollen. Bij <b>toezicht</b> controleer je of regels worden nageleefd. Bij <b>opsporing</b> onderzoek je een strafbaar feit, onder gezag van de officier van justitie, met het oog op een strafvorderlijke beslissing. De rollen hebben elk eigen bevoegdheden en eigen waarborgen.</p>
+<h4>Toezichtbevoegdheden (Awb, hoofdstuk 5)</h4>
+<ul>
+<li>Je moet als toezichthouder zijn aangewezen (art. 5:11 Awb) en je legitimatiebewijs direct tonen als iemand daarom vraagt (art. 5:12).</li>
+<li>Je gebruikt een bevoegdheid alleen voor zover dat redelijkerwijs nodig is voor je taak (art. 5:13). Het aanwijzingsbesluit kan bevoegdheden beperken.</li>
+<li>Bevoegdheden: plaatsen betreden, maar een woning niet zonder toestemming van de bewoner (5:15); inlichtingen vorderen (5:16); inzage in een identiteitsbewijs (5:16a); zakelijke gegevens inzien en kopiëren (5:17); zaken onderzoeken en monsters nemen (5:18); vervoermiddelen en lading onderzoeken en laten stilhouden (5:19).</li>
+<li><b>Medewerkingsplicht</b> (art. 5:20): iedereen moet meewerken aan een redelijke vordering. Wie een geheimhoudingsplicht heeft, hoeft dat voor zover die plicht reikt niet.</li>
+</ul>
+<h4>Van toezicht naar opsporing</h4>
+<ul>
+<li>Ontstaat tijdens een controle een verdenking, dan mag je opsporingsbevoegdheden gebruiken als je voor dat feit opsporingsbevoegd bent. Maak dan duidelijk in welke rol je optreedt.</li>
+<li>Hoor je iemand met het oog op een bestraffende sanctie (een boete of proces-verbaal), dan geldt het zwijgrecht en geef je de cautie (art. 5:10a Awb en art. 29 Sv).</li>
+<li>Meewerken aan een controle, bijvoorbeeld een document tonen, is iets anders dan een belastende verklaring afleggen. Gebruik toezicht nooit om de waarborgen van de opsporing te omzeilen (détournement de pouvoir).</li>
+</ul>
+<h4>Fouten in de opsporing</h4>
+<p>Een vormverzuim leidt niet automatisch tot vrijspraak. De rechter weegt het belang van het geschonden voorschrift, de ernst van het verzuim en het nadeel. Hij kan het verzuim alleen vaststellen, de straf verlagen of het bewijs uitsluiten (art. 359a Sv).</p>`},
+{id:"vdoorzoek", deel:"Verdieping rechtskennis", titel:"Doorzoeken: ter aanhouding en ter inbeslagneming", html:`
+<p><b>Doorzoeken</b> is gericht en stelselmatig zoeken, bijvoorbeeld kasten en lades openen. Rondkijken is iets anders: een bevoegdheid om een plaats te betreden geeft je nog niet het recht om alles open te maken. De omvang van het zoeken past bij het doel: zoek je een persoon, dan kijk je niet in een sieradendoosje.</p>
+<h4>Ter aanhouding (art. 55a Sv)</h4>
+<ul>
+<li>Bij heterdaad of verdenking van een feit waarvoor voorlopige hechtenis is toegelaten.</li>
+<li>Met een machtiging van de officier van justitie; bij dringende noodzaak zonder, waarna je de officier onverwijld informeert.</li>
+<li>Een woning zonder toestemming: de machtiging van de officier volstaat, een aparte machtiging tot binnentreden is dan niet nodig. Legitimeren, het doel meedelen en een verslag maken blijven wel verplicht.</li>
+</ul>
+<h4>Ter inbeslagneming</h4>
+<ul>
+<li><b>Vervoermiddel</b> (art. 96b Sv): bij heterdaad of verdenking van een VH-feit. Niet het woongedeelte (zoals van een camper) zonder toestemming van de bewoner.</li>
+<li><b>Andere plaatsen</b> (art. 96c Sv): de officier van justitie, of bij spoed de hulpofficier met machtiging. Niet in een woning zonder toestemming en niet in het kantoor van een verschoningsgerechtigde, zoals een advocaat.</li>
+<li><b>Woning bij spoed</b> (art. 97 Sv): de officier of hulpofficier, met machtiging van de rechter-commissaris.</li>
+<li>In alle andere gevallen doorzoekt de <b>rechter-commissaris</b> zelf (art. 110 Sv).</li>
+</ul>
+<h4>Bevriezen</h4>
+<p>Moet je wachten op degene die mag doorzoeken, dan mag je de plaats veiligstellen: je voorkomt dat voorwerpen verdwijnen of beschadigd raken. Dat heet <b>bevriezen</b>. Je mag dan zelf nog niet doorzoeken en mensen niet langer vasthouden dan nodig.</p>`},
+{id:"vbinnentr", deel:"Verdieping rechtskennis", titel:"Binnentreden in een woning: de Awbi", html:`
+<p>De Algemene wet op het binnentreden (Awbi) regelt <b>hoe</b> je binnentreedt. <b>Of</b> je zonder toestemming binnen mag, volgt uit een andere wet, bijvoorbeeld het Wetboek van Strafvordering. Een machtiging alleen geeft die bevoegdheid niet, en binnentreden is nog geen doorzoeken.</p>
+<ul>
+<li><b>Woning</b>: bepalend is het gebruik voor het private, huiselijke leven, niet de bouwvorm. Ook een bewoonde kamer, woonboot of caravan kan een woning zijn.</li>
+<li><b>Toestemming</b> geeft de bewoner, niet de verhuurder of eigenaar. Toestemming kan worden ingetrokken; blijf je daarna, dan heb je een eigen wettelijke grondslag nodig.</li>
+<li><b>Vooraf</b> (art. 1 Awbi): je legitimeert je en vertelt het doel, ook als je met toestemming binnengaat. Uitzondering bij ernstig en onmiddellijk gevaar, of als het onderzoek naar een VH-feit daardoor zou worden geschaad.</li>
+<li><b>Machtiging</b> (art. 2 en 3 Awbi): voor strafvorderlijke doelen van de advocaat-generaal, de officier of de hulpofficier van justitie; voor andere doelen meestal van de burgemeester. Er staan in: wie, de grondslag, het doel en de datum. Geldig tot en met de derde dag na de dag van afgifte.</li>
+<li><b>'s Nachts</b> (tussen 0.00 en 6.00 uur) en <b>bij afwezigheid van de bewoner</b> gelden extra eisen, waaronder dringende noodzaak. Bij een machtiging moet dat er uitdrukkelijk in staan.</li>
+<li>Geweld om binnen te komen alleen voor zover het doel dat vereist; beperk de schade.</li>
+<li><b>Verslag</b> (art. 10 en 11 Awbi): wie zonder toestemming binnentrad, maakt op ambtseed een schriftelijk verslag (grondslag, aanleiding, tijdstippen, wat er gebeurde). Uiterlijk de vierde dag na het binnentreden naar wie de machtiging gaf; de bewoner krijgt een afschrift.</li>
+<li><b>Beschermde plaatsen</b> (art. 12 Awbi): tijdens vergaderingen van volksvertegenwoordigingen, godsdienstige of levensbeschouwelijke bijeenkomsten en terechtzittingen ga je buiten heterdaad niet naar binnen.</li>
+</ul>`},
+{id:"vvrijheid", deel:"Verdieping rechtskennis", titel:"Vrijheidsbeneming stap voor stap", html:`
+<p>Na een aanhouding heeft elke fase een eigen beslissing, doel en maximumduur. Een maximum is geen streefduur: iemand gaat vrij zodra het doel is bereikt.</p>
+<table class="tbl"><tr><th>Fase</th><th>Wie beslist</th><th>Maximaal</th></tr>
+<tr><td>Voorgeleiding (art. 56a Sv)</td><td>(hulp)officier van justitie</td><td>zo spoedig mogelijk na aanhouding</td></tr>
+<tr><td>Ophouden voor onderzoek (art. 56a)</td><td>(hulp)officier</td><td>6 uur; bij een VH-feit 9 uur; 0.00–9.00 uur telt niet mee</td></tr>
+<tr><td>Verlenging voor identificatie (art. 56b)</td><td>(hulp)officier</td><td>1× 6 uur, alleen bij niet-VH-feiten</td></tr>
+<tr><td>Inverzekeringstelling (art. 57–58)</td><td>(hulp)officier, na horen van de verdachte</td><td>3 dagen, 1× verlengen met 3 dagen door de officier</td></tr>
+<tr><td>Rechtmatigheidstoets (art. 59a)</td><td>rechter-commissaris</td><td>uiterlijk 3 dagen en 18 uur na de aanhouding</td></tr>
+<tr><td>Bewaring</td><td>rechter-commissaris</td><td>14 dagen</td></tr>
+<tr><td>Gevangenhouding</td><td>rechtbank</td><td>samen tot 90 dagen</td></tr></table>
+<ul>
+<li>Inverzekeringstelling mag alleen bij een feit waarvoor voorlopige hechtenis is toegelaten en als het onderzoek het vordert.</li>
+<li>Bewaring en gevangenhouding samen heten <b>voorlopige hechtenis</b>. Daarover beslist alleen de rechter, nooit de boa.</li>
+<li>Binnen 104 dagen nadat de bewaring is ingegaan, moet de zitting beginnen, vaak eerst pro forma. De tijd in voorarrest gaat later van de straf af.</li>
+</ul>`},
+{id:"vfouill", deel:"Verdieping rechtskennis", titel:"Fouilleringen op een rij", html:`
+<p>De onaantastbaarheid van het lichaam is een grondrecht (art. 11 Gw). Fouilleren mag alleen met een wettelijke grondslag, en een boa alleen als die bevoegdheid in zijn akte staat.</p>
+<table class="tbl"><tr><th>Soort</th><th>Grondslag</th><th>Wanneer</th><th>Hoe</th></tr>
+<tr><td>Veiligheidsfouillering</td><td>art. 7 lid 3 Politiewet 2012</td><td>direct dreigend gevaar voor de veiligheid; bij iedereen, niet alleen verdachten</td><td>kleding oppervlakkig aftasten, meegevoerde voorwerpen onderzoeken; schriftelijk melden aan de hOvJ</td></tr>
+<tr><td>Vervoers- en insluitingsfouillering</td><td>art. 7 lid 4 Politiewet 2012</td><td>voordat je iemand vervoert of insluit</td><td>als hierboven; bij insluiting ook gevaarlijke voorwerpen zoals veters en koordjes afnemen</td></tr>
+<tr><td>Identiteitsfouillering</td><td>art. 55b Sv</td><td>staande gehouden of aangehouden verdachte, als de identiteit anders niet vast te stellen is</td><td>kleding en meegevoerde voorwerpen onderzoeken op een identiteitsbewijs, bij voorkeur niet in het openbaar</td></tr>
+<tr><td>Onderzoek ter inbeslagneming</td><td>art. 56 Sv</td><td>aangehouden verdachte, ernstige bezwaren, belang van het onderzoek</td><td>aan de kleding; aan het lichaam (op bevel van de (hulp)officier); in het lichaam (officier, door een arts)</td></tr></table>
+<p>Fouilleren gebeurt zoveel mogelijk door iemand van hetzelfde geslacht. Een burger of beveiliger mag nooit fouilleren; wat bij een evenement 'fouilleren' heet, is een controle met toestemming of op grond van huisregels.</p>`},
+{id:"vbeslag", deel:"Verdieping rechtskennis", titel:"Inbeslagneming: drie vragen", html:`
+<p>Inbeslagneming dient alleen de strafvordering en mag alleen bij een strafbaar feit. Je kunt alle goederen in beslag nemen, ook geld en vermogensrechten, maar geen levende mensen. Sinds 2017 mag een burger niet meer inbeslagnemen. Stel jezelf drie vragen:</p>
+<ol>
+<li><b>Ben ik bevoegd</b> om dit feit op te sporen? (vooral voor de boa: staat het in je akte of domein?)</li>
+<li><b>Is het voorwerp vatbaar</b> (art. 94 Sv)? Het kan de waarheid aan het licht brengen, wederrechtelijk voordeel aantonen, verbeurd worden verklaard of aan het verkeer worden onttrokken (zoals drugs en wapens).</li>
+<li><b>Is er belang</b> voor het onderzoek? Is er geen belang, vraag dan eerst om <b>vrijwillige afstand</b> (art. 116 Sv). Dat is het lichtste middel; je legt de afstand zo snel mogelijk schriftelijk vast.</li>
+</ol>
+<ul>
+<li><b>Vordering tot uitlevering</b> (art. 96a Sv): bij een VH-feit mag je iemand bevelen een voorwerp af te geven. Niet aan de verdachte zelf, en verschoningsgerechtigden (zoals naaste familie, een advocaat of arts) hoeven niet mee te werken. Opzettelijk weigeren is strafbaar (art. 184 Sr).</li>
+<li>Is de beslagene aanwezig, dan geef je zo mogelijk een <b>bewijs van ontvangst</b>. Je maakt altijd een kennisgeving van inbeslagneming voor de (hulp)officier, die zo snel mogelijk beslist over het voorwerp.</li>
+<li>Bezitter, houder en eigenaar zijn verschillende rollen (een huurder is houder), maar voor je bevoegdheid maakt dat niet uit. Teruggave gaat in beginsel naar degene bij wie het in beslag is genomen; wat in beslag blijft, gaat naar de bewaarplaats.</li>
+</ul>`},
+{id:"vopsamb", deel:"Verdieping rechtskennis", titel:"De opsporingsambtenaar en de boa", html:`
+<ul>
+<li><b>Algemene opsporingsambtenaren</b> (art. 141 Sv): onder meer politie en Koninklijke Marechaussee. Zij mogen alle strafbare feiten opsporen. <b>Buitengewoon opsporingsambtenaren</b> (art. 142 Sv): alleen de feiten die in hun akte staan.</li>
+<li>Eisen voor de boa: <b>betrouwbaar</b> (screening of VOG) en <b>vakbekwaam</b> (theorie- en praktijkexamen, en elke vijf jaar her- en bijscholing).</li>
+<li>De werkgever vraagt de akte van opsporingsbevoegdheid aan bij Justis. De akte is <b>vijf jaar</b> geldig. Valt de functie weg, dan vervalt de bevoegdheid.</li>
+<li>De boa legt de <b>ambtseed</b> of -belofte af: plichtsgetrouw, ijverig en met geheimhouding werken, en verklaren dat hij voor zijn benoeming of voor ambtshandelingen geen giften heeft gegeven of aangenomen. Dit wordt vastgelegd in een akte van beëdiging.</li>
+<li><b>Geweld en fouilleren</b> mag een boa alleen als de minister hem daarvoor aanwijst (art. 7 Politiewet 2012). Die bevoegdheid is één jaar geldig: elk jaar toon je de noodzaak en je vaardigheid aan (RTGB).</li>
+<li>Er zijn zes <b>domeinen</b>: I openbare ruimte, II milieu, welzijn en infrastructuur, III onderwijs, IV openbaar vervoer, V werk, inkomen en zorg, VI generieke opsporing.</li>
+<li><b>Toezicht</b> op de boa: de werkgever regelt het dagelijks functioneren en klachten; de officier van justitie (toezichthouder) en de politie (direct toezichthouder) houden toezicht; de minister van Justitie en Veiligheid is eindverantwoordelijk.</li>
+<li>In uniform draag je zichtbaar het <b>boa-insigne</b> en je hebt altijd je legitimatiebewijs bij je. Werk je zonder uniform, dan legitimeer je je ongevraagd voordat je optreedt.</li>
+</ul>`},
+{id:"vpolitie", deel:"Verdieping rechtskennis", titel:"Organisatie en gezag van de politie", html:`
+<ul>
+<li>De politie is <b>één landelijk korps</b> onder leiding van de korpschef, met tien regionale eenheden, de Landelijke Eenheid en een Politiedienstencentrum. Elke eenheid heeft een politiechef.</li>
+<li><b>Taak</b> (art. 3 Politiewet 2012): in ondergeschiktheid aan het bevoegd gezag en volgens de geldende rechtsregels zorgen voor de daadwerkelijke handhaving van de rechtsorde en hulp verlenen aan wie die nodig heeft.</li>
+<li><b>Gezag</b>: bij openbare orde en hulpverlening de <b>burgemeester</b> (art. 11), bij de strafrechtelijke handhaving de <b>officier van justitie</b> (art. 12). De minister van Justitie en Veiligheid is verantwoordelijk voor het beheer; de Inspectie Justitie en Veiligheid houdt toezicht.</li>
+<li><b>Lokale driehoek</b>: burgemeester, officier van justitie en politie overleggen over de lokale aanpak. Bijvoorbeeld bij preventief fouilleren: de burgemeester wijst het gebied en de tijd aan, de officier geeft het bevel.</li>
+<li><b>Regionaal</b>: per eenheid overleggen de burgemeesters, de hoofdofficier van justitie en de politiechef. Hun voorzitter is de <b>regioburgemeester</b> (tien in totaal).</li>
+<li>Daarnaast zijn er 25 <b>veiligheidsregio's</b> voor brandweer, rampenbestrijding en crisisbeheersing, elk met een burgemeester als voorzitter.</li>
+</ul>`},
+{id:"vverdachte", deel:"Verdieping rechtskennis", titel:"De verdachte en zijn rechten", html:`
+<ul>
+<li><b>Verdachte</b> (art. 27 Sv): vóór de vervolging iemand tegen wie uit feiten of omstandigheden een redelijk vermoeden van schuld aan een strafbaar feit voortvloeit. Na het begin van de vervolging: degene tegen wie de vervolging is gericht.</li>
+<li><b>Gradaties</b>: redelijk vermoeden van schuld (genoeg voor staande houden en aanhouden), <b>ernstige bezwaren</b> (meer dan dat; nodig voor onder meer onderzoek aan het lichaam en voorlopige hechtenis), en heterdaad (je ziet het gebeuren of ontdekt het direct daarna).</li>
+<li><b>Zwijgrecht en cautie</b> (art. 29 Sv): vóór het verhoor zeg je dat hij niet verplicht is te antwoorden. Een verdachte hoeft niet mee te werken, maar mag ook niet tegenwerken.</li>
+<li><b>Identiteit</b>: een verdachte moet een identiteitsbewijs tonen als je dat rechtmatig vordert (art. 447e Sr). Geeft hij een valse naam op, dan is dat strafbaar (art. 435 Sr).</li>
+<li><b>Rechtsbijstand</b>: consultatierecht vóór het eerste verhoor en verhoorbijstand tijdens het verhoor. Bij aangehouden verdachten gelden categorieën: A (zware feiten met 12 jaar of meer, of een kwetsbare verdachte zoals een minderjarige; geen afstand van consultatie), B (feiten waarvoor voorlopige hechtenis is toegelaten) en C (overige feiten). Bij A en B is de bijstand kosteloos; bij C betaalt de verdachte zelf.</li>
+<li><b>Jeugd</b>: onder 12 jaar geen strafvervolging. Van 12 tot 18 jaar geldt het jeugdstrafrecht, met jeugddetentie tot 1 jaar (12–15 jaar) of 2 jaar (16–17 jaar) en de PIJ-maatregel. De kinderrechter behandelt deze zaken.</li>
+</ul>`},
+{id:"vstrafrecht", deel:"Verdieping rechtskennis", titel:"Materieel strafrecht en het strafbare feit", html:`
+<ul>
+<li><b>Materieel strafrecht</b> zegt wat strafbaar is, wie strafbaar is en welke straf geldt (Wetboek van Strafrecht en bijzondere wetten). <b>Formeel strafrecht</b> regelt hoe het wordt gehandhaafd: bevoegdheden en procedures (Wetboek van Strafvordering).</li>
+<li>Het Wetboek van Strafrecht heeft drie boeken: 1 algemene bepalingen, 2 <b>misdrijven</b> (rechtsdelicten: ook zonder wet al als onrecht ervaren), 3 <b>overtredingen</b> (wetsdelicten). Bijzondere wetten (zoals de Opiumwet en de WVW 1994) en verordeningen (zoals de APV) bevatten ook strafbare feiten.</li>
+<li><b>Legaliteitsbeginsel</b> (art. 16 Gw en art. 1 Sr): geen feit is strafbaar zonder voorafgaande wettelijke strafbepaling. Geen terugwerkende kracht; verandert de wet, dan geldt de gunstigste bepaling voor de verdachte.</li>
+<li><b>Toepassingsbereik</b>: de Nederlandse strafwet geldt voor iedereen die in Nederland een strafbaar feit pleegt, ook op het water tot 12 zeemijl en in het luchtruim (art. 2 Sr), en aan boord van een Nederlands schip of luchtvaartuig (art. 3 Sr).</li>
+<li>Boek 1 geldt ook voor strafbare feiten in andere wetten, tenzij die wet iets anders bepaalt (art. 91 Sr).</li>
+<li>Een <b>strafbepaling</b> heeft een kwalificatie (naam), een delictsomschrijving met bestanddelen en een strafmaximum. Strafbaar is een gedraging pas als alle bestanddelen bewezen zijn, de gedraging wederrechtelijk is en de dader schuld heeft.</li>
+<li><b>Opzet</b> is willens en wetens handelen (ook 'voorwaardelijk opzet': de aanmerkelijke kans op de koop toe nemen). <b>Schuld in enge zin</b> (culpa) is aanmerkelijke onvoorzichtigheid of nalatigheid.</li>
+<li><b>Rechtspersonen</b> (zoals een bv, nv, stichting, gemeente) kunnen ook strafbare feiten plegen (art. 51 Sr), maar niet elk feit, en krijgen geen vrijheidsstraf. De rechter kan een geldboete uit de naast hogere categorie opleggen.</li>
+</ul>`},
+{id:"vdeelname", deel:"Verdieping rechtskennis", titel:"Daderschap en medeplichtigheid", html:`
+<ul>
+<li>Als <b>dader</b> (art. 47 Sr) worden gestraft: de pleger, de doen pleger, de medepleger en de uitlokker.</li>
+<li><b>Plegen</b>: zelf alle bestanddelen vervullen.</li>
+<li><b>Medeplegen</b>: nauwe en bewuste samenwerking met een bijdrage van voldoende gewicht. Een uitdrukkelijke afspraak is niet nodig en niet ieder hoeft alles zelf te doen. Alleen aanwezig zijn, van het plan weten of niet ingrijpen is niet genoeg; wie op de uitkijk staat, kan medepleger zijn, afhankelijk van zijn hele rol.</li>
+<li><b>Doen plegen</b>: je laat een ander het feit uitvoeren die zelf niet strafbaar is, bijvoorbeeld omdat hij misleid is.</li>
+<li><b>Uitlokken</b>: je brengt een ander opzettelijk tot het feit met een middel uit de wet: giften, beloften, misbruik van gezag, geweld, bedreiging, misleiding of het geven van gelegenheid, middelen of inlichtingen. Beiden zijn strafbaar.</li>
+<li><b>Medeplichtigheid</b> (art. 48 Sr): opzettelijk hulp bij of vóór een misdrijf, of gelegenheid, middelen of inlichtingen geven. Strafmaximum min een derde (art. 49). Medeplichtigheid aan een overtreding is niet strafbaar. Hulp pas achteraf kan wel begunstiging of heling zijn.</li>
+</ul>`},
+{id:"vambtsdel", deel:"Verdieping rechtskennis", titel:"Ambtsdelicten, omkoping, valsheid en meineed", html:`
+<ul>
+<li><b>Commune delicten</b> kan iedereen plegen ('hij die…'). <b>Ambtsdelicten</b> alleen een ambtenaar ('de ambtenaar die…'), zoals passieve omkoping en ambtelijke huisvredebreuk (art. 370 Sr).</li>
+<li><b>Art. 44 Sr</b>: pleegt een ambtenaar een gewoon strafbaar feit en schendt hij daarbij een bijzondere ambtsplicht, of gebruikt hij macht, gelegenheid of middelen uit zijn ambt, dan kan de straf met een derde worden verhoogd. Een opsporingsambtenaar heeft de bijzondere plicht om strafbare feiten op te sporen.</li>
+<li><b>Ambtenaar</b>: wie door de overheid is aangesteld in een openbare betrekking om een deel van haar taak uit te voeren. Ook een boa in dienst van een bedrijf, zoals een vervoerder, geldt als ambtenaar.</li>
+<li><b>Omkoping</b>: actief (art. 177 Sr): iemand doet een ambtenaar een gift, belofte of dienst om hem iets te laten doen of nalaten. Passief (art. 363 Sr): de ambtenaar vraagt of neemt zo'n gift aan. Sinds 2015 maakt het niet meer uit of de handeling in strijd met zijn plicht is. Voor omkoping van een rechter gelden art. 178 en 364 Sr.</li>
+<li><b>Valsheid in geschrifte</b> (art. 225 Sr): een geschrift dat bestemd is als bewijs van een feit valselijk opmaken (helemaal zelf maken) of vervalsen (een echt stuk veranderen), met het oogmerk het als echt te gebruiken. Ook opzettelijk gebruik ervan is strafbaar. Maximaal 6 jaar. Een opsporingsambtenaar die bewust iets onjuists in een proces-verbaal zet, pleegt valsheid in geschrifte.</li>
+<li><b>Meineed</b> (art. 207 Sr): opzettelijk een valse verklaring afleggen onder ede, als een wettelijk voorschrift een verklaring onder ede vereist, zoals een getuige bij de rechter. Maximaal 6 jaar, en 9 jaar als het in een strafzaak ten nadele van de verdachte is. Een verdachte legt nooit een eed af.</li>
+<li><b>Huisvredebreuk</b> (art. 138 Sr): wederrechtelijk binnendringen in een woning, besloten lokaal of erf dat bij een ander in gebruik is, of daar blijven en niet direct vertrekken als de rechthebbende dat vordert. Maximaal 1 jaar; met bedreiging 2 jaar; met twee of meer personen plus een derde. Bij braak, inklimming, valse sleutels, een valse order of een vals kostuum, of als iemand 's nachts onverwacht wordt aangetroffen, geldt het binnendringen als gegeven.</li>
+</ul>`},
+{id:"vvervolg", deel:"Verdieping rechtskennis", titel:"Aangifte, klacht en verjaring", html:`
+<ul>
+<li>Een opsporingsonderzoek begint na een melding of aangifte, of omdat je het feit zelf ontdekt. De meeste feiten zijn <b>ambtshalve vervolgbaar</b>: het OM kan ook zonder aangifte, en zelfs tegen de wil van het slachtoffer, vervolgen.</li>
+<li><b>Aangifte</b>: iedereen die kennis heeft van een strafbaar feit mag aangifte doen (art. 161 Sv). Een opsporingsambtenaar moet de aangifte opnemen (art. 163 Sv). Voor sommige zware misdrijven geldt een aangifteplicht (art. 160 Sv). Een valse aangifte is strafbaar (art. 188 Sr).</li>
+<li><b>Klachtdelicten</b>: zonder klacht van de benadeelde geen vervolging. <b>Absoluut</b>: altijd een klacht nodig, zoals bij belediging, smaad en laster. <b>Relatief</b>: alleen als dader en slachtoffer familie zijn, zoals bij diefstal, verduistering en oplichting binnen de familie (bloedverwanten in de zijlijn of aanverwanten in de tweede graad).</li>
+<li>De klacht is een verzoek om vervolging. Je doet die binnen <b>drie maanden</b> nadat je van het feit wist (art. 66 Sr), en je kunt haar binnen <b>acht dagen</b> intrekken (art. 67 Sr); daarna niet opnieuw indienen. Vervolgt het OM zonder klacht, dan is het niet-ontvankelijk.</li>
+<li><b>Verjaring</b> (art. 70 Sr): overtredingen na 3 jaar; misdrijven met maximaal 3 jaar gevangenisstraf na 6 jaar; met meer dan 3 jaar na 12 jaar; met 10 jaar of meer na 20 jaar. Feiten waarop levenslang staat en sommige zedenmisdrijven verjaren niet. Het recht tot vervolging vervalt ook door de dood van de verdachte.</li>
+</ul>`},
+{id:"vrechter", deel:"Verdieping rechtskennis", titel:"Rechterlijke organisatie en het OM", html:`
+<ul>
+<li>De rechterlijke macht is onafhankelijk (trias politica). Rechters worden bij koninklijk besluit voor het leven benoemd en kunnen alleen door de Hoge Raad worden ontslagen.</li>
+<li><b>Openbaar Ministerie</b>: het enige orgaan dat strafzaken vervolgt. Leiding: het College van procureurs-generaal. Er zijn tien arrondissementsparketten, elk onder een hoofdofficier van justitie, plus het Landelijk Parket, het Functioneel Parket en het ressortsparket (hoger beroep).</li>
+<li><b>Opportuniteitsbeginsel</b> (art. 167 Sv): de officier beslist of hij vervolgt. Hij kan seponeren om technische redenen (te weinig bewijs) of om beleidsredenen (algemeen belang), tot het begin van de zitting.</li>
+<li><b>Rechtbanken</b> (11): de kantonrechter voor overtredingen, de politierechter voor eenvoudige misdrijven (maximaal 1 jaar gevangenisstraf), de kinderrechter voor minderjarigen, en de meervoudige kamer (3 rechters) voor zware zaken. Welke rechter een zaak behandelt, heet de absolute competentie.</li>
+<li>Uitspraken: <b>veroordeling</b> (wettig en overtuigend bewezen en strafbaar), <b>vrijspraak</b> (niet bewezen) of <b>ontslag van alle rechtsvervolging</b> (bewezen, maar niet strafbaar, bijvoorbeeld door noodweer).</li>
+<li><b>Hoger beroep</b> bij een van de 4 gerechtshoven (de advocaat-generaal vervolgt daar; de uitspraak heet een arrest). <b>Cassatie</b> bij de Hoge Raad, die alleen toetst of het recht goed is toegepast. Bij nieuwe feiten kan een veroordeelde om <b>herziening</b> vragen.</li>
+</ul>`},
+{id:"vstaat", deel:"Verdieping rechtskennis", titel:"Staatsrecht en soorten wetgeving", html:`
+<ul>
+<li>Nederland is een <b>gedecentraliseerde eenheidsstaat</b> en een constitutionele, erfelijke monarchie met een parlementair stelsel. Er zijn 12 provincies, 342 gemeenten (2026) en 21 waterschappen.</li>
+<li><b>Wet in formele zin</b>: gemaakt door regering (koning en ministers) en Staten-Generaal samen, zoals het Wetboek van Strafrecht en de Opiumwet. De Grondwet is de hoogste wet.</li>
+<li><b>Wet in materiële zin</b>: algemeen verbindende regels van een ander orgaan. Een <b>algemene maatregel van bestuur</b> (AMvB) maakt de regering alleen, zoals het RVV 1990 bij de Wegenverkeerswet 1994. Een <b>ministeriële regeling</b> maakt een minister, als de wet of AMvB dat toestaat.</li>
+<li>Lagere regels: de <b>provinciale verordening</b> (Provinciale Staten), de <b>APV</b> (gemeenteraad) en de <b>keur</b> van het waterschap. Ze mogen niet in strijd zijn met hogere regels.</li>
+<li><b>Provincie</b>: Provinciale Staten (gekozen voor 4 jaar, kiezen de Eerste Kamer), Gedeputeerde Staten en de commissaris van de Koning (benoemd voor 6 jaar). <b>Gemeente</b>: gemeenteraad (4 jaar), wethouders, en de burgemeester (benoemd voor 6 jaar). Het waterschapsbestuur wordt ook voor 4 jaar gekozen.</li>
+<li>De burgemeester kan bij ernstige verstoring van de openbare orde of een ramp een <b>noodbevel</b> geven of een <b>noodverordening</b> vaststellen (art. 175 en 176 Gemeentewet). De gemeenteraad moet de noodverordening daarna bekrachtigen.</li>
+<li><b>Kiesrecht</b>: actief (kiezen) en passief (gekozen worden), vanaf 18 jaar.</li>
+</ul>`},
+
 {id:"ruimte", deel:"Openbare ruimte (domein I)", titel:"APV, verkeer en bijzondere wetten", html:`
 <p>De toetsmatrijs Wet- en regelgeving Domein I (ExTH, versie 1.3) toetst naast strafrecht en bestuursrecht ook de APV en een aantal bijzondere wetten. Gemeenten kunnen van de Model-APV afwijken; de nummers hieronder zijn die van de Model-APV.</p>
 <h4>Gemeente en samenwerking</h4>
