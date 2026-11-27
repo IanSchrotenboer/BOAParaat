@@ -27,8 +27,7 @@ const store=p=>p.evaluate(()=>JSON.parse(localStorage.getItem('phb-trainer-v1')|
   t((await p.textContent('#app h1')).includes('Ambtsinstructie'),'tabblad RTGB opent met de juiste titel');
   t(await p.locator('#app .cat').count()===6,'zes onderwerpen om te oefenen');
   t(await p.locator('#app .block').count()===2,'twee tussentijdse toetsen');
-  t((await p.textContent('#app .exam')).includes('Willekeurig oefenexamen')&&/\D10 vragen · 30 min · max\. 2 fout/.test(await p.textContent('#app .exam')),'willekeurig oefenexamen: 10 vragen, 30 minuten, max. 2 fout');
-  t(await p.locator('#app .rtgbex .rexrow').count()===3&&await p.locator('#app .rtgbex [data-act="rtgbex"]').count()===3,'drie vaste oefenexamens met elk een startknop');
+  t((await p.textContent('#app .exam')).includes('Oefenexamen ambtsinstructie')&&/\D10 vragen · 30 min · max\. 2 fout/.test(await p.textContent('#app .exam')),'oefenexamen ambtsinstructie: 10 vragen, 30 minuten, max. 2 fout');
   // oefenen per onderwerp, met verwijzing naar de samenvatting
   await p.locator('#app .cat [data-act="oefen"][data-cat="aim"]').click();await w(400);
   t(await p.evaluate(()=>location.hash)==='#sessie','oefenen "Melden en registreren" gestart');
@@ -47,22 +46,23 @@ const store=p=>p.evaluate(()=>JSON.parse(localStorage.getItem('phb-trainer-v1')|
   await w(300);
   const s=await store(p);const h=(s.h||[])[0]||{};
   t(h.m==='rtgb'&&h.n===10&&h.k==='examen','oefenexamen ingeleverd en bewaard in de geschiedenis (10 vragen, module RTGB)');
-  t(/Willekeurig oefenexamen/.test(h.t||''),'titel in de geschiedenis: "RTGB · Willekeurig oefenexamen"');
   t(await p.locator('.verdict.pass').count()===1,'alles goed: oefenexamen geslaagd');
-  // vast oefenexamen 2: 3 fout = niet geslaagd, 2 fout = geslaagd
-  const maak=async(set,fout)=>{await ga(p,'rtgb');await p.click(`#app [data-act="rtgbex"][data-set="${set}"]`);await w(400);
-    const vr=[];for(let k=0;k<12;k++){vr.push((await p.textContent('#qtext')).trim());const o=await p.$$eval('#app [data-act="pick"]',x=>x.map(e=>e.dataset.o));
+  t(h.t==='RTGB · Oefenexamen ambtsinstructie','titel in de geschiedenis: "RTGB · Oefenexamen ambtsinstructie"');
+  // elk examen: 10 vragen in readerstijl, verdeeld 3/2/2/3 over geweld, melden, handboeien en fouilleren; daarna nieuwe vragen
+  const ex1=(await store(p)).e;const k1=Object.keys(ex1).find(k=>/rtgb/.test(k));const ids1=ex1[k1]||[];
+  t(ids1.length===10&&ids1.every(id=>/^rx/.test(id)),'oefenexamen bestaat uit 10 vragen in readerstijl ('+ids1.length+')');
+  const maak=async fout=>{await ga(p,'rtgb');await p.click('#app [data-act="examen"]');await w(400);
+    for(let k=0;k<12;k++){const o=await p.$$eval('#app [data-act="pick"]',x=>x.map(e=>e.dataset.o));
       await p.locator('#app [data-act="pick"]').nth(k<fout?(o.indexOf('0')+1)%o.length:o.indexOf('0')).click();
       const nx=p.locator('[data-act="next"]');if(await nx.count()&&await nx.first().isVisible()){await nx.first().click();continue}
       await p.locator('[data-act="ask-submit"]').first().click();await p.locator('[data-act="submit"]').click();break}
-    await w(300);return vr};
-  const vr2=await maak(1,3);let h2=(await store(p)).h[0];
-  t(h2.t==='RTGB · Oefenexamen 2'&&h2.n===10&&h2.g===7&&h2.p===0&&await p.locator('.verdict.fail').count()===1,'vast oefenexamen 2: 7 van 10 goed is niet geslaagd');
-  t(new Set(vr2).size===10&&vr2.some(q=>/fietsenrek|bushokje|sporthal|volkstuin|zaterdag|trein|sleutelbeen|café|fietser/.test(q)),'vast oefenexamen 2: tien verschillende vragen uit de vaste set');
-  await maak(1,2);h2=(await store(p)).h[0];
-  t(h2.g===8&&h2.p===1&&await p.locator('.verdict.pass').count()===1,'vast oefenexamen 2: 8 van 10 goed is geslaagd');
-  await ga(p,'rtgb');const rij=await p.textContent('#app .rexrow:nth-child(2)');
-  t(/Laatst 8\/10 goed, geslaagd · beste 8\/10/.test(rij)&&/Opnieuw/.test(rij),'RTGB-pagina toont de laatste en beste uitslag per oefenexamen ('+rij.replace(/\s+/g,' ').trim()+')');
+    await w(300)};
+  await maak(3);let h2=(await store(p)).h[0];const ids2=(await store(p)).e[k1]||[];
+  t(h2.n===10&&h2.g===7&&h2.p===0&&await p.locator('.verdict.fail').count()===1,'7 van 10 goed: niet geslaagd');
+  t(ids2.every(id=>/^rx/.test(id))&&ids2.filter(id=>ids1.includes(id)).length===0,'tweede examen: tien andere vragen dan het eerste');
+  t(await p.locator('#app .review').count()===3&&await p.locator('#app .review .ref a.wet').count()>=3&&await p.locator('#app .review .ref a.btn.reflees').count()===3,'uitslag verwijst bij elke foute vraag naar het wetsartikel en de studiestof');
+  await maak(2);h2=(await store(p)).h[0];
+  t(h2.g===8&&h2.p===1&&await p.locator('.verdict.pass').count()===1,'8 van 10 goed: geslaagd');
   // studiestof
   await ga(p,'stof');
   t(await p.evaluate(()=>['ambts','rtgbmiddel','rtgbrecht','geweldmelding','rtgbexamen'].every(id=>document.getElementById('s-'+id))),'studiestof: vijf onderwerpen over de Ambtsinstructie en de RTGB');
