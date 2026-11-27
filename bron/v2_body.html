@@ -66,9 +66,9 @@ const MODS = [
    blocks:[["A","AVG en Wpg",["avg"]],["B","Opmaken proces-verbaal",["pv","waa"]],["C","Wijkgericht werken",["wijk"]],["D","Jeugd",["jgd"]],["E","Cultureel vakmanschap",["cult"]]],
    blocks4:[["A","AVG en Wpg",["avg"]],["B","Opmaken proces-verbaal",["pv","waa"]],["C","Communicatie met jeugdigen",["jgd"]]]},
   {id:"rtgb",code:"RTGB",short:"Ambtsinstructie",name:"Ambtsinstructie en geweldsbeheersing",desc:"Geweld, melden, geweldmiddelen en fouilleren volgens de Ambtsinstructie.",
-   info:{all:["Voor boa's met geweldsbevoegdheid, elk kalenderjaar","Twee toetsen: ambtsinstructie en aanhouden en zelfverdediging","Kort: 10 vragen, 30 minuten (tot en met wapenstok)","Lang: 20 vragen, 45 minuten (met pepperspray of vuurwapen)","Deze oefentoets volgt de lange vorm; 14 goed is een oefennorm"]},
+   info:{all:["Voor boa's met geweldsbevoegdheid, elk kalenderjaar","Twee toetsen: ambtsinstructie en aanhouden en zelfverdediging","Kort: 10 vragen, 30 minuten (tot en met wapenstok)","Lang: 20 vragen, 45 minuten (met pepperspray of vuurwapen)","De oefenexamens volgen de korte vorm: 10 vragen, geslaagd met minimaal 8 goed"]},
    blocks:[["A","Geweld, recht en melden",["aig","ais","aim"]],["B","Middelen, fouilleren en de toetsen",["aiw","aif","air"]]],
-   exam:{n:20,maxWrong:6,min:45,naam:"Oefentoets ambtsinstructie"}}
+   exam:{n:10,maxWrong:2,min:30,naam:"Willekeurig oefenexamen",knop:"oefenexamen"}}
 ];
 const MODBY = Object.fromEntries(MODS.map(m=>[m.id,m]));
 function hash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return "q"+(h>>>0).toString(36)}
@@ -363,7 +363,8 @@ function viewModule(m){
     ${["phb1","phb2","phb3"].includes(m.id)?`<div class="stack" style="gap:8px"><span class="eyebrow">Mijn domein</span>${domSwitch()}</div>`:""}
     ${m.info?info("Over het examen",m.info[dom()]||m.info.all||m.info["1"]):""}
     ${m.id==="phb3"?wvCard():""}${m.id==="phb2"?kzKaart():""}
-    ${m.exam?`<div class="exam"><div class="stack" style="gap:10px"><div><h2>${m.exam.naam||"Oefenexamen"}${m.id==="phb1"&&dom()==="4"?" domein IV":""}</h2><p class="small">${m.exam.n} vragen · ${m.exam.min} min · max. ${m.exam.maxWrong} fout · uitleg na inleveren</p></div><div class="row"><button class="btn hi" data-act="examen" data-mod="${m.id}">Start ${examCount(m.id)?"nieuwe ":""}${m.exam.naam?"oefentoets":"oefenexamen"}</button>${examCount(m.id)?`<span class="small">Je ${examCount(m.id)+1}e oefenexamen, met vragen die je nog niet had</span>`:""}</div></div></div>`:""}
+    ${m.id==="rtgb"?viewRtgbEx():""}
+    ${m.exam?`<div class="exam"><div class="stack" style="gap:10px"><div><h2>${m.exam.naam||"Oefenexamen"}${m.id==="phb1"&&dom()==="4"?" domein IV":""}</h2><p class="small">${m.exam.n} vragen · ${m.exam.min} min · max. ${m.exam.maxWrong} fout · uitleg na inleveren</p></div><div class="row"><button class="btn${m.id==="rtgb"?"":" hi"}" data-act="examen" data-mod="${m.id}">Start ${examCount(m.id)?"nieuwe ":""}${m.exam.knop||(m.exam.naam?"oefentoets":"oefenexamen")}</button>${examCount(m.id)?`<span class="small">Je ${examCount(m.id)+1}e oefenexamen, met vragen die je nog niet had</span>`:""}</div></div></div>`:""}
     ${m.id==="phb1"?viewMtx():""}
     <div class="section stack"><div><h2>Oefenen per onderwerp</h2><p class="small">Direct uitleg na elke vraag</p></div>
     <div class="cats">${cats.map(c=>{const l=inCat(c);const ms=mastery(l);return `<div class="cat"><span class="t">${D4.has(c)?`<span class="chip ov">OV</span> `:""}${esc(CATS[c][1])}${m.id==="phb1"&&!l.some(inMtx)?` <span class="chip bg" title="Komt niet voor in de toetsmatrijs van jouw domein">achtergrondkennis</span>`:""}</span><button class="btn" data-act="oefen" data-cat="${c}" aria-label="Oefenronde ${esc(CATS[c][1])}, ${Math.min(ROUND,l.length)} van ${l.length} vragen" title="${l.length} vragen in dit onderwerp">Oefen ${Math.min(ROUND,l.length)}</button><div class="row" style="gap:10px;flex-wrap:nowrap"><div class="meter" style="flex:1" role="img" aria-label="${pct(ms)} beheerst"><i style="width:${pct(ms)}"></i></div><span class="small mono">${pct(ms)}</span></div></div>`}).join("")}</div>
@@ -374,6 +375,16 @@ function viewModule(m){
 }
 // ---------- examens (ExTH) ----------
 const EXTH_URL="https://mijn.exth.nl/";
+// RTGB: drie vaste oefenexamens van 10 vragen in examenstijl (geslaagd met minimaal 8 goed), zie het eind van q6.js
+const RTGB_OEX=[["rx1v01","rx1v02","rx1v03","rx1v04","rx1v05","rx1v06","rx1v07","rx1v08","rx1v09","rx1v10"],
+  ["rx2v01","rx2v02","rx2v03","rx2v04","rx2v05","rx2v06","rx2v07","rx2v08","rx2v09","rx2v10"],
+  ["rx3v01","rx3v02","rx3v03","rx3v04","rx3v05","rx3v06","rx3v07","rx3v08","rx3v09","rx3v10"]];
+function viewRtgbEx(){
+  const rij=(ids,i)=>{const t="RTGB · Oefenexamen "+(i+1),hs=store.h.filter(h=>h.t===t),l=hs[0],best=hs.reduce((b,h)=>Math.max(b,h.g),-1);
+    const st=l?`Laatst ${l.g}/${l.n} goed, ${l.p?"geslaagd":"niet geslaagd"}${hs.length>1?` · beste ${best}/10`:""}`:"Nog niet gemaakt";
+    return `<li class="rexrow"><div><b>Oefenexamen ${i+1}</b><span class="small">${st}</span></div><button class="btn${l&&l.p?"":" hi"}" data-act="rtgbex" data-set="${i}">${l?"Opnieuw":"Start"}</button></li>`};
+  return `<section class="section stack rtgbex"><div><h2>Oefenexamens ambtsinstructie</h2><p class="small">Drie vaste examens in de stijl van de echte toets: 10 vragen, 30 minuten, geslaagd met minimaal 8 goed. Uitleg na inleveren.</p></div>
+    <ul class="rexlist">${RTGB_OEX.map(rij).join("")}</ul></section>`}
 function exMods(){return [["phb1","PHB 1 Wet- en regelgeving"],["phb2","PHB 2 Bejegening"],["phb3","PHB 3 Waarneming en verslaglegging"],["phb4",dom()==="4"?"PHB 4 Functiegerichte training":"PHB 4 Keuzemodule"],["rtgb","RTGB-toets geweldsbeheersing"],["basis","Basisbekwaamheid boa"],["anders","Ander examen"]]}
 const EXSTAT={gepland:["Gepland","plan"],gehaald:["Gehaald","pass"],niet:["Niet gehaald","fail"],afgemeld:["Afgemeld","todo"]};
 let exEdit=null,exDel=null;
@@ -680,6 +691,7 @@ function mtxExam(ex){let out=[];for(const g of mtxGroups()){const pool=freshOrde
 function examCount(mod){return store.h.filter(x=>x.k==="examen"&&x.m===mod).length}
 function poolOf(r){if(!r)return [];const d=r.d;
   if(r.act==="examen")return examPool(MODBY[d.mod]);
+  if(r.act==="rtgbex")return (RTGB_OEX[+d.set]||[]).map(id=>BYID[id]).filter(Boolean);
   if(r.act==="oefen")return inCat(d.cat);if(r.act==="mix")return d.mod==="phb1"?ALL.filter(inMtx):inMod(d.mod);if(r.act==="mtx"){const g=mtxGroups().find(x=>x[0]===d.g);return g?mtxQs(g):[]}
   if(r.act==="fouten")return (d.mod?inMod(d.mod):MODS.flatMap(m=>inMod(m.id))).filter(q=>lastWrong(q.id)&&(!d.cat||q.c===d.cat));
   if(r.act==="herhaal")return MODS.flatMap(m=>inMod(m.id)).filter(q=>ooitFout(q.id)&&lastOk(q.id));return []}
@@ -690,6 +702,8 @@ function launch(act,d,excl){
   else if(act==="fouten"){const list=poolOf({act,d});if(!list.length){toast(d.cat?"Geen open fouten meer in dit onderwerp":"Er staan geen open fouten meer");return}start({mode:"oefen",herh:true,title:"Fouten wegwerken"+(d.cat?" · "+CATS[d.cat][1]:d.mod?" · "+MODBY[d.mod].code:""),qs:shuffle(foutVolgorde(list).slice(0,20)),mod:d.mod||"",redo:{act,d}})}
   else if(act==="herhaal"){const list=poolOf({act,d});if(!list.length){toast("Nog geen opgeloste fouten om te herhalen");return}start({mode:"oefen",herh:true,title:"Opgeloste fouten herhalen",qs:shuffle(list.slice().sort((a,b)=>store.s[a.id][3]-store.s[b.id][3]).slice(0,20)),mod:"",redo:{act,d}})}
   else if(act==="toets"){const m=MODBY[d.mod];const b=blocksOf(m)[+d.b];start({mode:"toets",title:m.code+" · Toets "+b[0]+": "+b[1],qs:sample(b[2],20,excl),mod:m.id,pass:{ratio:.7},redo:{act,d}})}
+  else if(act==="rtgbex"){const i=+d.set,qs=shuffle(RTGB_OEX[i].map(id=>BYID[id]).filter(Boolean));
+    start({mode:"examen",title:"RTGB · Oefenexamen "+(i+1),qs,mod:"rtgb",pass:{maxWrong:2},min:30,redo:{act,d}})}
   else if(act==="examen"){const m=MODBY[d.mod];const ov=m.id==="phb1"&&dom()==="4";const key=examKey(m.id);
     const ex=new Set([...(store.e[key]||[]),...(excl||[])]);
     const qs=m.id==="phb1"?mtxExam(ex):sample(catsOf(m),m.exam.n,ex);
@@ -705,7 +719,7 @@ document.addEventListener("click",e=>{
   if(act.indexOf("yt-")===0&&ytClick(act,{...d}))return;
   if(["login","login-apple","login-ms","login-mail","ww-start","ww-in","ww-nieuw","ww-vergeten","ww-zet","ww-zet-nee","mfa-weg","mfa-aan","mfa-annuleer","mfa-kopieer","mfa-uit","mfa-uit-nee","mfa-uit-ja","mail-terug","mail-ander","mail-opnieuw","sync","logout","logout-no","acc-del","acc-del-no","acc-del-yes"].includes(act)&&cloudAct(act))return;
   if((act.indexOf("lic-")===0||act==="ob-lic")&&licAct(act))return;
-  if(["oefen","mix","fouten","herhaal","toets","examen","mtx"].includes(act)){launch(act,{...d});return}
+  if(["oefen","mix","fouten","herhaal","toets","examen","mtx","rtgbex"].includes(act)){launch(act,{...d});return}
   if(act==="akte-edit"){const go=()=>{const f=$("#pAkte");if(f){f.scrollIntoView({block:"center"});f.focus()}};if($("#pAkte"))go();else{location.hash="profiel-account";setTimeout(go,120)}return}
   if(act==="thema"){store.p.thema=d.v;save();applyTheme();render();toast(d.v==="donker"?"Donkere weergave":d.v==="licht"?"Lichte weergave":"Weergave volgt je systeem");return}
   if(act==="dom"){if(lic())return;store.p.dom=d.v;save();render();toast(d.v==="4"?"Domein IV openbaar vervoer gekozen":"Domein I–III gekozen");return}
