@@ -65,6 +65,8 @@ async function loginTerug(url){
 // Na elke manier van inloggen: heeft dit account een tweede stap aan, dan eerst de code uit de app (mfaBlok); pas
 // daarna wordt de sessie bewaard. De database laat voortgang alleen toe met een sessie mét tweede stap (mfa_ok()).
 let mfaWacht=null;
+const SYNC_FOUT={net:"Synchroniseren lukt nu niet. Controleer je internetverbinding.",mfa:"Bevestig eerst je tweede stap met de code uit je authenticator-app.",
+  sessie:"Je inlogsessie is verlopen. Log uit en log opnieuw in.",server:"De server is even niet bereikbaar. Probeer het over een paar minuten opnieuw."};
 const mfaFactor=u=>((u&&u.factors)||[]).find(f=>f.factor_type==="totp"&&f.status==="verified")||null;
 async function authMet(tok,method,pad,body){
   const r=await fetch(CLOUD.url+"/auth/v1/"+pad,{method,headers:{apikey:CLOUD.key,Authorization:"Bearer "+tok,"Content-Type":"application/json"},body:body===undefined?undefined:JSON.stringify(body)});
@@ -321,11 +323,23 @@ function wegZet(soort,id){store.weg=(store.weg||[]).filter(x=>x!==soort+":"+id).
 // ----- synchroniseren -----
 let syncT=0,syncWeer=false;
 function cloudLater(){if(!cloudKan()||!sesGet())return;clearTimeout(syncT);syncT=setTimeout(()=>cloudSyncNu(),4000)}
+// Een sessie zonder tweede stap (aal1) van een account mét tweede stap mag in de database niets lezen of schrijven
+// (mfa_ok()). Zo'n sessie kan ontstaan op een apparaat met een oude app-versie. Dan vragen we eerst de code (stap omhoog
+// naar aal2) in plaats van stil te mislukken. Reden van een mislukte synchronisatie: cloudSync.reden.
+const jwtAal=t=>{try{return JSON.parse(atob(t.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"))).aal||"aal1"}catch(e){return "aal1"}};
+let mfaGekeken="",mfaStapGemeld=false;
+async function mfaStapNodig(){const t=await token(),s=sesGet();if(jwtAal(t)==="aal2")return false;
+  if(mfaGekeken===s.u.id+t.slice(-12))return !!mfaWacht;mfaGekeken=s.u.id+t.slice(-12);
+  const u=await authMet(t,"GET","user"),f=mfaFactor(u);if(!f)return false;
+  if(!mfaWacht)mfaWacht={j:{access_token:t,refresh_token:s.r,expires_in:Math.max(60,Math.round((s.x-Date.now())/1000)),user:u},fid:f.id,stapOp:true};
+  if(!mfaStapGemeld){mfaStapGemeld=true;toast("Bevestig je tweede stap onder Profiel → Account, dan wordt je voortgang weer bewaard")}
+  return true}
 async function cloudSyncNu(eerste){
   const s=sesGet();if(!cloudKan()||!s)return false;
   if(cloudSync.bezig){syncWeer=true;return false}
   clearTimeout(syncT);cloudSync.bezig=true;const voor=JSON.stringify(store);
-  try{const rij=await rest("GET","voortgang?select=data&user_id=eq."+encodeURIComponent(s.u.id));
+  try{if(await mfaStapNodig()){cloudSync={t:cloudSync.t,ok:false,bezig:false,reden:"mfa"};if(route().indexOf("profiel")===0)render();return false}
+    const rij=await rest("GET","voortgang?select=data&user_id=eq."+encodeURIComponent(s.u.id));
     const rem=rij&&rij[0]?normalize(rij[0].data):null;
     let m=rem?mergeStore(store,rem):store;m.eig=s.u.id;
     if(!m.t)m.t=Date.now();
@@ -333,7 +347,8 @@ async function cloudSyncNu(eerste){
     if(lokaal&&JSON.stringify(store)===voor){store=normalize(m);saveLokaal();if(!eerste)verversNaSync()}
     if(naar)await rest("POST","voortgang?on_conflict=user_id",{user_id:s.u.id,data:store,app_versie:APP_VERSIE},{Prefer:"resolution=merge-duplicates,return=minimal"});
     cloudSync={t:Date.now(),ok:true,bezig:false};
-  }catch(e){cloudSync={t:cloudSync.t,ok:false,bezig:false}}
+  }catch(e){cloudSync={t:cloudSync.t,ok:false,bezig:false,reden:!navigator.onLine||!e.status?"net":e.status===403?"mfa":e.status===401||e.status===400?"sessie":"server"};
+    if(e.status===403){mfaGekeken="";try{await mfaStapNodig()}catch(x){}}}
   if(route().indexOf("profiel")===0&&!document.querySelector("#app form:focus-within"))render();
   if(syncWeer){syncWeer=false;cloudLater()}
   return cloudSync.ok}
@@ -381,11 +396,12 @@ const accDelBev=()=>accDelKan()&&cloudDel?`<div class="confirm stack" style="gap
 function viewAccount(){
   if(!cloudKan())return `<div class="section stack" id="account"><h2>Inloggen en beveiliging</h2><p class="small">Voortgang staat op dit apparaat. Inloggen kan in de app en op de website.</p></div>`;
   const s=sesGet();if(!s)return "";setTimeout(beheerVraag,0);
-  const st=cloudSync.bezig?"Bezig met bijwerken…":!cloudSync.t?"Nog niet bijgewerkt":cloudSync.ok?"Bewaard in je account, laatst bijgewerkt om "+fmtTime(new Date(cloudSync.t)):"Offline: je voortgang wordt bewaard zodra je weer verbinding hebt";
+  const st=cloudSync.bezig?"Bezig met synchroniseren…":mfaWacht&&mfaWacht.stapOp?"Wacht op je tweede stap: je voortgang wordt nog niet bewaard":!cloudSync.ok&&cloudSync.reden==="sessie"?"Je inlogsessie is verlopen: log opnieuw in":!cloudSync.ok&&cloudSync.reden==="server"?"De server is even niet bereikbaar; we proberen het straks opnieuw":!cloudSync.t?"Nog niet gesynchroniseerd":cloudSync.ok?"Bewaard in je account, laatst gesynchroniseerd om "+fmtTime(new Date(cloudSync.t)):"Offline: je voortgang wordt bewaard zodra je weer verbinding hebt";
   return `<div class="section stack" id="account"><h2>Inloggen en beveiliging</h2>
     <div class="panel stack"><div class="acc"><span class="ava">${esc(initials(s.u.naam||store.p.naam||s.u.email))}</span><div class="stack" style="gap:2px;min-width:0"><b class="accmail">${esc(s.u.email)}</b><span class="small${cloudSync.ok?"":" accoff"}">${esc(st)}</span></div></div>
     ${cloudFout?`<p class="ferr" role="alert">${esc(cloudFout)}</p>`:""}
     ${cloudBezig?`<p class="lbezig" role="status"><span class="spin" aria-hidden="true"></span>${esc(cloudBezig)}</p>`:
+      mfaWacht&&mfaWacht.stapOp?mfaBlok():
       confirmUitOffline?`<div class="confirm stack" style="gap:10px"><span><b>Je bent offline.</b> Wat je sinds de laatste keer bijwerken hebt geoefend, staat nog niet in je account. Als je nu uitlogt, ben je dat kwijt.</span><div class="row"><button class="btn danger" data-act="logout">Toch uitloggen</button><button class="btn" data-act="logout-no">Annuleren</button></div></div>`:
       `<div class="row"><button class="btn" data-act="sync">Nu synchroniseren</button><button class="btn" data-act="logout">Uitloggen</button></div>${wwZetBlok()}`}
     ${SITE?`<p class="small"><a href="${SITE}privacy.html" target="_blank" rel="noopener" data-ext>Privacyverklaring</a></p>`:""}
@@ -401,7 +417,7 @@ function cloudAct(act){
   if(act==="ww-start"){const a=String(((document.getElementById("mailIn")||{}).value)||"").trim();mail={stap:3,adres:a||mail.adres,t:0,ww:"in"};cloudFout="";render();const i=document.getElementById(a?"wwIn":"wwMail");if(i)i.focus();return true}
   if(act==="ww-in"||act==="ww-nieuw"){const a=(document.getElementById("wwMail")||{}).value;mail={stap:3,adres:a!=null?a:mail.adres,t:0,ww:act==="ww-nieuw"?"nieuw":"in"};cloudFout="";render();const i=document.getElementById("wwIn");if(i)i.focus();return true}
   if(act==="ww-vergeten"){wwVergeten();return true}
-  if(act==="mfa-weg"){const j=mfaWacht&&mfaWacht.j;mfaWacht=null;cloudFout="";if(j)authMet(j.access_token,"POST","logout").catch(()=>{});render();return true}
+  if(act==="mfa-weg"){const j=mfaWacht&&mfaWacht.j,op=mfaWacht&&mfaWacht.stapOp;mfaWacht=null;cloudFout="";if(j&&!op)authMet(j.access_token,"POST","logout").catch(()=>{});render();return true}
   if(act==="mfa-aan"){mfaStart();return true}
   if(act==="mfa-annuleer"){const n=mfa.nieuw;mfa.nieuw=null;mfa.fout="";render();if(n)token().then(t=>authMet(t,"DELETE","factors/"+n.fid)).catch(()=>{});return true}
   if(act==="mfa-kopieer"){try{navigator.clipboard.writeText(mfa.nieuw.geheim).then(()=>toast("Sleutel gekopieerd"),()=>toast("Kopiëren lukt niet; typ de sleutel over"))}catch(e){toast("Kopiëren lukt niet; typ de sleutel over")}return true}
@@ -410,7 +426,8 @@ function cloudAct(act){
   if(act==="mfa-uit-ja"){mfaUitzetten();return true}
   if(act==="ww-zet"){wwZetOpen=true;cloudFout="";render();const i=document.getElementById("wwZetIn");if(i)i.focus();return true}
   if(act==="ww-zet-nee"){wwZetOpen=false;cloudFout="";render();return true}
-  if(act==="sync"){cloudFout="";cloudSyncNu().then(ok=>{if(!ok)toast("Bijwerken lukt nu niet. Controleer je internetverbinding.")});render();return true}
+  if(act==="sync"){cloudFout="";if(cloudSync.bezig){toast("Je voortgang wordt al gesynchroniseerd");return true}
+    cloudSyncNu().then(ok=>{if(ok){toast("Je voortgang is gesynchroniseerd");return}if(cloudSync.bezig)return;toast(SYNC_FOUT[cloudSync.reden]||SYNC_FOUT.net)});render();return true}
   if(act==="logout"){if(confirmUitOffline){const s=sesGet();if(s)fetch(CLOUD.url+"/auth/v1/logout",{method:"POST",headers:{apikey:CLOUD.key,Authorization:"Bearer "+s.a}}).catch(()=>{});wisLokaal();location.hash="home";render();toast("Je bent uitgelogd");return true}uitloggen();return true}
   if(act==="logout-no"){confirmUitOffline=false;render();return true}
   if(act==="acc-del"){cloudDel=true;cloudFout="";render();return true}

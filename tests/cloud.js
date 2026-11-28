@@ -12,7 +12,7 @@ const html=fs.readFileSync(SRC,'utf8');
 const db={users:{},rows:{},codes:{},tokens:{},refresh:{},als:{id:'u-anna',email:'anna@example.com',naam:'Anna de Boer'},calls:[]};
 const b64url=b=>b.toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 function json(res,code,obj){res.writeHead(code,{'Content-Type':'application/json','Access-Control-Allow-Origin':'*'});res.end(obj==null?'':JSON.stringify(obj))}
-function tokensVoor(u,aal){const a='at-'+crypto.randomBytes(8).toString('hex'),r='rt-'+crypto.randomBytes(8).toString('hex');db.tokens[a]={u:u.id,exp:Date.now()+3600e3,aal:aal||'aal1'};db.refresh[r]=u.id;
+function tokensVoor(u,aal){aal=aal||'aal1';const a='h.'+b64url(Buffer.from(JSON.stringify({sub:u.id,aal})))+'.'+crypto.randomBytes(8).toString('hex'),r='rt-'+crypto.randomBytes(8).toString('hex');db.tokens[a]={u:u.id,exp:Date.now()+3600e3,aal};db.refresh[r]=u.id;db.refAal=db.refAal||{};db.refAal[r]=aal;
   return {access_token:a,refresh_token:r,expires_in:3600,token_type:'bearer',user:{id:u.id,email:u.email,user_metadata:{full_name:u.naam},factors:(db.factors&&db.factors[u.id])||[]}}}
 let SUPA='',APP='';
 const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);req.on('end',()=>{
@@ -58,8 +58,8 @@ const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);r
     if(u.searchParams.get('grant_type')==='password'){db.pw=db.pw||{};
       if(!b.email||db.pw[b.email]!==b.password)return json(res,400,{code:400,error_code:'invalid_credentials',msg:'Invalid login credentials'});
       const usr=Object.values(db.users).find(x=>x.email===b.email);return json(res,200,tokensVoor(usr))}
-    if(u.searchParams.get('grant_type')==='refresh_token'){const id=db.refresh[b.refresh_token];delete db.refresh[b.refresh_token];
-      if(!id||!db.users[id])return json(res,400,{error:'invalid_grant'});db.vernieuwd=(db.vernieuwd||0)+1;return json(res,200,tokensVoor(db.users[id]))}
+    if(u.searchParams.get('grant_type')==='refresh_token'){const id=db.refresh[b.refresh_token],ra=(db.refAal||{})[b.refresh_token];delete db.refresh[b.refresh_token];
+      if(!id||!db.users[id])return json(res,400,{error:'invalid_grant'});db.vernieuwd=(db.vernieuwd||0)+1;return json(res,200,tokensVoor(db.users[id],ra))}
     return json(res,400,{error:'grant'})}
   if(u.pathname==='/auth/v1/logout'&&u.searchParams.get('scope')!=='others')return json(res,204,null);
   if(u.pathname==='/auth/v1/user'&&req.method==='GET'){const t0=(req.headers.authorization||'').replace('Bearer ','');const ss=db.tokens[t0];if(!ss)return json(res,401,{error:'bad_jwt'});const us=db.users[ss.u];return json(res,200,{id:us.id,email:us.email,user_metadata:{},factors:(db.factors&&db.factors[us.id])||[]})}
@@ -79,6 +79,9 @@ const supa=http.createServer((req,res)=>{let body='';req.on('data',c=>body+=c);r
   if(u.pathname.startsWith('/rest/v1/')){
     if(req.headers.apikey!=='pk-test')return json(res,401,{message:'apikey'});
     if(!ses||ses.exp<Date.now())return json(res,401,{message:'JWT expired'});
+    // zoals de policy 'tweestapsverificatie': wie de tweede stap aan heeft, moet een sessie mét tweede stap hebben
+    const mfaNok=ses.aal!=='aal2'&&((db.factors||{})[ses.u]||[]).some(f=>f.status==='verified');
+    if(u.pathname==='/rest/v1/voortgang'&&mfaNok){db.mfaGeweigerd=(db.mfaGeweigerd||0)+1;return req.method==='GET'?json(res,200,[]):json(res,403,{code:'42501',message:'new row violates row-level security policy "tweestapsverificatie" for table "voortgang"'})}
     if(u.pathname==='/rest/v1/voortgang'&&req.method==='GET'){const id=(u.searchParams.get('user_id')||'').replace('eq.','');
       return json(res,200,id===ses.u&&db.rows[id]?[{data:db.rows[id].data}]:[])}
     if(u.pathname==='/rest/v1/voortgang'&&req.method==='POST'){const b=JSON.parse(body);
@@ -364,6 +367,33 @@ const nS=s=>Object.keys((s&&s.s)||{}).length;
     ctx=await b.newContext({viewport:{width:390,height:844}});pm=await ctx.newPage();await pm.goto(APP+'/mail.html#home');await prof(pm);await metCode(pm,'fien@ns.nl');
     await pm.click('[data-act="mfa-weg"]');await w(200);
     t(await pm.locator('#mfaForm').count()===0&&await pm.locator('[data-act="login-mail"]').count()===1&&!(await ses(pm)),'tweede stap annuleren: terug naar inloggen, niet ingelogd');
+    db.factors[uid]=[];await ctx.close();
+    // oude sessie zonder tweede stap (bv. van een oudere app-versie): database weigert, app vraagt om de code
+    ctx=await b.newContext({viewport:{width:390,height:844}});pm=await ctx.newPage();pm._errs=[];pm.on('pageerror',e=>pm._errs.push(e.message));
+    await pm.goto(APP+'/mail.html#home');await prof(pm);await metCode(pm,'fien@ns.nl');
+    t((await ses(pm))&&db.tokens[(await ses(pm)).a].aal==='aal1','sessie zonder tweede stap opgeslagen');
+    db.factors[uid].push({id:'f-vast',factor_type:'totp',status:'verified'});delete db.rows[uid];const gew0=db.mfaGeweigerd||0;
+    await pm.reload();await w(1500);
+    t(/tweede stap/.test(await pm.textContent('#toast')),'sessie zonder tweede stap: melding om de tweede stap te bevestigen');
+    await pm.evaluate(()=>location.hash='profiel-account');await w(800);
+    t(await pm.locator('#account #mfaForm').count()===1&&/Wacht op je tweede stap/.test(await pm.textContent('#account')),'Profiel → Account: invoer voor de code en status "wacht op je tweede stap"');
+    t((db.mfaGeweigerd||0)===gew0,'zonder tweede stap wordt de database niet steeds opnieuw geprobeerd');
+    await pm.click('[data-act="mfa-weg"]');await w(300);
+    t(!!(await ses(pm))&&await pm.locator('[data-act="sync"]').count()===1,'tweede stap later doen: blijft ingelogd');
+    await pm.click('[data-act="sync"]');await w(900);
+    const tst=await pm.textContent('#toast');
+    t(/Bevestig eerst je tweede stap/.test(tst)&&!/internetverbinding/.test(tst),'synchroniseren zonder tweede stap: juiste melding, niet "controleer je internetverbinding"');
+    await pm.fill('#account #mfaIn','135790');await pm.click('#account #mfaForm button[type="submit"]');await w(1500);
+    const s3=await ses(pm);t(s3&&db.tokens[s3.a].aal==='aal2'&&db.rows[uid],'code ingevuld: sessie mét tweede stap en voortgang weer bewaard');
+    t(/Bewaard in je account/.test(await pm.textContent('#account'))&&await pm.locator('#account #mfaForm').count()===0,'account: weer gesynchroniseerd');
+    // na vernieuwen blijft de tweede stap gelden
+    await pm.evaluate(()=>{const s=JSON.parse(localStorage.getItem('boa-sessie'));s.x=Date.now()-1000;localStorage.setItem('boa-sessie',JSON.stringify(s))});
+    await pm.click('[data-act="sync"]');await w(1200);
+    t(/gesynchroniseerd/.test(await pm.textContent('#toast'))&&db.tokens[(await ses(pm)).a].aal==='aal2','sessie vernieuwd: tweede stap blijft gelden');
+    // server stuk: geen internetmelding
+    db.stuk=true;await pm.click('[data-act="sync"]');await w(900);db.stuk=false;
+    t(/server is even niet bereikbaar/.test(await pm.textContent('#toast')),'server stuk: melding over de server, niet over je internet');
+    t(!pm._errs.length,'tweede stap achteraf: geen JS-fouten'+(pm._errs.length?': '+pm._errs.join(' | '):''));
     db.factors[uid]=[];await ctx.close()}
   // ---------- 15b. e-mail: trage mail, wachttijd van Supabase, link uit de mail ----------
   {const ctx=await b.newContext({viewport:{width:390,height:844}});const pm=await ctx.newPage();pm._errs=[];pm.on('pageerror',e=>pm._errs.push(e.message));
